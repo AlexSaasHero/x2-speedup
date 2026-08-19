@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpeedUp Video Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 19 22 12 13 5 13 19"></polygon>
+            <polygon points="2 19 11 12 2 5 2 19"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>SpeedUp <span class="accent-text">PRO</span></h1>
+          <p class="subtitle">Controllo Velocità Web</p>
+        </div>
+      </div>
+      <div id="statusBadge" class="status-badge status-offline">
+        <span class="status-dot"></span>
+        <span id="statusText">Cerca video...</span>
+      </div>
+    </header>
+
+    <!-- PAYWALL SECTION -->
+    <section id="paywall" class="paywall-card">
+      <div class="paywall-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Licenza richiesta</span>
+      </div>
+
+      <h2 class="paywall-title">Sblocca SpeedUp Video PRO</h2>
+      <p class="paywall-desc">Scegli il tuo piano o inserisci la tua chiave di licenza per accedere a tutti i controlli.</p>
+
+      <!-- Checkout Options -->
+      <div class="plans-grid">
+        <button id="buyWeeklyBtn" class="plan-btn plan-weekly">
+          <span class="plan-name">Settimanale</span>
+          <span class="plan-price">$1 <small>/settimana</small></span>
+        </button>
+        <button id="buyLifetimeBtn" class="plan-btn plan-lifetime">
+          <span class="plan-name">Lifetime ✨</span>
+          <span class="plan-price">$19 <small>a vita</small></span>
+        </button>
+      </div>
+
+      <div class="divider">
+        <span>oppure attiva licenza</span>
+      </div>
+
+      <div class="key-form">
+        <input type="text" id="keyInput" placeholder="Es. PRO-1234-5678" autocomplete="off" spellcheck="false">
+        <button id="activateBtn" class="activate-btn">Attiva Licenza</button>
+      </div>
+
+      <div id="statusMsg" class="status-msg"></div>
+
+      <div class="test-hint">
+        <span>💡 Modalità Test: usa una chiave che inizia con <code>PRO-</code></span>
+      </div>
+    </section>
+
+    <!-- SPEED CONTROLS SECTION (Hidden by default until licensed & active site check) -->
+    <div id="speedControls" style="display: none;">
+      <main class="main-content">
+        <section class="speed-display-card">
+          <div class="card-glow"></div>
+          <div class="speed-header">
+            <span class="label">Velocità Video</span>
+            <button id="resetBtn" class="reset-btn" title="Ripristina a 1.0x (R)">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              Reset
+            </button>
+          </div>
+
+          <!-- Main Display ID matching speedVal -->
+          <div class="speed-display" id="speedVal">1.0x</div>
+
+          <div class="slider-container">
+            <input type="range" id="speedSlider" min="0.25" max="4.0" step="0.05" value="1.0">
+          </div>
+
+          <div class="fine-adjust">
+            <button class="step-btn" data-step="-0.25">-0.25x</button>
+            <button class="step-btn" data-step="-0.10">-0.10x</button>
+            <div class="custom-input-wrapper">
+              <input type="number" id="customSpeedInput" min="0.1" max="16.0" step="0.05" value="1.00" aria-label="Velocità personalizzata">
+              <span class="input-unit">x</span>
+            </div>
+            <button class="step-btn" data-step="+0.10">+0.10x</button>
+            <button class="step-btn" data-step="+0.25">+0.25x</button>
+          </div>
+        </section>
+
+        <!-- Presets Section -->
+        <section class="presets-section">
+          <span class="section-title">Preimpostazioni Rapide</span>
+          <div class="presets">
+            <button class="preset-btn active" data-speed="1.0">1.0x</button>
+            <button class="preset-btn" data-speed="1.25">1.25x</button>
+            <button class="preset-btn" data-speed="1.5">1.5x</button>
+            <button class="preset-btn" data-speed="1.75">1.75x</button>
+            <button class="preset-btn" data-speed="2.0">2.0x</button>
+            <button class="preset-btn" data-speed="2.5">2.5x</button>
+            <button class="preset-btn" data-speed="3.0">3.0x</button>
+            <button class="preset-btn" data-speed="4.0">4.0x</button>
+          </div>
+        </section>
+
+        <!-- Playback Controls -->
+        <section class="quick-actions-section">
+          <span class="section-title">Controlli Riproduzione</span>
+          <div class="actions-grid">
+            <button id="togglePlayBtn" class="action-btn" title="Play / Pausa">
+              <svg id="playIcon" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="playText">Pausa</span>
+            </button>
+            
+            <button id="toggleMuteBtn" class="action-btn" title="Attiva / Disattiva Audio">
+              <svg id="muteIcon" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              <span id="muteText">Audio ON</span>
+            </button>
+
+            <button id="seekBackBtn" class="action-btn" title="Indietro di 10 secondi">
+              <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
+              </svg>
+              <span>-10s</span>
+            </button>
+
+            <button id="seekFwdBtn" class="action-btn" title="Avanti di 10 secondi">
+              <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 5l5 5-5 5M6 5l5 5-5 5"></path>
+              </svg>
+              <span>+10s</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Advanced Features & Toggles -->
+        <section class="options-section">
+          <div class="option-row">
+            <div class="option-info">
+              <span class="option-title">Mantieni Intonazione</span>
+              <span class="option-desc">Conserva il tono audio originale</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="pitchToggle" checked>
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <div class="option-row">
+            <div class="option-info">
+              <span class="option-title">Ripetizione Video (Loop)</span>
+              <span class="option-desc">Riavvia automaticamente il video</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="loopToggle">
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <div class="option-row">
+            <div class="option-info">
+              <span class="option-title">Controller Sovrapposto (HUD)</span>
+              <span class="option-desc">Badge sul video al passaggio del mouse</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="hudToggle" checked>
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Hotkeys Guide -->
+        <details class="hotkeys-accordion">
+          <summary class="accordion-header">
+            <div class="accordion-title">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <line x1="6" y1="8" x2="6" y2="8"></line>
+                <line x1="10" y1="8" x2="10" y2="8"></line>
+                <line x1="14" y1="8" x2="14" y2="8"></line>
+                <line x1="18" y1="8" x2="18" y2="8"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              <span>Scorciatoie Tastiera</span>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="hotkeys-list">
+            <div class="hotkey-item"><kbd>S</kbd> <span>Rallenta (-0.10x / -0.25x Shift)</span></div>
+            <div class="hotkey-item"><kbd>D</kbd> <span>Accelera (+0.10x / +0.25x Shift)</span></div>
+            <div class="hotkey-item"><kbd>R</kbd> <span>Reset a 1.0x</span></div>
+            <div class="hotkey-item"><kbd>Z</kbd> / <kbd>X</kbd> <span>-10s / +10s</span></div>
+            <div class="hotkey-item"><kbd>V</kbd> <span>Toggle HUD sul video</span></div>
+          </div>
+        </details>
+      </main>
+
+      <!-- Footer with License Status -->
+      <footer class="app-footer">
+        <span class="footer-note">SpeedUp Video PRO &bull; Licenza Attiva ✨</span>
+        <button id="logoutKeyBtn" class="logout-link" title="Disattiva licenza attuale">Disattiva</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
