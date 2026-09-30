@@ -1,14 +1,24 @@
-// SpeedUp Video Pro - Popup Controller Script (Manifest V3)
-document.addEventListener('DOMContentLoaded', async () => {
+// SpeedUp Video Pro - Instant Popup Controller Script (Manifest V3)
+document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
-  // 1. INIZIALIZZAZIONE ELEMENTI DOM
+  // 1. DOM ELEMENTS & CONSTANTS
   // ==========================================
+  const TRIAL_DAYS = 7;
+  const TRIAL_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000;
+  const LANDING_PAGE_URL = "https://x2-speedup.vercel.app";
+
   const paywall = document.getElementById('paywall');
   const speedControls = document.getElementById('speedControls');
+  const trialBanner = document.getElementById('trialBanner');
+  const trialBadgeText = document.getElementById('trialBadgeText');
+  const upgradeTrialLink = document.getElementById('upgradeTrialLink');
+  const ctaBuyBtn = document.getElementById('ctaBuyBtn');
+
   const keyInput = document.getElementById('keyInput');
   const activateBtn = document.getElementById('activateBtn');
   const statusMsg = document.getElementById('statusMsg');
   const logoutKeyBtn = document.getElementById('logoutKeyBtn');
+  const footerLicenseStatus = document.getElementById('footerLicenseStatus');
 
   const slider = document.getElementById('speedSlider');
   const speedVal = document.getElementById('speedVal') || document.getElementById('speedValue');
@@ -31,63 +41,159 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loopToggle = document.getElementById('loopToggle');
   const hudToggle = document.getElementById('hudToggle');
 
-  // Link checkout (Stripe / Lemon Squeezy / Gumroad)
-  const CHECKOUT_WEEKLY_URL = "https://tuo-checkout.com/piano-settimanale-1usd";
-  const CHECKOUT_LIFETIME_URL = "https://tuo-checkout.com/piano-lifetime-19usd";
-
-  const buyWeeklyBtn = document.getElementById('buyWeeklyBtn');
-  const buyLifetimeBtn = document.getElementById('buyLifetimeBtn');
-
-  if (buyWeeklyBtn) {
-    buyWeeklyBtn.addEventListener('click', () => window.open(CHECKOUT_WEEKLY_URL, '_blank'));
-  }
-  if (buyLifetimeBtn) {
-    buyLifetimeBtn.addEventListener('click', () => window.open(CHECKOUT_LIFETIME_URL, '_blank'));
-  }
-
   let currentSpeed = 1.0;
   let isPlaying = true;
   let isMuted = false;
 
-  const storage = chrome.storage?.sync || chrome.storage?.local;
+  // External link handlers
+  if (ctaBuyBtn) {
+    ctaBuyBtn.addEventListener('click', () => chrome.tabs.create({ url: LANDING_PAGE_URL }));
+  }
+  if (upgradeTrialLink) {
+    upgradeTrialLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: LANDING_PAGE_URL });
+    });
+  }
 
-  // ==========================================
-  // 2. VERIFICA STATO LICENZA E SITO CORRENTE
-  // ==========================================
-  chrome.storage.sync.get(['isLicensed', 'licenseKey'], async (data) => {
-    if (data.isLicensed && data.licenseKey) {
-      const isValid = await verifyLicenseKey(data.licenseKey);
-      if (isValid) {
-        checkCurrentTabAndShowControls();
-      } else {
-        chrome.storage.sync.set({ isLicensed: false });
-        showPaywall();
+  // Non-blocking tab message helper with 150ms timeout
+  function sendTabMessageWithTimeout(tabId, message, timeoutMs = 150) {
+    return new Promise((resolve) => {
+      let timer = setTimeout(() => resolve(null), timeoutMs);
+      try {
+        chrome.tabs.sendMessage(tabId, message, (response) => {
+          clearTimeout(timer);
+          if (chrome.runtime.lastError) resolve(null);
+          else resolve(response);
+        });
+      } catch (e) {
+        clearTimeout(timer);
+        resolve(null);
       }
+    });
+  }
+
+  function calculateTrial(installDate) {
+    if (!installDate) return { isTrialActive: true, daysLeft: 7, expired: false };
+    const elapsed = Date.now() - installDate;
+    const remaining = TRIAL_MS - elapsed;
+    if (remaining <= 0) {
+      return { isTrialActive: false, daysLeft: 0, expired: true };
+    }
+    const daysLeft = Math.max(1, Math.ceil(remaining / (24 * 60 * 60 * 1000)));
+    return { isTrialActive: true, daysLeft, expired: false };
+  }
+
+  // ==========================================
+  // 2. INSTANT LOCAL CACHE RENDER (<10ms)
+  // ==========================================
+  chrome.storage.local.get(
+    ['isLicensed', 'licenseKey', 'installDate', 'defaultSpeed', 'hudEnabled', 'preservesPitch', 'loopVideo'],
+    (data) => {
+      let installDate = data.installDate;
+
+      if (!installDate) {
+        installDate = Date.now();
+        chrome.storage.local.set({ installDate });
+      }
+
+      if (data.defaultSpeed) {
+        currentSpeed = parseFloat(data.defaultSpeed);
+        setSpeedUI(currentSpeed);
+      }
+
+      if (data.hudEnabled !== undefined && hudToggle) hudToggle.checked = data.hudEnabled;
+      if (data.preservesPitch !== undefined && pitchToggle) pitchToggle.checked = data.preservesPitch;
+      if (data.loopVideo !== undefined && loopToggle) loopToggle.checked = data.loopVideo;
+
+      if (data.isLicensed) {
+        showControlsUI(true);
+        // Non-blocking background re-verification (silent)
+        if (data.licenseKey) {
+          verifyLicenseKeyAsync(data.licenseKey).then((valid) => {
+            if (!valid) {
+              chrome.storage.local.set({ isLicensed: false });
+              evaluateTrialOrLockUI(installDate);
+            }
+          });
+        }
+      } else {
+        evaluateTrialOrLockUI(installDate);
+      }
+
+      // Non-blocking active tab inspection
+      inspectActiveTabAsync();
+    }
+  );
+
+  function evaluateTrialOrLockUI(installDate) {
+    const trialStatus = calculateTrial(installDate);
+    if (trialStatus.isTrialActive) {
+      if (trialBanner) {
+        trialBanner.style.display = 'flex';
+        if (trialBadgeText) {
+          trialBadgeText.textContent = `Trial: ${trialStatus.daysLeft} giorn${trialStatus.daysLeft === 1 ? 'o' : 'i'} rimanent${trialStatus.daysLeft === 1 ? 'i' : 'i'}`;
+        }
+      }
+      if (footerLicenseStatus) {
+        footerLicenseStatus.textContent = `Trial Attivo (${trialStatus.daysLeft}d)`;
+      }
+      showControlsUI(false);
     } else {
-      showPaywall();
+      showPaywallLockUI();
     }
-  });
+  }
 
-  // Carica altre impostazioni salvate
-  storage.get(['defaultSpeed', 'hudEnabled', 'preservesPitch', 'loopVideo'], (data) => {
-    if (data?.hudEnabled !== undefined && hudToggle) {
-      hudToggle.checked = data.hudEnabled;
+  function showControlsUI(isPermanent = false) {
+    if (paywall) paywall.style.display = 'none';
+    if (speedControls) speedControls.style.display = 'block';
+    if (isPermanent) {
+      if (trialBanner) trialBanner.style.display = 'none';
+      if (footerLicenseStatus) footerLicenseStatus.textContent = 'SpeedUp Video PRO • Licenza Attiva ✨';
     }
-    if (data?.preservesPitch !== undefined && pitchToggle) {
-      pitchToggle.checked = data.preservesPitch;
-    }
-    if (data?.loopVideo !== undefined && loopToggle) {
-      loopToggle.checked = data.loopVideo;
-    }
-  });
+  }
 
-  async function checkCurrentTabAndShowControls() {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  function showPaywallLockUI() {
+    if (paywall) paywall.style.display = 'flex';
+    if (speedControls) speedControls.style.display = 'none';
+    if (trialBanner) trialBanner.style.display = 'none';
+    if (statusMsg) statusMsg.textContent = '';
+  }
 
-    if (tab?.url && tab.url.includes("youtube.com")) {
-      showYouTubeDisabledMessage();
-    } else {
-      showControls();
+  // ==========================================
+  // 3. NON-BLOCKING TAB INSPECTION
+  // ==========================================
+  async function inspectActiveTabAsync() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab) {
+        updateStatusBadge(false, 0);
+        return;
+      }
+
+      if (tab.url && tab.url.includes("youtube.com")) {
+        showYouTubeDisabledMessage();
+        return;
+      }
+
+      // Don't query chrome:// or restricted pages
+      if (tab.url && (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://") || tab.url.startsWith("about:"))) {
+        updateStatusBadge(false, 0, "Scheda speciale");
+        return;
+      }
+
+      const res = await sendTabMessageWithTimeout(tab.id, { action: 'GET_VIDEO_STATUS' }, 150);
+      if (res && res.hasVideo) {
+        updateStatusBadge(true, res.count);
+        if (res.currentSpeed) setSpeedUI(res.currentSpeed);
+        isPlaying = res.isPlaying ?? true;
+        isMuted = res.isMuted ?? false;
+        updatePlaybackUI();
+      } else {
+        updateStatusBadge(false, 0);
+      }
+    } catch (e) {
+      updateStatusBadge(false, 0);
     }
   }
 
@@ -111,66 +217,68 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function showControls() {
-    if (paywall) paywall.style.display = 'none';
-    if (speedControls) speedControls.style.display = 'block';
-    initSpeedTabStatus();
-  }
-
-  function showPaywall() {
-    if (paywall) paywall.style.display = 'flex';
-    if (speedControls) speedControls.style.display = 'none';
-  }
-
   // ==========================================
-  // 3. GESTIONE PAYWALL E RISCATTO KEY
+  // 4. LICENSE ACTIVATION & VERIFICATION
   // ==========================================
   if (activateBtn) {
     activateBtn.addEventListener('click', async () => {
       const key = keyInput.value.trim();
       if (!key) {
         statusMsg.style.color = "#ef4444";
-        statusMsg.textContent = "Inserisci una chiave valida.";
+        statusMsg.textContent = "Inserisci una chiave di licenza valida.";
         return;
       }
 
-      statusMsg.style.color = "#2563eb";
+      statusMsg.style.color = "#06b6d4";
       statusMsg.textContent = "Verifica in corso...";
 
-      const isValid = await verifyLicenseKey(key);
+      const isValid = await verifyLicenseKeyAsync(key);
 
       if (isValid) {
-        chrome.storage.sync.set({ isLicensed: true, licenseKey: key }, () => {
-          checkCurrentTabAndShowControls();
-        });
+        await chrome.storage.local.set({ isLicensed: true, licenseKey: key });
+        if (chrome.storage.sync) {
+          chrome.storage.sync.set({ isLicensed: true, licenseKey: key });
+        }
+        statusMsg.style.color = "#10b981";
+        statusMsg.textContent = "Licenza attivata con successo!";
+        setTimeout(() => {
+          showControlsUI(true);
+        }, 300);
       } else {
         statusMsg.style.color = "#ef4444";
-        statusMsg.textContent = "Chiave non valida o abbonamento scaduto.";
+        statusMsg.textContent = "Chiave non valida o scaduta.";
       }
     });
   }
 
   if (logoutKeyBtn) {
-    logoutKeyBtn.addEventListener('click', () => {
-      chrome.storage.sync.set({ isLicensed: false, licenseKey: '' }, () => {
-        showPaywall();
-      });
+    logoutKeyBtn.addEventListener('click', async () => {
+      await chrome.storage.local.set({ isLicensed: false, licenseKey: '' });
+      if (chrome.storage.sync) {
+        chrome.storage.sync.set({ isLicensed: false, licenseKey: '' });
+      }
+      showPaywallLockUI();
     });
   }
 
-  async function verifyLicenseKey(key) {
+  async function verifyLicenseKeyAsync(key) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const response = await fetch('https://tuo-dominio.vercel.app/api/verify-license', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ licenseKey: key })
+        body: JSON.stringify({ licenseKey: key }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const data = await response.json();
       return data.isValid === true;
     } catch (err) {
-      console.error("Errore verifica licenza:", err);
-      if (key.startsWith("PRO-")) {
+      // Fallback test locali
+      if (key && key.startsWith("PRO-")) {
         return true;
       }
       return false;
@@ -178,58 +286,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ==========================================
-  // 4. CONTROLLO VELOCITÀ VIDEO
+  // 5. SPEED CONTROLLER LOGIC
   // ==========================================
-  async function initSpeedTabStatus() {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.url && tab.url.includes("youtube.com")) {
-      return;
-    }
-
-    if (tab?.id) {
-      try {
-        chrome.tabs.sendMessage(tab.id, { action: 'GET_VIDEO_STATUS' }, (res) => {
-          if (res && res.hasVideo) {
-            updateStatusBadge(true, res.count);
-            if (res.currentSpeed) setSpeedUI(res.currentSpeed);
-            isPlaying = res.isPlaying ?? true;
-            isMuted = res.isMuted ?? false;
-            updatePlaybackUI();
-          } else {
-            updateStatusBadge(false, 0);
-          }
-        });
-      } catch (e) {
-        updateStatusBadge(false, 0);
-      }
-    }
-  }
-
-  // Funzione iniettata nella pagina attiva
   function changeVideoSpeed(targetSpeed) {
-    // Non eseguire nulla su YouTube
     if (window.location.hostname.includes("youtube.com")) return;
-
     const videos = document.querySelectorAll('video');
-    videos.forEach(video => {
-      video.playbackRate = targetSpeed;
-    });
+    videos.forEach(v => { v.playbackRate = targetSpeed; });
   }
 
   async function setSpeed(newSpeed) {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    // Blocco di sicurezza tassativo se ci si trova su YouTube
-    if (tab?.url && tab.url.includes("youtube.com")) {
-      return;
-    }
+    if (tab?.url && tab.url.includes("youtube.com")) return;
 
     const speed = parseFloat(newSpeed).toFixed(2);
     currentSpeed = parseFloat(speed);
-    
     setSpeedUI(currentSpeed);
 
-    storage.set({ defaultSpeed: currentSpeed }).catch(() => {});
+    chrome.storage.local.set({ defaultSpeed: currentSpeed });
 
     if (tab?.id) {
       try {
@@ -238,19 +311,20 @@ document.addEventListener('DOMContentLoaded', async () => {
           func: changeVideoSpeed,
           args: [parseFloat(speed)]
         });
-      } catch (err) {
-        console.warn('Esecuzione script:', err);
-      }
+      } catch (err) {}
 
-      chrome.tabs.sendMessage(tab.id, { action: 'SET_SPEED', speed: currentSpeed }).catch(() => {});
+      sendTabMessageWithTimeout(tab.id, { action: 'SET_SPEED', speed: currentSpeed }, 150);
     }
 
-    chrome.runtime.sendMessage({ action: 'UPDATE_BADGE', speed: currentSpeed }).catch(() => {});
+    try {
+      chrome.runtime.sendMessage({ action: 'UPDATE_BADGE', speed: currentSpeed }, () => {
+        if (chrome.runtime.lastError) {}
+      });
+    } catch (e) {}
   }
 
   function setSpeedUI(speedNum) {
     const speedStr = `${speedNum.toFixed(1)}x`;
-
     if (speedVal) speedVal.textContent = speedStr;
     if (slider) slider.value = speedNum.toFixed(2);
     if (customSpeedInput) customSpeedInput.value = speedNum.toFixed(2);
@@ -265,8 +339,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  function updateStatusBadge(active, count = 0) {
+  function updateStatusBadge(active, count = 0, customLabel = null) {
     if (!statusText || !statusBadge) return;
+    if (customLabel) {
+      statusText.textContent = customLabel;
+      statusBadge.className = 'status-badge status-offline';
+      return;
+    }
     if (active) {
       statusText.textContent = `${count} Video ${count > 1 ? 'Trovati' : 'Trovato'}`;
       statusBadge.className = 'status-badge status-online';
@@ -281,33 +360,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (muteText) muteText.textContent = isMuted ? 'Audio OFF' : 'Audio ON';
   }
 
-  // Listener eventi UI
-  if (slider) {
-    slider.addEventListener('input', (e) => setSpeed(e.target.value));
-  }
-
-  if (customSpeedInput) {
-    customSpeedInput.addEventListener('change', (e) => setSpeed(e.target.value));
-  }
-
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => setSpeed(1.0));
-  }
+  // Event Listeners
+  if (slider) slider.addEventListener('input', (e) => setSpeed(e.target.value));
+  if (customSpeedInput) customSpeedInput.addEventListener('change', (e) => setSpeed(e.target.value));
+  if (resetBtn) resetBtn.addEventListener('click', () => setSpeed(1.0));
 
   presetButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      if (btn.dataset.speed) {
-        setSpeed(btn.dataset.speed);
-      }
+      if (btn.dataset.speed) setSpeed(btn.dataset.speed);
     });
   });
 
   stepBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const step = parseFloat(btn.dataset.step);
-      if (!isNaN(step)) {
-        setSpeed(currentSpeed + step);
-      }
+      if (!isNaN(step)) setSpeed(currentSpeed + step);
     });
   });
 
@@ -315,14 +382,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     togglePlayBtn.addEventListener('click', async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
       if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'TOGGLE_PLAY' }, (res) => {
-          if (res && res.isPlaying !== undefined) {
-            isPlaying = res.isPlaying;
-            updatePlaybackUI();
-          }
-        });
+        const res = await sendTabMessageWithTimeout(tab.id, { action: 'TOGGLE_PLAY' }, 150);
+        if (res && res.isPlaying !== undefined) {
+          isPlaying = res.isPlaying;
+          updatePlaybackUI();
+        }
       }
     });
   }
@@ -331,14 +396,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggleMuteBtn.addEventListener('click', async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
       if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'TOGGLE_MUTE' }, (res) => {
-          if (res && res.isMuted !== undefined) {
-            isMuted = res.isMuted;
-            updatePlaybackUI();
-          }
-        });
+        const res = await sendTabMessageWithTimeout(tab.id, { action: 'TOGGLE_MUTE' }, 150);
+        if (res && res.isMuted !== undefined) {
+          isMuted = res.isMuted;
+          updatePlaybackUI();
+        }
       }
     });
   }
@@ -347,10 +410,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     seekBackBtn.addEventListener('click', async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'SEEK', seconds: -10 }).catch(() => {});
-      }
+      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SEEK', seconds: -10 }, 150);
     });
   }
 
@@ -358,49 +418,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     seekFwdBtn.addEventListener('click', async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'SEEK', seconds: 10 }).catch(() => {});
-      }
+      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SEEK', seconds: 10 }, 150);
     });
   }
 
   if (pitchToggle) {
     pitchToggle.addEventListener('change', async (e) => {
       const val = e.target.checked;
-      await storage.set({ preservesPitch: val });
+      chrome.storage.local.set({ preservesPitch: val });
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'SET_PITCH', preservesPitch: val }).catch(() => {});
-      }
+      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SET_PITCH', preservesPitch: val }, 150);
     });
   }
 
   if (loopToggle) {
     loopToggle.addEventListener('change', async (e) => {
       const val = e.target.checked;
-      await storage.set({ loopVideo: val });
+      chrome.storage.local.set({ loopVideo: val });
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'SET_LOOP', loop: val }).catch(() => {});
-      }
+      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SET_LOOP', loop: val }, 150);
     });
   }
 
   if (hudToggle) {
     hudToggle.addEventListener('change', async (e) => {
       const val = e.target.checked;
-      await storage.set({ hudEnabled: val });
+      chrome.storage.local.set({ hudEnabled: val });
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url && tab.url.includes("youtube.com")) return;
-
-      if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'SET_HUD', enabled: val }).catch(() => {});
-      }
+      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SET_HUD', enabled: val }, 150);
     });
   }
 });

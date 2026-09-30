@@ -1,8 +1,12 @@
-// SpeedUp Video - Background Service Worker (Manifest V3)
+// SpeedUp Video Pro - Background Service Worker (Manifest V3)
 
-// Initialize default extension settings on installation
+// Initialize default extension settings & installation timestamp
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
+    const res = await chrome.storage.local.get(['installDate']);
+    if (!res.installDate) {
+      await chrome.storage.local.set({ installDate: Date.now() });
+    }
     await chrome.storage.local.set({
       defaultSpeed: 1.0,
       hudEnabled: true,
