@@ -32,6 +32,33 @@
       });
     };
   </script>
+  <style>
+    /* Custom sleek slider styling */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
+      border: 2px solid #ffffff;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+      box-shadow: 0 0 16px rgba(139, 92, 246, 0.95);
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
+      border: 2px solid #ffffff;
+    }
+  </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white">
 
@@ -72,61 +99,175 @@
       </a>
     </div>
 
-    <!-- Interactive UI Controller -->
-    <div class="mt-14 max-w-xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-      <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6">
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-          <span class="text-violet-400 font-bold">X2</span> Interactive Demo
-        </span>
-        <span class="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
-          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Controller
-        </span>
-      </div>
+    <!-- Interactive UI Controller & Live Video Showcase -->
+    <div class="mt-14 max-w-5xl mx-auto bg-slate-900/90 border border-violet-500/30 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl shadow-violet-950/40 relative overflow-hidden backdrop-blur-sm text-left">
+      <!-- Ambient Glows -->
+      <div class="absolute -top-32 -right-32 w-80 h-80 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-      <!-- Display -->
-      <div class="text-center mb-2">
-        <span class="text-xs text-slate-400 uppercase font-bold tracking-widest block mb-1">Playback Speed</span>
-        <div id="demo-speed-display" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 tracking-tight">
-          2.00x
+      <!-- Top Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-slate-800 gap-3 mb-6 relative z-10">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-gradient-to-r from-violet-600 to-indigo-600 text-white tracking-wider shadow-sm uppercase">
+            Live Preview
+          </span>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400 font-black">X2</span> Real-Time Playback Demo
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Test how the extension controls video speed before installing</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <span class="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/25 px-3 py-1 rounded-full">
+            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span> Video Synced in Real Time
+          </span>
         </div>
       </div>
 
-      <!-- Slider -->
-      <div class="my-6 px-2">
-        <input type="range" id="demo-speed-slider" min="0.25" max="16.00" step="0.05" value="2.00" 
-          class="w-full accent-violet-500 cursor-pointer h-2.5 bg-slate-800 rounded-lg appearance-none focus:outline-none">
-        <div class="flex justify-between text-[11px] text-slate-500 font-semibold mt-2 px-1">
-          <span>0.25x</span>
-          <span>4.00x</span>
-          <span>8.00x</span>
-          <span>16.00x</span>
+      <!-- Main Layout: Desktop 2 Columns / Mobile Stacked -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch relative z-10">
+        
+        <!-- Left Column: Video Player Showcase (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col justify-between space-y-3">
+          <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl group aspect-video flex items-center justify-center">
+            
+            <!-- Video Element -->
+            <video id="demo-video" 
+                   class="w-full h-full object-cover block cursor-pointer" 
+                   autoplay loop muted playsinline preload="auto">
+              <source src="sample-video.mp4" type="video/mp4">
+              <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+              <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
+              Your browser does not support HTML5 video.
+            </video>
+
+            <!-- Floating On-Video HUD (Simulating X2 Extension Overlay) -->
+            <div id="video-hud-container" 
+                 class="absolute top-3 left-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-violet-500/40 shadow-xl shadow-black/60 transition-all duration-300 select-none">
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+              </span>
+              <span class="text-[11px] font-bold text-slate-300 tracking-wider">SPEED</span>
+              <span class="w-[1px] h-3 bg-slate-700"></span>
+              <span id="video-hud-speed" class="text-xs sm:text-sm font-black bg-gradient-to-r from-cyan-400 via-violet-300 to-fuchsia-400 bg-clip-text text-transparent min-w-[36px] text-center">
+                2.00x
+              </span>
+              <!-- Mini HUD Quick Buttons -->
+              <div class="flex items-center gap-1 ml-1 pl-1 border-l border-slate-700/80">
+                <button type="button" id="hud-speed-dec" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs font-bold transition focus:outline-none" title="Decrease speed (-0.25x)">−</button>
+                <button type="button" id="hud-speed-inc" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs font-bold transition focus:outline-none" title="Increase speed (+0.25x)">+</button>
+              </div>
+            </div>
+
+            <!-- Central Floating Toast Overlay (Flash Animation) -->
+            <div id="video-speed-toast" 
+                 class="absolute inset-0 z-30 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+              <div id="video-speed-toast-box" 
+                   class="px-5 py-2.5 rounded-2xl bg-slate-950/90 backdrop-blur-xl border border-violet-500/60 shadow-2xl shadow-violet-950/80 flex items-center gap-3 transform scale-90 transition-transform duration-200">
+                <span class="text-xl">⚡</span>
+                <span id="toast-speed-text" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-indigo-300 tracking-tight">
+                  2.00x
+                </span>
+              </div>
+            </div>
+
+            <!-- Video Bottom Mini Bar with Controls -->
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent p-3 pt-6 flex items-center justify-between z-20">
+              <div class="flex items-center gap-2">
+                <button type="button" id="video-play-btn" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white transition border border-slate-700/60 flex items-center justify-center focus:outline-none" title="Play / Pause" aria-label="Play or pause video">
+                  <svg id="play-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  <svg id="pause-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button type="button" id="video-mute-btn" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white transition border border-slate-700/60 flex items-center justify-center focus:outline-none" title="Mute / Unmute" aria-label="Mute or unmute video">
+                  <svg id="mute-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                  <svg id="sound-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </button>
+                <span class="text-[11px] text-slate-300 font-medium hidden sm:inline">Big Buck Bunny (60 FPS Demo)</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-medium tabular-nums">
+                <span id="video-time-display">0:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video sub-text footer -->
+          <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-1">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-violet-400"></span>
+              Live HTML5 <code class="text-violet-300 bg-violet-950/60 px-1 py-0.5 rounded text-[10px] font-mono">video.playbackRate</code>
+            </span>
+            <span class="text-slate-500">Universal support: 0.25x – 16.00x</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Preset Buttons -->
-      <div class="grid grid-cols-4 gap-2.5">
-        <button type="button" data-speed="1.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition">
-          1.0x
-        </button>
-        <button type="button" data-speed="1.5" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition">
-          1.5x
-        </button>
-        <button type="button" data-speed="2.0" class="preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-violet-600/30 transition">
-          2.0x
-        </button>
-        <button type="button" id="custom-toggle-btn" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-1">
-          <span>Custom</span> ✏️
-        </button>
-      </div>
+        <!-- Right Column: Interactive Speed Controls (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col justify-between bg-slate-950/70 border border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-inner">
+          <!-- Display -->
+          <div class="text-center pb-1">
+            <span class="text-xs text-slate-400 uppercase font-bold tracking-widest block mb-1">Playback Speed</span>
+            <div id="demo-speed-display" class="text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 tracking-tight leading-none my-1">
+              2.00x
+            </div>
+            <span class="text-[11px] text-slate-400 block font-medium mt-1">Changes reflected instantly in video player</span>
+          </div>
 
-      <!-- Custom Input Drawer -->
-      <div id="custom-speed-drawer" class="hidden mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-center gap-3">
-        <label for="custom-speed-input" class="text-xs text-slate-400 font-medium">Custom Speed:</label>
-        <input type="number" id="custom-speed-input" min="0.25" max="16.0" step="0.05" value="2.00" 
-          class="w-24 bg-slate-950 border border-violet-500/60 focus:border-violet-500 text-white text-center py-1.5 px-2 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/40">
-        <button type="button" id="apply-custom-btn" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4 py-2 rounded-lg font-bold transition shadow-md shadow-violet-600/20">
-          Apply
-        </button>
+          <!-- Slider -->
+          <div class="my-4">
+            <div class="flex justify-between items-center text-xs font-semibold text-slate-300 mb-2">
+              <span>Slider Control</span>
+              <span id="slider-speed-val" class="text-violet-400 font-bold tabular-nums">2.00x</span>
+            </div>
+            <input type="range" id="demo-speed-slider" min="0.25" max="16.00" step="0.05" value="2.00" 
+              class="w-full accent-violet-500 cursor-pointer h-2.5 bg-slate-800 rounded-lg appearance-none focus:outline-none">
+            <div class="flex justify-between text-[10px] text-slate-500 font-semibold mt-2 px-0.5">
+              <span>0.25x</span>
+              <span>1.0x</span>
+              <span>2.0x</span>
+              <span>4.0x</span>
+              <span>8.0x</span>
+              <span>16.0x</span>
+            </div>
+          </div>
+
+          <!-- Presets (1.0x, 1.25x, 1.5x, 2.0x, 3.0x, Custom) -->
+          <div>
+            <span class="text-xs font-semibold text-slate-400 block mb-2 text-left">Quick Presets</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-speed="1.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
+                1.0x
+              </button>
+              <button type="button" data-speed="1.25" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
+                1.25x
+              </button>
+              <button type="button" data-speed="1.5" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
+                1.5x
+              </button>
+              <button type="button" data-speed="2.0" class="preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-violet-600/30 transition">
+                2.0x
+              </button>
+              <button type="button" data-speed="3.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
+                3.0x
+              </button>
+              <button type="button" id="custom-toggle-btn" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1">
+                <span>Custom</span> ✏️
+              </button>
+            </div>
+
+            <!-- Custom Input Drawer -->
+            <div id="custom-speed-drawer" class="hidden mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-2">
+              <label for="custom-speed-input" class="text-xs text-slate-400 font-medium">Speed:</label>
+              <input type="number" id="custom-speed-input" min="0.25" max="16.0" step="0.05" value="2.00" 
+                class="w-20 bg-slate-900 border border-violet-500/60 focus:border-violet-500 text-white text-center py-1.5 px-2 rounded-lg text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/40">
+              <button type="button" id="apply-custom-btn" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold transition shadow-md shadow-violet-600/20">
+                Apply
+              </button>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
   </section>
@@ -231,78 +372,255 @@
   <!-- Interactive Speed Demo Script -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const demoVideo = document.getElementById('demo-video');
       const slider = document.getElementById('demo-speed-slider');
       const display = document.getElementById('demo-speed-display');
+      const sliderVal = document.getElementById('slider-speed-val');
+      const videoHudContainer = document.getElementById('video-hud-container');
+      const videoHudSpeed = document.getElementById('video-hud-speed');
+      const hudSpeedDec = document.getElementById('hud-speed-dec');
+      const hudSpeedInc = document.getElementById('hud-speed-inc');
+      const toast = document.getElementById('video-speed-toast');
+      const toastBox = document.getElementById('video-speed-toast-box');
+      const toastSpeedText = document.getElementById('toast-speed-text');
       const presetBtns = document.querySelectorAll('.preset-btn[data-speed]');
       const customToggleBtn = document.getElementById('custom-toggle-btn');
       const customDrawer = document.getElementById('custom-speed-drawer');
       const customInput = document.getElementById('custom-speed-input');
       const applyCustomBtn = document.getElementById('apply-custom-btn');
+      const videoPlayBtn = document.getElementById('video-play-btn');
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      const videoMuteBtn = document.getElementById('video-mute-btn');
+      const muteIcon = document.getElementById('mute-icon');
+      const soundIcon = document.getElementById('sound-icon');
+      const videoTimeDisplay = document.getElementById('video-time-display');
 
-      function updateSpeed(val, setSlider = true) {
+      let currentSpeed = 2.0;
+      let toastTimer = null;
+
+      function triggerToast(speedText) {
+        if (!toast || !toastBox || !toastSpeedText) return;
+        toastSpeedText.textContent = speedText;
+        toast.classList.remove('opacity-0');
+        toast.classList.add('opacity-100');
+        toastBox.classList.remove('scale-90');
+        toastBox.classList.add('scale-100');
+
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('opacity-100');
+          toast.classList.add('opacity-0');
+          toastBox.classList.remove('scale-100');
+          toastBox.classList.add('scale-90');
+        }, 800);
+      }
+
+      function updateSpeed(val, setSlider = true, showToastNotice = true) {
         let num = parseFloat(val);
         if (isNaN(num)) num = 1.0;
-        num = Math.max(0.25, Math.min(16.0, num));
-        
-        if (setSlider) {
+        num = Math.max(0.25, Math.min(16.0, Math.round(num * 100) / 100));
+        currentSpeed = num;
+        const formatted = num.toFixed(2) + 'x';
+
+        // 1. Update Video Playback Rate in real time
+        if (demoVideo) {
+          try {
+            demoVideo.playbackRate = num;
+          } catch (e) {
+            console.warn('Unable to set playback rate:', e);
+          }
+        }
+
+        // 2. Update UI Displays
+        if (setSlider && slider) {
           slider.value = num.toFixed(2);
         }
-        display.textContent = num.toFixed(2) + 'x';
-        customInput.value = num.toFixed(2);
+        if (sliderVal) {
+          sliderVal.textContent = formatted;
+        }
+        if (display) {
+          display.textContent = formatted;
+        }
+        if (customInput) {
+          customInput.value = num.toFixed(2);
+        }
+        if (videoHudSpeed) {
+          videoHudSpeed.textContent = formatted;
+        }
 
-        // Highlight matching preset button
+        // 3. Floating HUD pulse feedback
+        if (videoHudContainer) {
+          videoHudContainer.classList.add('scale-105', 'border-violet-400');
+          setTimeout(() => {
+            videoHudContainer.classList.remove('scale-105', 'border-violet-400');
+          }, 250);
+        }
+
+        // 4. Central Toast notification
+        if (showToastNotice) {
+          triggerToast(formatted);
+        }
+
+        // 5. Highlight Preset Buttons
         let matchedPreset = false;
         presetBtns.forEach(btn => {
           const btnSpeed = parseFloat(btn.dataset.speed);
-          if (Math.abs(btnSpeed - num) < 0.01 && customDrawer.classList.contains('hidden')) {
-            btn.className = "preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-violet-600/30 transition";
+          if (Math.abs(btnSpeed - num) < 0.01 && (!customDrawer || customDrawer.classList.contains('hidden'))) {
+            btn.className = "preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-violet-600/30 transition";
             matchedPreset = true;
           } else {
-            btn.className = "preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition";
+            btn.className = "preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition";
           }
         });
 
-        if (!customDrawer.classList.contains('hidden')) {
-          customToggleBtn.className = "preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-violet-600/30 transition flex items-center justify-center gap-1";
-        } else if (!matchedPreset) {
-          customToggleBtn.className = "preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-1";
+        if (customDrawer && !customDrawer.classList.contains('hidden')) {
+          customToggleBtn.className = "preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-violet-600/30 transition flex items-center justify-center gap-1";
+        } else if (!matchedPreset && customToggleBtn) {
+          customToggleBtn.className = "preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1";
         }
       }
 
-      slider.addEventListener('input', function () {
-        updateSpeed(this.value, false);
-      });
+      // Slider Dragging Event
+      if (slider) {
+        slider.addEventListener('input', function () {
+          updateSpeed(this.value, false, false);
+        });
+        slider.addEventListener('change', function () {
+          updateSpeed(this.value, false, true);
+        });
+      }
 
+      // Preset Buttons Click Events
       presetBtns.forEach(btn => {
         btn.addEventListener('click', function () {
-          customDrawer.classList.add('hidden');
-          updateSpeed(this.dataset.speed, true);
+          if (customDrawer) customDrawer.classList.add('hidden');
+          updateSpeed(this.dataset.speed, true, true);
         });
       });
 
-      customToggleBtn.addEventListener('click', function () {
-        customDrawer.classList.toggle('hidden');
-        if (!customDrawer.classList.contains('hidden')) {
-          customInput.focus();
-          customInput.select();
-          presetBtns.forEach(b => {
-            b.className = "preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition";
+      // HUD Step Buttons (+ / -)
+      if (hudSpeedDec) {
+        hudSpeedDec.addEventListener('click', function (e) {
+          e.stopPropagation();
+          let step = currentSpeed > 2 ? 0.5 : 0.25;
+          updateSpeed(currentSpeed - step, true, true);
+        });
+      }
+      if (hudSpeedInc) {
+        hudSpeedInc.addEventListener('click', function (e) {
+          e.stopPropagation();
+          let step = currentSpeed >= 2 ? 0.5 : 0.25;
+          updateSpeed(currentSpeed + step, true, true);
+        });
+      }
+
+      // Custom Speed Drawer Toggle
+      if (customToggleBtn && customDrawer && customInput) {
+        customToggleBtn.addEventListener('click', function () {
+          customDrawer.classList.toggle('hidden');
+          if (!customDrawer.classList.contains('hidden')) {
+            customInput.focus();
+            customInput.select();
+            presetBtns.forEach(b => {
+              b.className = "preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition";
+            });
+            customToggleBtn.className = "preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-violet-600/30 transition flex items-center justify-center gap-1";
+          } else {
+            updateSpeed(slider ? slider.value : currentSpeed, false, false);
+          }
+        });
+      }
+
+      // Apply Custom Speed
+      if (applyCustomBtn && customInput) {
+        applyCustomBtn.addEventListener('click', function () {
+          updateSpeed(customInput.value, true, true);
+        });
+      }
+      if (customInput) {
+        customInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            updateSpeed(customInput.value, true, true);
+          }
+        });
+      }
+
+      // Video Controls & Playback
+      if (demoVideo) {
+        // Set initial speed
+        try {
+          demoVideo.playbackRate = 2.0;
+        } catch (e) {}
+
+        const playPromise = demoVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            if (playIcon && pauseIcon) {
+              playIcon.classList.remove('hidden');
+              pauseIcon.classList.add('hidden');
+            }
           });
-          customToggleBtn.className = "preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-violet-600/30 transition flex items-center justify-center gap-1";
-        } else {
-          updateSpeed(slider.value, false);
         }
-      });
 
-      applyCustomBtn.addEventListener('click', function () {
-        updateSpeed(customInput.value, true);
-      });
-
-      customInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-          updateSpeed(customInput.value, true);
+        function togglePlay() {
+          if (demoVideo.paused) {
+            demoVideo.play();
+          } else {
+            demoVideo.pause();
+          }
         }
-      });
+
+        demoVideo.addEventListener('click', togglePlay);
+
+        if (videoPlayBtn) {
+          videoPlayBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            togglePlay();
+          });
+        }
+
+        demoVideo.addEventListener('play', () => {
+          if (playIcon && pauseIcon) {
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+          }
+        });
+
+        demoVideo.addEventListener('pause', () => {
+          if (playIcon && pauseIcon) {
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+          }
+        });
+
+        if (videoMuteBtn) {
+          videoMuteBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            demoVideo.muted = !demoVideo.muted;
+            if (demoVideo.muted) {
+              muteIcon.classList.remove('hidden');
+              soundIcon.classList.add('hidden');
+            } else {
+              muteIcon.classList.add('hidden');
+              soundIcon.classList.remove('hidden');
+            }
+          });
+        }
+
+        demoVideo.addEventListener('timeupdate', () => {
+          if (videoTimeDisplay && demoVideo.duration) {
+            const curMin = Math.floor(demoVideo.currentTime / 60);
+            const curSec = Math.floor(demoVideo.currentTime % 60).toString().padStart(2, '0');
+            const durMin = Math.floor(demoVideo.duration / 60);
+            const durSec = Math.floor(demoVideo.duration % 60).toString().padStart(2, '0');
+            videoTimeDisplay.textContent = `${curMin}:${curSec} / ${durMin}:${durSec}`;
+          }
+        });
+      }
+
+      // Initialize initial state at 2.0x
+      updateSpeed(2.0, true, false);
     });
   </script>
 </body>
