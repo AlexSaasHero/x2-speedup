@@ -8,8 +8,9 @@
     favoriteSpeed: 'g'
   };
 
-  let isLicensed = false;
-  let currentSpeed = 1.0;
+  let isPro = true;
+  let targetSpeed = 1.0;
+  let isEnforcing = false;
   let hudEnabled = true;
   let preservesPitch = true;
   let loopVideo = false;
@@ -21,6 +22,12 @@
     if (!key) return '';
     if (key === ' ') return 'Space';
     return key.length === 1 ? key.toLowerCase() : key;
+  }
+
+  function clampSpeed(val) {
+    const num = parseFloat(val);
+    if (isNaN(num)) return 1.0;
+    return parseFloat(Math.min(Math.max(num, 0.1), 16.0).toFixed(2));
   }
 
   function formatSpeedText(speed) {
@@ -38,18 +45,312 @@
     return hrs > 0 ? `${pad(hrs)}:${pad(mins)}:${pad(secs)}` : `${pad(mins)}:${pad(secs)}`;
   }
 
-  function getSpeedBounds() {
-    return isLicensed ? { min: 0.1, max: 16.0 } : { min: 0.25, max: 2.5 };
+  // ==========================================
+  // 1. UNIVERSAL VIDEO DISCOVERY (DOM + SHADOW DOM)
+  // ==========================================
+  function getAllVideos(root = document) {
+    if (!root || !root.querySelectorAll) return [];
+    const videos = Array.from(root.querySelectorAll('video'));
+    const allElements = root.querySelectorAll('*');
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i];
+      if (el.shadowRoot) {
+        const shadowVideos = getAllVideos(el.shadowRoot);
+        for (let j = 0; j < shadowVideos.length; j++) {
+          if (!videos.includes(shadowVideos[j])) {
+            videos.push(shadowVideos[j]);
+          }
+        }
+      }
+    }
+    return videos;
   }
 
-  function clampSpeedForTier(val) {
-    const { min, max } = getSpeedBounds();
-    const num = parseFloat(val);
-    if (isNaN(num)) return 1.0;
-    return parseFloat(Math.min(Math.max(num, min), max).toFixed(2));
+  function getMainVideo() {
+    const videos = getAllVideos();
+    if (!videos.length) return null;
+    // Prefer a video that is currently playing or has loaded media
+    const playing = videos.find((v) => !v.paused && v.readyState > 0);
+    if (playing) return playing;
+    const activeReady = videos.find((v) => (v.currentSrc || v.src) && v.offsetWidth > 0);
+    if (activeReady) return activeReady;
+    return videos[0];
   }
 
-  // Initialize stored settings asynchronously
+  // ==========================================
+  // 2. FORCED PLAYBACK RATE ENFORCEMENT (UP TO 16X)
+  // ==========================================
+  function forceRateOnVideo(video) {
+    if (!video) return;
+    isEnforcing = true;
+    try {
+      if (Math.abs(video.playbackRate - targetSpeed) > 0.005) {
+        video.playbackRate = targetSpeed;
+      }
+      video.defaultPlaybackRate = targetSpeed;
+      video.preservesPitch = preservesPitch;
+      video.webkitPreservesPitch = preservesPitch;
+      video.mozPreservesPitch = preservesPitch;
+      video.loop = !!loopVideo;
+    } catch (err) {}
+    isEnforcing = false;
+  }
+
+  function attachVideoListeners(video) {
+    if (!video || video.dataset.suvEnforceAttached === 'true') return;
+    video.dataset.suvEnforceAttached = 'true';
+
+    video.addEventListener(
+      'ratechange',
+      (e) => {
+        if (isEnforcing) {
+          // Block YouTube's internal ratechange listener from resetting >2x speeds
+          if (targetSpeed > 2.0) {
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+          }
+          return;
+        }
+        if (targetSpeed && Math.abs(video.playbackRate - targetSpeed) > 0.005) {
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+          forceRateOnVideo(video);
+        } else if (targetSpeed > 2.0) {
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+        }
+        updateHUDForVideo(video);
+      },
+      true
+    );
+
+    const reinforceHandler = () => {
+      if (isEnforcing) return;
+      forceRateOnVideo(video);
+      attachHUDToVideo(video);
+      updateHUDForVideo(video);
+    };
+
+    video.addEventListener('play', reinforceHandler, true);
+    video.addEventListener('playing', reinforceHandler, true);
+    video.addEventListener('loadedmetadata', reinforceHandler, true);
+    video.addEventListener('loadeddata', reinforceHandler, true);
+    video.addEventListener('canplay', reinforceHandler, true);
+    video.addEventListener('seeked', reinforceHandler, true);
+
+    attachHUDToVideo(video);
+  }
+
+  // Document-level capture listener at document_start intercepts ratechange before YouTube player scripts
+  window.addEventListener(
+    'ratechange',
+    (e) => {
+      const video = e.target;
+      if (!video || video.tagName !== 'VIDEO') return;
+      attachVideoListeners(video);
+
+      if (isEnforcing) {
+        if (targetSpeed > 2.0) {
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+        }
+        return;
+      }
+
+      if (targetSpeed && Math.abs(video.playbackRate - targetSpeed) > 0.005) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        forceRateOnVideo(video);
+      } else if (targetSpeed > 2.0) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+      }
+      updateHUDForVideo(video);
+    },
+    true
+  );
+
+  ['play', 'playing', 'loadedmetadata', 'loadeddata', 'canplay'].forEach((evtName) => {
+    window.addEventListener(
+      evtName,
+      (e) => {
+        const video = e.target;
+        if (video && video.tagName === 'VIDEO') {
+          attachVideoListeners(video);
+          forceRateOnVideo(video);
+          updateHUDForVideo(video);
+        }
+      },
+      true
+    );
+  });
+
+  function applySettingsToAllVideos() {
+    const videos = getAllVideos();
+    videos.forEach((v) => {
+      attachVideoListeners(v);
+      forceRateOnVideo(v);
+      updateHUDForVideo(v);
+    });
+  }
+
+  function applySpeed(speed, persist = true, showHudOverlay = true) {
+    targetSpeed = clampSpeed(speed);
+    const videos = getAllVideos();
+
+    videos.forEach((v) => {
+      attachVideoListeners(v);
+      forceRateOnVideo(v);
+      updateHUDForVideo(v);
+    });
+
+    if (persist) {
+      persistCurrentSpeed(targetSpeed);
+    }
+
+    if (showHudOverlay && videos.length > 0) {
+      showSpeedHUD(targetSpeed);
+    }
+
+    chrome.runtime.sendMessage({ action: 'UPDATE_BADGE', speed: targetSpeed }).catch(() => {});
+  }
+
+  function persistCurrentSpeed(speedVal) {
+    chrome.storage.local.set({ defaultSpeed: speedVal });
+    if (domainSpeeds && domainSpeeds[currentHostname] !== undefined) {
+      domainSpeeds[currentHostname] = speedVal;
+      chrome.storage.local.set({ domainSpeeds });
+    }
+  }
+
+  // ==========================================
+  // 3. FLOATING HUD & PILL OVERLAY (showHUD)
+  // ==========================================
+  function attachHUDToVideo(video) {
+    if (!hudEnabled) {
+      removeHUDFromVideo(video);
+      return;
+    }
+
+    const parent = video.parentElement || video.parentNode;
+    if (!parent || !parent.querySelector) return;
+
+    const parentStyle = window.getComputedStyle(parent);
+    if (parentStyle.position === 'static') {
+      parent.style.position = 'relative';
+    }
+
+    let hud = parent.querySelector('.suv-hud-container');
+    if (!hud) {
+      hud = document.createElement('div');
+      hud.className = 'suv-hud-container';
+      hud.innerHTML = `
+        <button class="suv-hud-btn suv-minus" title="Rallenta (-0.25x)">-</button>
+        <span class="suv-hud-speed">${formatSpeedText(targetSpeed)}</span>
+        <button class="suv-hud-btn suv-plus" title="Accelera (+0.25x)">+</button>
+        <button class="suv-hud-btn suv-reset" title="Reset (1.0x)">1x</button>
+      `;
+
+      hud.querySelector('.suv-minus').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        applySpeed(Math.max(0.1, targetSpeed - 0.25));
+      });
+
+      hud.querySelector('.suv-plus').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        applySpeed(Math.min(16.0, targetSpeed + 0.25));
+      });
+
+      hud.querySelector('.suv-reset').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        applySpeed(1.0);
+      });
+
+      parent.appendChild(hud);
+    } else {
+      hud.style.display = hudEnabled ? 'flex' : 'none';
+      const speedSpan = hud.querySelector('.suv-hud-speed');
+      if (speedSpan) speedSpan.textContent = formatSpeedText(targetSpeed);
+    }
+  }
+
+  function removeHUDFromVideo(video) {
+    const parent = video.parentElement;
+    if (parent && parent.querySelector) {
+      const hud = parent.querySelector('.suv-hud-container');
+      if (hud) hud.remove();
+    }
+  }
+
+  function updateHUDForVideo(video) {
+    const parent = video.parentElement;
+    if (parent && parent.querySelector) {
+      const hud = parent.querySelector('.suv-hud-container');
+      if (hud) {
+        hud.style.display = hudEnabled ? 'flex' : 'none';
+        const speedSpan = hud.querySelector('.suv-hud-speed');
+        if (speedSpan) speedSpan.textContent = formatSpeedText(targetSpeed);
+      }
+    }
+  }
+
+  function showSpeedHUD(speedVal) {
+    showHUD(formatSpeedText(speedVal));
+  }
+
+  function showHUD(labelText) {
+    const videos = getAllVideos();
+    let attachedToVideo = false;
+
+    videos.forEach((video) => {
+      const parent = (video.closest && video.closest('#movie_player')) || video.parentElement || video.parentNode;
+      if (!parent || !parent.querySelector) return;
+
+      const parentStyle = window.getComputedStyle(parent);
+      if (parentStyle.position === 'static') {
+        parent.style.position = 'relative';
+      }
+
+      const existing = parent.querySelector('.suv-video-action-badge');
+      if (existing) existing.remove();
+
+      const badge = document.createElement('div');
+      badge.className = 'suv-video-action-badge';
+      badge.textContent = labelText;
+      parent.appendChild(badge);
+      attachedToVideo = true;
+
+      setTimeout(() => {
+        if (badge.parentElement) badge.remove();
+      }, 900);
+    });
+
+    if (!attachedToVideo && document.body) {
+      showToast(labelText);
+    }
+  }
+
+  function showToast(message) {
+    if (!document.body) return;
+    let existingToast = document.querySelector('.suv-toast');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'suv-toast';
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      if (toast.parentElement) toast.remove();
+    }, 900);
+  }
+
+  // ==========================================
+  // 4. STORAGE INITIALIZATION & LIVE SYNC
+  // ==========================================
   chrome.storage.local.get(
     [
       'isPro',
@@ -64,16 +365,20 @@
       'favoriteSpeed'
     ],
     (data) => {
-      isLicensed = !!(data.isPro || data.isLicensed || data.licenseKey === 'DEV-SPEEDUP-PRO-2026');
+      if (data.isPro !== undefined || data.isLicensed !== undefined) {
+        isPro = !!(data.isPro || data.isLicensed || data.licenseKey === 'DEV-SPEEDUP-PRO-2026');
+      } else {
+        isPro = true;
+      }
 
       if (data.domainSpeeds && typeof data.domainSpeeds === 'object') {
         domainSpeeds = data.domainSpeeds;
       }
 
-      if (isLicensed && domainSpeeds[currentHostname] !== undefined) {
-        currentSpeed = clampSpeedForTier(domainSpeeds[currentHostname]);
+      if (domainSpeeds[currentHostname] !== undefined) {
+        targetSpeed = clampSpeed(domainSpeeds[currentHostname]);
       } else if (data.defaultSpeed !== undefined) {
-        currentSpeed = clampSpeedForTier(data.defaultSpeed);
+        targetSpeed = clampSpeed(data.defaultSpeed);
       }
 
       if (typeof data.hudEnabled !== 'undefined') hudEnabled = data.hudEnabled;
@@ -87,18 +392,22 @@
       }
 
       applySettingsToAllVideos();
-      chrome.runtime.sendMessage({ action: 'UPDATE_BADGE', speed: currentSpeed }).catch(() => {});
     }
   );
 
-  // Live sync settings, license & hotkeys from storage changes
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes.isPro !== undefined || changes.isLicensed !== undefined) {
-      if (changes.isPro !== undefined) isLicensed = !!changes.isPro.newValue;
-      else if (changes.isLicensed !== undefined) isLicensed = !!changes.isLicensed.newValue;
-      currentSpeed = clampSpeedForTier(currentSpeed);
-      applySettingsToAllVideos();
+      if (changes.isPro !== undefined) isPro = !!changes.isPro.newValue;
+      else if (changes.isLicensed !== undefined) isPro = !!changes.isLicensed.newValue;
+    }
+    if (changes.defaultSpeed && changes.defaultSpeed.newValue !== undefined) {
+      const nextSpeed = clampSpeed(changes.defaultSpeed.newValue);
+      if (Math.abs(nextSpeed - targetSpeed) > 0.005) {
+        applySpeed(nextSpeed, false, true);
+      } else {
+        applySettingsToAllVideos();
+      }
     }
     if (changes.customHotkeys && changes.customHotkeys.newValue) {
       customHotkeys = { ...DEFAULT_HOTKEYS, ...changes.customHotkeys.newValue };
@@ -123,409 +432,247 @@
     }
   });
 
-  // Find all HTML5 video elements (including #movie_player video and shadow roots)
-  function getAllVideos(root = document) {
-    const videos = Array.from(root.querySelectorAll('#movie_player video, video'));
-    const uniqueVideos = Array.from(new Set(videos));
-    const allElements = root.querySelectorAll('*');
-    for (const el of allElements) {
-      if (el.shadowRoot) {
-        const shadowVideos = getAllVideos(el.shadowRoot);
-        for (const sv of shadowVideos) {
-          if (!uniqueVideos.includes(sv)) uniqueVideos.push(sv);
-        }
-      }
-    }
-    return uniqueVideos;
-  }
-
-  function applySettingsToAllVideos() {
-    const videos = getAllVideos();
-    videos.forEach(video => applyToVideo(video));
-  }
-
-  function applyToVideo(video) {
-    if (!video) return;
-
-    if (Math.abs(video.playbackRate - currentSpeed) > 0.01) {
-      video.playbackRate = currentSpeed;
-    }
-
-    // Audio pitch preservation active by default
-    video.preservesPitch = preservesPitch;
-    video.webkitPreservesPitch = preservesPitch;
-    video.mozPreservesPitch = preservesPitch;
-
-    video.loop = !!loopVideo;
-
-    if (!video.dataset.hasSpeedListener) {
-      video.dataset.hasSpeedListener = "true";
-      video.dataset.suvListenerAttached = "true";
-
-      video.addEventListener('ratechange', () => {
-        if (Math.abs(video.playbackRate - currentSpeed) > 0.01) {
-          video.playbackRate = currentSpeed;
-        }
-        video.preservesPitch = preservesPitch;
-        video.webkitPreservesPitch = preservesPitch;
-        video.mozPreservesPitch = preservesPitch;
-        updateHUDForVideo(video);
-      });
-
-      video.addEventListener('loadedmetadata', () => {
-        if (Math.abs(video.playbackRate - currentSpeed) > 0.01) {
-          video.playbackRate = currentSpeed;
-        }
-        video.preservesPitch = preservesPitch;
-        video.webkitPreservesPitch = preservesPitch;
-        video.mozPreservesPitch = preservesPitch;
-        updateHUDForVideo(video);
-      });
-
-      attachHUDToVideo(video);
-    } else {
-      updateHUDForVideo(video);
-    }
-  }
-
-  // Attach Floating HUD badge to video container
-  function attachHUDToVideo(video) {
-    if (!hudEnabled) {
-      removeHUDFromVideo(video);
-      return;
-    }
-
-    const parent = video.parentElement || video.parentNode;
-    if (!parent) return;
-
-    const parentStyle = window.getComputedStyle(parent);
-    if (parentStyle.position === 'static') {
-      parent.style.position = 'relative';
-    }
-
-    let hud = parent.querySelector('.suv-hud-container');
-    if (!hud) {
-      hud = document.createElement('div');
-      hud.className = 'suv-hud-container';
-      hud.innerHTML = `
-        <button class="suv-hud-btn suv-minus" title="Rallenta (-0.1x)">-</button>
-        <span class="suv-hud-speed">${formatSpeedText(currentSpeed)}</span>
-        <button class="suv-hud-btn suv-plus" title="Accelera (+0.1x)">+</button>
-        <button class="suv-hud-btn suv-reset" title="Reset (1.0x)">1x</button>
-      `;
-
-      hud.querySelector('.suv-minus').addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        changeSpeed(-0.1);
-      });
-
-      hud.querySelector('.suv-plus').addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        changeSpeed(0.1);
-      });
-
-      hud.querySelector('.suv-reset').addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setSpeed(1.0);
-      });
-
-      parent.appendChild(hud);
-    } else {
-      hud.style.display = hudEnabled ? 'flex' : 'none';
-      const speedSpan = hud.querySelector('.suv-hud-speed');
-      if (speedSpan) speedSpan.textContent = formatSpeedText(currentSpeed);
-    }
-  }
-
-  function removeHUDFromVideo(video) {
-    const parent = video.parentElement;
-    if (parent) {
-      const hud = parent.querySelector('.suv-hud-container');
-      if (hud) hud.remove();
-    }
-  }
-
-  function updateHUDForVideo(video) {
-    const parent = video.parentElement;
-    if (parent) {
-      const hud = parent.querySelector('.suv-hud-container');
-      if (hud) {
-        hud.style.display = hudEnabled ? 'flex' : 'none';
-        const speedSpan = hud.querySelector('.suv-hud-speed');
-        if (speedSpan) speedSpan.textContent = formatSpeedText(currentSpeed);
-      }
-    }
-  }
-
-  // Top-Right Visual Pill HUD Overlay on Active Video Container (900ms)
-  function showVideoActionBadge(labelText) {
-    const videos = getAllVideos();
-    let attachedToVideo = false;
-
-    videos.forEach((video) => {
-      const parent = video.closest('#movie_player') || video.parentElement || video.parentNode;
-      if (!parent) return;
-
-      const parentStyle = window.getComputedStyle(parent);
-      if (parentStyle.position === 'static') {
-        parent.style.position = 'relative';
-      }
-
-      const existing = parent.querySelector('.suv-video-action-badge');
-      if (existing) existing.remove();
-
-      const badge = document.createElement('div');
-      badge.className = 'suv-video-action-badge';
-      badge.textContent = labelText;
-      parent.appendChild(badge);
-      attachedToVideo = true;
-
-      setTimeout(() => {
-        if (badge.parentElement) badge.remove();
-      }, 900);
-    });
-
-    if (!attachedToVideo) {
-      showToast(labelText);
-    }
-  }
-
-  // Fallback Toast Notification Overlay (900ms)
-  function showToast(message) {
-    let existingToast = document.querySelector('.suv-toast');
-    if (existingToast) existingToast.remove();
-
-    const toast = document.createElement('div');
-    toast.className = 'suv-toast';
-    toast.textContent = message;
-
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      if (toast.parentElement) toast.remove();
-    }, 900);
-  }
-
-  function persistCurrentSpeed(speedVal) {
-    chrome.storage.local.set({ defaultSpeed: speedVal });
-    if (isLicensed && domainSpeeds && domainSpeeds[currentHostname] !== undefined) {
-      domainSpeeds[currentHostname] = speedVal;
-      chrome.storage.local.set({ domainSpeeds });
-    }
-  }
-
-  function setSpeed(val, customBadgeLabel = null) {
-    currentSpeed = clampSpeedForTier(val);
-
-    applySettingsToAllVideos();
-    persistCurrentSpeed(currentSpeed);
-    showVideoActionBadge(customBadgeLabel || formatSpeedText(currentSpeed));
-
-    chrome.runtime.sendMessage({ action: 'UPDATE_BADGE', speed: currentSpeed }).catch(() => {});
-  }
-
-  function changeSpeed(delta) {
-    const next = clampSpeedForTier(currentSpeed + delta);
-    setSpeed(next, formatSpeedText(next));
-  }
-
-  // MutationObserver for dynamically added videos & SPA navigation
+  // ==========================================
+  // 5. MUTATION OBSERVER & SPA NAVIGATION
+  // ==========================================
   const observer = new MutationObserver(() => {
-    requestAnimationFrame(() => {
-      const videos = getAllVideos();
-      videos.forEach(video => applyToVideo(video));
-    });
+    const videos = getAllVideos();
+    for (let i = 0; i < videos.length; i++) {
+      attachVideoListeners(videos[i]);
+      forceRateOnVideo(videos[i]);
+    }
   });
 
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true });
-  } else {
-    document.addEventListener('DOMContentLoaded', () => {
-      observer.observe(document.body, { childList: true, subtree: true });
-    });
+  function startObserving() {
+    const rootNode = document.documentElement || document.body;
+    if (rootNode) {
+      observer.observe(rootNode, { childList: true, subtree: true });
+      applySettingsToAllVideos();
+    }
   }
 
-  // Global Keyboard Shortcuts Listener (Prevent conflicts with text inputs & native player keys)
-  window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+  startObserving();
+  window.addEventListener('DOMContentLoaded', applySettingsToAllVideos);
+  window.addEventListener('load', applySettingsToAllVideos);
+  window.addEventListener('yt-navigate-finish', applySettingsToAllVideos);
 
-    const activeEl = document.activeElement;
-    if (activeEl) {
-      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl.tagName) || activeEl.isContentEditable;
-      if (isInput) return;
+  // ==========================================
+  // 6. KEYBOARD SHORTCUTS LISTENER (CAPTURE = TRUE)
+  // ==========================================
+  window.addEventListener(
+    'keydown',
+    (e) => {
+      // Non intercettare scorciatoie di sistema (Cmd+R / Ctrl+R)
+      if (e.ctrlKey || e.metaKey) return;
+
+      // Non attivare scorciatoie se l'utente scrive in input, textarea o contenteditable
+      const targetEl = (e.composedPath && e.composedPath()[0]) || e.target || document.activeElement;
+      const activeEl = document.activeElement;
+      if (
+        (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable)) ||
+        (targetEl && (targetEl.tagName === 'INPUT' || targetEl.tagName === 'TEXTAREA' || targetEl.tagName === 'SELECT' || targetEl.isContentEditable))
+      ) {
+        return;
+      }
+
+      const videos = getAllVideos();
+      if (!videos.length) return;
+
+      const pressed = normalizeKey(e.key);
+      const upKey = normalizeKey(customHotkeys.speedUp);
+      const downKey = normalizeKey(customHotkeys.speedDown);
+      const resetKey = normalizeKey(customHotkeys.resetSpeed);
+      const favKey = normalizeKey(customHotkeys.favoriteSpeed);
+
+      if (e.key === ']' || e.key === 'd' || e.key === 'D' || e.code === 'BracketRight' || pressed === upKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        applySpeed(Math.min(16.0, targetSpeed + 0.25));
+      } else if (e.key === '[' || e.key === 's' || e.key === 'S' || e.code === 'BracketLeft' || pressed === downKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        applySpeed(Math.max(0.1, targetSpeed - 0.25));
+      } else if (e.key === 'r' || e.key === 'R' || pressed === resetKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        applySpeed(1.0);
+      } else if (e.key === 'g' || e.key === 'G' || pressed === favKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        const targetFav = clampSpeed(favoriteSpeed || 2.0);
+        if (Math.abs(targetSpeed - targetFav) < 0.02) {
+          applySpeed(1.0);
+        } else {
+          applySpeed(targetFav);
+        }
+      }
+    },
+    true // <- IMPORTANTISSIMO: capture = true
+  );
+
+  // ==========================================
+  // 7. MESSAGE HANDLER FOR POPUP & BACKGROUND
+  // ==========================================
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (!request || !request.action) return false;
+
+    const videos = getAllVideos();
+    const mainVideo = getMainVideo();
+
+    // Prevent empty child iframes from answering before the frame that holds the video
+    if (!videos.length && window !== window.top) {
+      return false;
     }
 
-    const videos = getAllVideos();
-    if (videos.length === 0) return;
-
-    const pressed = normalizeKey(e.key);
-    const step = e.shiftKey ? 0.25 : 0.10;
-
-    // Free Tier uses default shortcuts (], [, R); Pro Tier uses custom remapped hotkeys + Favorite Speed (G)
-    const activeKeys = isLicensed ? customHotkeys : DEFAULT_HOTKEYS;
-
-    if (pressed === normalizeKey(activeKeys.speedUp)) {
-      e.preventDefault();
-      e.stopPropagation();
-      changeSpeed(step);
-    } else if (pressed === normalizeKey(activeKeys.speedDown)) {
-      e.preventDefault();
-      e.stopPropagation();
-      changeSpeed(-step);
-    } else if (pressed === normalizeKey(activeKeys.resetSpeed)) {
-      e.preventDefault();
-      e.stopPropagation();
-      setSpeed(1.0, '1.0x');
-    } else if (isLicensed && pressed === normalizeKey(activeKeys.favoriteSpeed)) {
-      e.preventDefault();
-      e.stopPropagation();
-      const targetFav = clampSpeedForTier(favoriteSpeed || 2.0);
-      if (Math.abs(currentSpeed - targetFav) < 0.02) {
-        setSpeed(1.0, '1.0x');
-      } else {
-        setSpeed(targetFav, formatSpeedText(targetFav));
-      }
+    if (
+      !videos.length &&
+      ['STEP_FRAME', 'SKIP_TIME', 'ADD_CHECKPOINT', 'SEEK_TO'].includes(request.action)
+    ) {
+      sendResponse({ success: false, error: 'No video found' });
+      return true;
     }
-  }, true);
 
-  function seekVideos(seconds) {
-    const videos = getAllVideos();
-    let latestTime = 0;
-    videos.forEach(v => {
-      const target = Math.max(0, v.currentTime + seconds);
-      v.currentTime = isFinite(v.duration) ? Math.min(v.duration, target) : target;
-      latestTime = v.currentTime;
-    });
-    const sign = seconds >= 0 ? '+' : '';
-    showVideoActionBadge(`${sign}${seconds}s`);
-    return latestTime;
-  }
+    switch (request.action) {
+      case 'SET_SPEED':
+        applySpeed(request.speed, true, true);
+        sendResponse({ success: true, currentSpeed: targetSpeed, speed: targetSpeed });
+        break;
 
-  function stepFrameVideos(deltaSeconds) {
-    const videos = getAllVideos();
-    let latestTime = 0;
-    videos.forEach(v => {
-      if (!v.paused) v.pause();
-      const target = Math.max(0, v.currentTime + deltaSeconds);
-      v.currentTime = isFinite(v.duration) ? Math.min(v.duration, target) : target;
-      latestTime = v.currentTime;
-    });
-    showVideoActionBadge(deltaSeconds < 0 ? '⏮ -1f' : '⏭ +1f');
-    return latestTime;
-  }
+      case 'GET_SPEED':
+        sendResponse({
+          success: true,
+          currentSpeed: targetSpeed,
+          speed: targetSpeed,
+          hasVideo: videos.length > 0
+        });
+        break;
 
-  function seekToTime(targetSeconds) {
-    const videos = getAllVideos();
-    const sec = Math.max(0, parseFloat(targetSeconds) || 0);
-    videos.forEach(v => {
-      v.currentTime = isFinite(v.duration) ? Math.min(v.duration, sec) : sec;
-    });
-    showVideoActionBadge(formatTimestamp(sec));
-    return sec;
-  }
-
-  function togglePlayAll() {
-    const videos = getAllVideos();
-    let playingState = false;
-    videos.forEach(v => {
-      if (v.paused) {
-        v.play();
-        playingState = true;
-      } else {
-        v.pause();
-        playingState = false;
+      case 'STEP_FRAME': {
+        // direction: +1 per avanti, -1 per indietro (~0.033s @ 30fps)
+        if (mainVideo) {
+          mainVideo.pause();
+          const dir = request.direction !== undefined
+            ? (request.direction > 0 ? 1 : -1)
+            : (parseFloat(request.delta) >= 0 ? 1 : -1);
+          const delta = dir > 0 ? 0.033 : -0.033;
+          mainVideo.currentTime = Math.max(0, mainVideo.currentTime + delta);
+          showHUD(dir > 0 ? '+1 Frame' : '-1 Frame');
+        }
+        sendResponse({
+          success: true,
+          currentTime: mainVideo ? mainVideo.currentTime : 0,
+          isPlaying: false
+        });
+        break;
       }
-    });
-    return playingState;
-  }
 
-  function toggleMuteAll() {
-    const videos = getAllVideos();
-    let mutedState = false;
-    videos.forEach(v => {
-      v.muted = !v.muted;
-      mutedState = v.muted;
-    });
-    return mutedState;
-  }
+      case 'SKIP_TIME':
+      case 'SEEK': {
+        // seconds: es. +5 oppure -5
+        if (mainVideo) {
+          const secs = parseFloat(request.seconds) || 0;
+          const nextTime = Math.max(0, mainVideo.currentTime + secs);
+          mainVideo.currentTime = isFinite(mainVideo.duration)
+            ? Math.min(mainVideo.duration, nextTime)
+            : nextTime;
+          showHUD(secs > 0 ? `+${secs}s` : `${secs}s`);
+        }
+        sendResponse({
+          success: true,
+          currentTime: mainVideo ? mainVideo.currentTime : 0
+        });
+        break;
+      }
 
-  // Message Handler for Extension Popup & Service Worker
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    const videos = getAllVideos();
-    const firstVideo = videos[0];
+      case 'ADD_CHECKPOINT':
+      case 'GET_CURRENT_TIME': {
+        if (mainVideo) {
+          if (request.action === 'ADD_CHECKPOINT') {
+            showHUD(`📍 ${formatTimestamp(mainVideo.currentTime)}`);
+          }
+          sendResponse({
+            success: true,
+            timestamp: mainVideo.currentTime,
+            currentTime: mainVideo.currentTime,
+            duration: isFinite(mainVideo.duration) ? mainVideo.duration : 0,
+            pageTitle: document.title,
+            pageUrl: window.location.href
+          });
+        } else {
+          sendResponse({ success: false, error: 'No video found' });
+        }
+        break;
+      }
 
-    switch (message.action) {
+      case 'SEEK_TO': {
+        if (mainVideo && typeof request.time === 'number') {
+          mainVideo.currentTime = Math.max(0, request.time);
+          showHUD(`📍 ${formatTimestamp(mainVideo.currentTime)}`);
+          sendResponse({ success: true, currentTime: mainVideo.currentTime });
+        } else {
+          sendResponse({ success: false, error: 'No video found' });
+        }
+        break;
+      }
+
       case 'GET_VIDEO_STATUS':
         sendResponse({
+          success: true,
           hasVideo: videos.length > 0,
           count: videos.length,
-          currentSpeed: currentSpeed,
-          isPlaying: firstVideo ? !firstVideo.paused : true,
-          isMuted: firstVideo ? firstVideo.muted : false,
-          currentTime: firstVideo ? firstVideo.currentTime : 0,
-          duration: firstVideo && isFinite(firstVideo.duration) ? firstVideo.duration : 0,
+          currentSpeed: targetSpeed,
+          isPlaying: mainVideo ? !mainVideo.paused : true,
+          isMuted: mainVideo ? mainVideo.muted : false,
+          currentTime: mainVideo ? mainVideo.currentTime : 0,
+          duration: mainVideo && isFinite(mainVideo.duration) ? mainVideo.duration : 0,
           hostname: currentHostname,
           pageTitle: document.title,
           pageUrl: window.location.href
         });
         break;
 
-      case 'GET_CURRENT_TIME':
-        sendResponse({
-          hasVideo: videos.length > 0,
-          currentTime: firstVideo ? firstVideo.currentTime : 0,
-          duration: firstVideo && isFinite(firstVideo.duration) ? firstVideo.duration : 0,
-          pageTitle: document.title,
-          pageUrl: window.location.href
-        });
+      case 'TOGGLE_PLAY': {
+        let playingState = false;
+        if (mainVideo) {
+          if (mainVideo.paused) {
+            mainVideo.play();
+            playingState = true;
+            showHUD('▶ Play');
+          } else {
+            mainVideo.pause();
+            playingState = false;
+            showHUD('⏸ Pausa');
+          }
+        }
+        sendResponse({ success: true, isPlaying: playingState });
         break;
+      }
 
-      case 'SET_SPEED':
-        setSpeed(message.speed);
-        sendResponse({ success: true, speed: currentSpeed });
+      case 'TOGGLE_MUTE': {
+        let mutedState = false;
+        if (mainVideo) {
+          mainVideo.muted = !mainVideo.muted;
+          mutedState = mainVideo.muted;
+          showHUD(mutedState ? '🔇 Mute' : '🔊 Audio');
+        }
+        sendResponse({ success: true, isMuted: mutedState });
         break;
-
-      case 'TOGGLE_PLAY':
-        const isPlaying = togglePlayAll();
-        sendResponse({ success: true, isPlaying });
-        break;
-
-      case 'TOGGLE_MUTE':
-        const isMuted = toggleMuteAll();
-        sendResponse({ success: true, isMuted });
-        break;
-
-      case 'SEEK':
-        const newTime = seekVideos(parseFloat(message.seconds) || 0);
-        sendResponse({ success: true, currentTime: newTime });
-        break;
-
-      case 'STEP_FRAME':
-        const frameTime = stepFrameVideos(parseFloat(message.delta) || 0.033);
-        sendResponse({ success: true, currentTime: frameTime, isPlaying: false });
-        break;
-
-      case 'SEEK_TO':
-        const jumpedTime = seekToTime(message.time);
-        sendResponse({ success: true, currentTime: jumpedTime });
-        break;
+      }
 
       case 'SET_PITCH':
-        preservesPitch = !!message.preservesPitch;
+        preservesPitch = !!request.preservesPitch;
         applySettingsToAllVideos();
         sendResponse({ success: true });
         break;
 
       case 'SET_LOOP':
-        loopVideo = !!message.loop;
+        loopVideo = !!request.loop;
         applySettingsToAllVideos();
         sendResponse({ success: true });
         break;
 
       case 'SET_HUD':
-        hudEnabled = !!message.enabled;
+        hudEnabled = !!request.enabled;
         applySettingsToAllVideos();
         sendResponse({ success: true });
         break;

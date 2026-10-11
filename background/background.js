@@ -1,9 +1,11 @@
 // SpeedUp Video Pro - Background Service Worker (Manifest V3)
 
-// Initialize default extension settings & installation timestamp
-chrome.runtime.onInstalled.addListener(async (details) => {
+// Initialize default extension settings & Pro dev state
+chrome.runtime.onInstalled.addListener(async () => {
   const existing = await chrome.storage.local.get([
     'installDate',
+    'isPro',
+    'isLicensed',
     'defaultSpeed',
     'hudEnabled',
     'preservesPitch',
@@ -17,6 +19,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
   const updates = {};
   if (!existing.installDate) updates.installDate = Date.now();
+  if (existing.isPro === undefined) updates.isPro = true;
+  if (existing.isLicensed === undefined) updates.isLicensed = true;
   if (existing.defaultSpeed === undefined) updates.defaultSpeed = 1.0;
   if (existing.hudEnabled === undefined) updates.hudEnabled = true;
   if (existing.preservesPitch === undefined) updates.preservesPitch = true;
