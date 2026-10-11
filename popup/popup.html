@@ -19,7 +19,7 @@
         </div>
         <div class="brand-text">
           <h1>SpeedUp <span class="accent-text">PRO</span></h1>
-          <p class="subtitle">Controllo Velocità Web</p>
+          <p class="subtitle">Universal Video Suite v1.5</p>
         </div>
       </div>
       <div id="statusBadge" class="status-badge status-offline">
@@ -28,200 +28,340 @@
       </div>
     </header>
 
-    <!-- TRIAL STATUS BANNER (Shown during 7-day active trial) -->
-    <div id="trialBanner" class="trial-banner" style="display: none;">
-      <span id="trialBadgeText" class="trial-badge-text">Trial: 7 giorni rimanenti</span>
-      <a id="upgradeTrialLink" href="https://x2-speedup.vercel.app" target="_blank" rel="noopener noreferrer" class="upgrade-trial-link">Passa a Lifetime ($3.99)</a>
-    </div>
+    <!-- DISCRETE PRO UPGRADE MODAL / OVERLAY (Shown when Free user triggers a Pro feature) -->
+    <section id="proUpgradeModal" class="pro-upgrade-modal" style="display: none;" role="dialog" aria-modal="true">
+      <div class="pro-modal-card">
+        <button id="closeUpgradeModalBtn" class="pro-modal-close" title="Continua con versione Free" aria-label="Chiudi">×</button>
+        <div class="pro-modal-badge">
+          <span>⚡ PRO FEATURE</span>
+        </div>
+        <p class="pro-modal-title">
+          Unlock SpeedUP Pro — Extreme speeds up to 16x &amp; precision tools for $2.99 (Lifetime)
+        </p>
+        <button id="ctaBuyBtn" class="cta-buy-btn">
+          Unlock SpeedUP Pro — $2.99
+        </button>
 
-    <!-- PAYWALL / TRIAL EXPIRED LOCK CARD (Shown when trial is expired & not licensed) -->
-    <section id="paywall" class="paywall-card" style="display: none;">
-      <div class="paywall-badge">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
-        <span>Prova Scaduta</span>
-      </div>
+        <div class="divider">
+          <span>hai già una licenza?</span>
+        </div>
 
-      <h2 class="paywall-title">Sblocca X2 PRO</h2>
-      <p class="paywall-desc">Il tuo periodo di prova di 7 giorni è terminato. Sblocca X2 per sempre a soli $3.99.</p>
-
-      <!-- Main CTA Button -->
-      <button id="ctaBuyBtn" class="cta-buy-btn">
-        Ottieni Licenza a Vita ($3.99)
-      </button>
-
-      <div class="divider">
-        <span>oppure attiva chiave</span>
-      </div>
-
-      <!-- Activation Key Form -->
-      <div class="key-form">
-        <input type="text" id="keyInput" placeholder="Es. PRO-1234-5678" autocomplete="off" spellcheck="false">
-        <button id="activateBtn" class="activate-btn">Attiva Chiave</button>
-      </div>
-
-      <div id="statusMsg" class="status-msg"></div>
-
-      <div class="test-hint">
-        <span>💡 Modalità Test: usa una chiave che inizia con <code>PRO-</code></span>
+        <div class="key-form">
+          <input type="text" id="keyInput" placeholder="Inserisci chiave (es. PRO-1234)" autocomplete="off" spellcheck="false">
+          <button id="activateBtn" class="activate-btn">Attiva Licenza</button>
+        </div>
+        <div id="statusMsg" class="status-msg"></div>
       </div>
     </section>
 
-    <!-- SPEED CONTROLS SECTION (Visible during 7-day trial or when licensed) -->
-    <div id="speedControls" style="display: none;">
-      <main class="main-content">
-        <section class="speed-display-card">
-          <div class="card-glow"></div>
-          <div class="speed-header">
-            <span class="label">Velocità Video</span>
-            <button id="resetBtn" class="reset-btn" title="Ripristina a 1.0x (R)">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                <path d="M3 3v5h5"></path>
-              </svg>
-              Reset
-            </button>
-          </div>
+    <!-- MAIN SUITE SECTION (Always visible — Free Tier 0.25x-2.5x active immediately) -->
+    <div id="speedControls">
+      <!-- 3-Tab Navigation Bar -->
+      <nav class="tab-nav" role="tablist" aria-label="Navigazione Principale">
+        <button class="tab-btn active" data-tab="speed" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 14l4-4"></path>
+            <path d="M3.34 19a10 10 0 1 1 17.32 0"></path>
+          </svg>
+          <span>Speed</span>
+        </button>
 
-          <!-- Main Display ID matching speedVal -->
-          <div class="speed-display" id="speedVal">1.0x</div>
+        <button class="tab-btn" data-tab="shortcuts" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+            <line x1="6" y1="8" x2="6.01" y2="8"></line>
+            <line x1="10" y1="8" x2="10.01" y2="8"></line>
+            <line x1="14" y1="8" x2="14.01" y2="8"></line>
+            <line x1="18" y1="8" x2="18.01" y2="8"></line>
+            <line x1="8" y1="12" x2="8.01" y2="12"></line>
+            <line x1="12" y1="12" x2="12.01" y2="12"></line>
+            <line x1="16" y1="12" x2="16.01" y2="12"></line>
+            <line x1="7" y1="16" x2="17" y2="16"></line>
+          </svg>
+          <span>Shortcuts</span>
+        </button>
 
-          <div class="slider-container">
-            <input type="range" id="speedSlider" min="0.25" max="4.0" step="0.05" value="1.0">
-          </div>
+        <button class="tab-btn" data-tab="precision" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="22" y1="12" x2="18" y2="12"></line>
+            <line x1="6" y1="12" x2="2" y2="12"></line>
+            <line x1="12" y1="6" x2="12" y2="2"></line>
+            <line x1="12" y1="22" x2="12" y2="18"></line>
+          </svg>
+          <span>Precision</span>
+        </button>
+      </nav>
 
-          <div class="fine-adjust">
-            <button class="step-btn" data-step="-0.25">-0.25x</button>
-            <button class="step-btn" data-step="-0.10">-0.10x</button>
-            <div class="custom-input-wrapper">
-              <input type="number" id="customSpeedInput" min="0.1" max="16.0" step="0.05" value="1.00" aria-label="Velocità personalizzata">
-              <span class="input-unit">x</span>
+      <!-- ==========================================
+           TAB 1: SPEED HUB
+           ========================================== -->
+      <div id="tab-speed" class="tab-pane active" style="display: block;">
+        <main class="main-content">
+          <section class="speed-display-card">
+            <div class="card-glow"></div>
+            <div class="speed-header">
+              <span class="label">Speed Hub <span id="tierRangeHint" class="tier-hint">(Free: 0.25x–2.5x)</span></span>
+              <button id="resetBtn" class="reset-btn" title="Ripristina a 1.0x (R)">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+                Reset 1.0x
+              </button>
             </div>
-            <button class="step-btn" data-step="+0.10">+0.10x</button>
-            <button class="step-btn" data-step="+0.25">+0.25x</button>
-          </div>
-        </section>
 
-        <!-- Presets Section -->
-        <section class="presets-section">
-          <span class="section-title">Preimpostazioni Rapide</span>
-          <div class="presets">
-            <button class="preset-btn active" data-speed="1.0">1.0x</button>
-            <button class="preset-btn" data-speed="1.25">1.25x</button>
-            <button class="preset-btn" data-speed="1.5">1.5x</button>
-            <button class="preset-btn" data-speed="1.75">1.75x</button>
-            <button class="preset-btn" data-speed="2.0">2.0x</button>
-            <button class="preset-btn" data-speed="2.5">2.5x</button>
-            <button class="preset-btn" data-speed="3.0">3.0x</button>
-            <button class="preset-btn" data-speed="4.0">4.0x</button>
-          </div>
-        </section>
+            <!-- Real-time Numeric Speed Badge -->
+            <div class="speed-display" id="speedVal">1.0x</div>
 
-        <!-- Playback Controls -->
-        <section class="quick-actions-section">
-          <span class="section-title">Controlli Riproduzione</span>
-          <div class="actions-grid">
-            <button id="togglePlayBtn" class="action-btn" title="Play / Pausa">
-              <svg id="playIcon" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              <span id="playText">Pausa</span>
-            </button>
-            
-            <button id="toggleMuteBtn" class="action-btn" title="Attiva / Disattiva Audio">
-              <svg id="muteIcon" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-              </svg>
-              <span id="muteText">Audio ON</span>
-            </button>
-
-            <button id="seekBackBtn" class="action-btn" title="Indietro di 10 secondi">
-              <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
-              </svg>
-              <span>-10s</span>
-            </button>
-
-            <button id="seekFwdBtn" class="action-btn" title="Avanti di 10 secondi">
-              <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M13 5l5 5-5 5M6 5l5 5-5 5"></path>
-              </svg>
-              <span>+10s</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- Advanced Features & Toggles -->
-        <section class="options-section">
-          <div class="option-row">
-            <div class="option-info">
-              <span class="option-title">Mantieni Intonazione</span>
-              <span class="option-desc">Conserva il tono audio originale</span>
+            <!-- Continuous Slider (0.1x to 16.0x; Free clamped at 0.25x-2.5x with Pro prompt) -->
+            <div class="slider-container">
+              <input type="range" id="speedSlider" min="0.1" max="16.0" step="0.05" value="1.0">
+              <div class="slider-ticks">
+                <span>0.25x</span>
+                <span>1.0x</span>
+                <span>2.5x (Free)</span>
+                <span>8.0x</span>
+                <span>16x ⚡</span>
+              </div>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="pitchToggle" checked>
-              <span class="slider-toggle"></span>
-            </label>
-          </div>
 
-          <div class="option-row">
-            <div class="option-info">
-              <span class="option-title">Ripetizione Video (Loop)</span>
-              <span class="option-desc">Riavvia automaticamente il video</span>
+            <!-- Fine Adjustments Bar -->
+            <div class="fine-adjust">
+              <button class="step-btn" data-step="-0.25">-0.25x</button>
+              <button class="step-btn" data-step="-0.10">-0.10x</button>
+              <div class="custom-input-wrapper">
+                <input type="number" id="customSpeedInput" min="0.1" max="16.0" step="0.05" value="1.00" aria-label="Velocità personalizzata">
+                <span class="input-unit">x</span>
+              </div>
+              <button class="step-btn" data-step="+0.10">+0.10x</button>
+              <button class="step-btn" data-step="+0.25">+0.25x</button>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="loopToggle">
-              <span class="slider-toggle"></span>
-            </label>
-          </div>
+          </section>
 
-          <div class="option-row">
-            <div class="option-info">
-              <span class="option-title">Controller Sovrapposto (HUD)</span>
-              <span class="option-desc">Badge sul video al passaggio del mouse</span>
+          <!-- Quick Presets (1.0x, 1.5x, 2.0x, 3.0x, 4.0x) -->
+          <section class="presets-section">
+            <span class="section-title">Preset Rapidi</span>
+            <div class="presets presets-five">
+              <button class="preset-btn active" data-speed="1.0">1.0x</button>
+              <button class="preset-btn" data-speed="1.5">1.5x</button>
+              <button class="preset-btn" data-speed="2.0">2.0x</button>
+              <button class="preset-btn pro-preset" data-speed="3.0">3.0x <span class="pro-mini-tag">PRO</span></button>
+              <button class="preset-btn pro-preset" data-speed="4.0">4.0x <span class="pro-mini-tag">PRO</span></button>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="hudToggle" checked>
-              <span class="slider-toggle"></span>
-            </label>
-          </div>
-        </section>
+          </section>
 
-        <!-- Hotkeys Guide -->
-        <details class="hotkeys-accordion">
-          <summary class="accordion-header">
-            <div class="accordion-title">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
-                <line x1="6" y1="8" x2="6" y2="8"></line>
-                <line x1="10" y1="8" x2="10" y2="8"></line>
-                <line x1="14" y1="8" x2="14" y2="8"></line>
-                <line x1="18" y1="8" x2="18" y2="8"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
-              <span>Scorciatoie Tastiera</span>
+          <!-- Domain Speed Memory & Audio Options -->
+          <section class="options-section">
+            <div class="option-row highlight-option">
+              <div class="option-info">
+                <span class="option-title">
+                  Remember speed for this domain
+                  <span class="pro-pill-tag">PRO</span>
+                </span>
+                <span id="domainHintText" class="option-desc">Salva velocità per il sito corrente</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="rememberDomainToggle">
+                <span class="slider-toggle"></span>
+              </label>
             </div>
-            <svg class="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </summary>
-          <div class="hotkeys-list">
-            <div class="hotkey-item"><kbd>S</kbd> <span>Rallenta (-0.10x / -0.25x Shift)</span></div>
-            <div class="hotkey-item"><kbd>D</kbd> <span>Accelera (+0.10x / +0.25x Shift)</span></div>
-            <div class="hotkey-item"><kbd>R</kbd> <span>Reset a 1.0x</span></div>
-            <div class="hotkey-item"><kbd>Z</kbd> / <kbd>X</kbd> <span>-10s / +10s</span></div>
-            <div class="hotkey-item"><kbd>V</kbd> <span>Toggle HUD sul video</span></div>
-          </div>
-        </details>
-      </main>
 
-      <!-- Footer with License Status -->
+            <div class="option-row">
+              <div class="option-info">
+                <span class="option-title">Mantieni Intonazione (Pitch)</span>
+                <span class="option-desc">Tonalità audio naturale attiva di default</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="pitchToggle" checked>
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-info">
+                <span class="option-title">Controller Sovrapposto (HUD)</span>
+                <span class="option-desc">Controlli rapidi sul player video</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="hudToggle" checked>
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-info">
+                <span class="option-title">Ripetizione Video (Loop)</span>
+                <span class="option-desc">Riavvia automaticamente al termine</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="loopToggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- ==========================================
+           TAB 2: CUSTOM HOTKEYS (RIMAPPATURA TOTALE)
+           ========================================== -->
+      <div id="tab-shortcuts" class="tab-pane" style="display: none;">
+        <main class="main-content">
+          <section class="shortcuts-card">
+            <div class="shortcuts-header">
+              <div>
+                <span class="label">Shortcuts &amp; Custom Hotkeys <span class="pro-pill-tag">PRO REMAP</span></span>
+                <p class="shortcuts-sub">Tasti base attivi gratis. Clicca per rimappare con Pro.</p>
+              </div>
+              <button id="resetHotkeysBtn" class="reset-btn" title="Ripristina tasti predefiniti">
+                Default
+              </button>
+            </div>
+
+            <div class="hotkey-remap-list">
+              <!-- Speed Up -->
+              <div class="hotkey-remap-row">
+                <div class="hotkey-meta">
+                  <span class="hotkey-name">Speed Up</span>
+                  <span class="hotkey-desc">Accelera video (+0.10x / Shift +0.25x)</span>
+                </div>
+                <button class="hotkey-capture-btn" data-action="speedUp" id="hk-speedUp" title="Clicca per rimappare">]</button>
+              </div>
+
+              <!-- Speed Down -->
+              <div class="hotkey-remap-row">
+                <div class="hotkey-meta">
+                  <span class="hotkey-name">Speed Down</span>
+                  <span class="hotkey-desc">Rallenta video (-0.10x / Shift -0.25x)</span>
+                </div>
+                <button class="hotkey-capture-btn" data-action="speedDown" id="hk-speedDown" title="Clicca per rimappare">[</button>
+              </div>
+
+              <!-- Reset 1.0x -->
+              <div class="hotkey-remap-row">
+                <div class="hotkey-meta">
+                  <span class="hotkey-name">Reset 1.0x</span>
+                  <span class="hotkey-desc">Torna istantaneamente a 1.0x</span>
+                </div>
+                <button class="hotkey-capture-btn" data-action="resetSpeed" id="hk-resetSpeed" title="Clicca per rimappare">R</button>
+              </div>
+
+              <!-- Toggle Favorite Speed -->
+              <div class="hotkey-remap-row">
+                <div class="hotkey-meta">
+                  <span class="hotkey-name">Toggle Favorite Speed <span class="pro-pill-tag">PRO</span></span>
+                  <span class="hotkey-desc">Attiva/disattiva velocità preferita</span>
+                </div>
+                <button class="hotkey-capture-btn" data-action="favoriteSpeed" id="hk-favoriteSpeed" title="Clicca per rimappare">G</button>
+              </div>
+            </div>
+
+            <!-- Favorite Speed Target Setting -->
+            <div class="fav-speed-row">
+              <div class="hotkey-meta">
+                <span class="hotkey-name">Valore Favorite Speed</span>
+                <span class="hotkey-desc">Velocità target per il tasto rapido</span>
+              </div>
+              <div class="custom-input-wrapper fav-input-wrap">
+                <input type="number" id="favoriteSpeedInput" min="0.1" max="16.0" step="0.1" value="2.0" aria-label="Velocità preferita">
+                <span class="input-unit">x</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="hud-feedback-banner">
+            <span class="hud-banner-icon">⚡</span>
+            <span>Ogni scorciatoia mostra una pill HUD in alto a destra sul player video (~1s) a conferma dell'azione.</span>
+          </div>
+        </main>
+      </div>
+
+      <!-- ==========================================
+           TAB 3: PRECISION & CHECKPOINTS (PRO)
+           ========================================== -->
+      <div id="tab-precision" class="tab-pane" style="display: none;">
+        <main class="main-content">
+          <!-- Frame-by-Frame Scrubbing & Quick Jumps -->
+          <section class="precision-card">
+            <div class="precision-header">
+              <span class="label">Frame Scrubbing <span class="pro-pill-tag">PRO</span></span>
+              <span id="precisionTimeBadge" class="time-pill">00:00</span>
+            </div>
+
+            <!-- Frame-by-Frame Buttons (-0.033s / +0.033s) -->
+            <div class="scrub-grid">
+              <button id="prevFrameBtn" class="scrub-btn frame-btn" title="Fotogramma precedente (-0.033s)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                  <line x1="5" y1="19" x2="5" y2="5"></line>
+                </svg>
+                <span>Prev Frame</span>
+              </button>
+
+              <button id="nextFrameBtn" class="scrub-btn frame-btn" title="Fotogramma successivo (+0.033s)">
+                <span>Next Frame</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                  <line x1="19" y1="5" x2="19" y2="19"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Quick Seek (-5s / Play-Pause / +5s) -->
+            <div class="jump-grid">
+              <button id="seekBack5Btn" class="scrub-btn" title="Salta indietro di 5 secondi">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
+                </svg>
+                <span>-5s</span>
+              </button>
+
+              <button id="togglePlayBtn" class="scrub-btn play-Ctrl-btn" title="Play / Pausa">
+                <span id="playText">Pausa</span>
+              </button>
+
+              <button id="seekFwd5Btn" class="scrub-btn" title="Salta avanti di 5 secondi">
+                <span>+5s</span>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M13 5l5 5-5 5M6 5l5 5-5 5"></path>
+                </svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- Video Checkpoints / Bookmarks -->
+          <section class="checkpoints-card">
+            <div class="checkpoints-header">
+              <span class="label">Video Checkpoints <span class="pro-pill-tag">PRO</span></span>
+              <span id="checkpointCountBadge" class="cp-count">0 salvati</span>
+            </div>
+
+            <div class="checkpoint-add-bar">
+              <input type="text" id="checkpointLabelInput" placeholder="Nota opzionale (es. Capitolo 1)" maxlength="40" autocomplete="off">
+              <button id="addCheckpointBtn" class="add-cp-btn" title="Salva timestamp corrente">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add Checkpoint</span>
+              </button>
+            </div>
+
+            <div id="checkpointsList" class="checkpoints-list">
+              <div class="cp-empty">Nessun checkpoint salvato per questo video.</div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- Footer with Free/Pro Status & Upgrade/License Trigger -->
       <footer class="app-footer">
-        <span id="footerLicenseStatus" class="footer-note">SpeedUp Video PRO &bull; Licenza Attiva ✨</span>
-        <button id="logoutKeyBtn" class="logout-link" title="Disattiva licenza attuale">Disattiva</button>
+        <span id="footerLicenseStatus" class="footer-note">Free Tier (0.25x–2.5x)</span>
+        <div class="footer-actions">
+          <button id="openUpgradeBtn" class="upgrade-footer-btn">Unlock Pro ($2.99)</button>
+          <button id="logoutKeyBtn" class="logout-link" style="display: none;" title="Disattiva licenza attuale">Disattiva</button>
+        </div>
       </footer>
     </div>
   </div>

@@ -1,13 +1,11 @@
 {
   "manifest_version": 3,
   "name": "SpeedUp Video Pro",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "Controllo rapido della velocità per qualsiasi video web.",
   "permissions": [
-    "activeTab",
-    "scripting",
     "storage",
-    "tabs"
+    "activeTab"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -30,10 +28,6 @@
       "matches": [
         "http://*/*",
         "https://*/*"
-      ],
-      "exclude_matches": [
-        "*://*.youtube.com/*",
-        "*://youtube.com/*"
       ],
       "js": [
         "content/content.js"

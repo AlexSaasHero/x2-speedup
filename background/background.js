@@ -2,17 +2,40 @@
 
 // Initialize default extension settings & installation timestamp
 chrome.runtime.onInstalled.addListener(async (details) => {
-  if (details.reason === 'install') {
-    const res = await chrome.storage.local.get(['installDate']);
-    if (!res.installDate) {
-      await chrome.storage.local.set({ installDate: Date.now() });
-    }
-    await chrome.storage.local.set({
-      defaultSpeed: 1.0,
-      hudEnabled: true,
-      preservesPitch: true,
-      loopVideo: false
-    });
+  const existing = await chrome.storage.local.get([
+    'installDate',
+    'defaultSpeed',
+    'hudEnabled',
+    'preservesPitch',
+    'loopVideo',
+    'activeTab',
+    'favoriteSpeed',
+    'customHotkeys',
+    'domainSpeeds',
+    'videoCheckpoints'
+  ]);
+
+  const updates = {};
+  if (!existing.installDate) updates.installDate = Date.now();
+  if (existing.defaultSpeed === undefined) updates.defaultSpeed = 1.0;
+  if (existing.hudEnabled === undefined) updates.hudEnabled = true;
+  if (existing.preservesPitch === undefined) updates.preservesPitch = true;
+  if (existing.loopVideo === undefined) updates.loopVideo = false;
+  if (!existing.activeTab) updates.activeTab = 'speed';
+  if (existing.favoriteSpeed === undefined) updates.favoriteSpeed = 2.0;
+  if (!existing.customHotkeys) {
+    updates.customHotkeys = {
+      speedUp: ']',
+      speedDown: '[',
+      resetSpeed: 'r',
+      favoriteSpeed: 'g'
+    };
+  }
+  if (!existing.domainSpeeds) updates.domainSpeeds = {};
+  if (!existing.videoCheckpoints) updates.videoCheckpoints = {};
+
+  if (Object.keys(updates).length > 0) {
+    await chrome.storage.local.set(updates);
   }
 });
 
