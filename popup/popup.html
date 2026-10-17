@@ -28,18 +28,27 @@
       </div>
     </header>
 
-    <!-- DISCRETE PRO UPGRADE MODAL / OVERLAY (Shown when Free user triggers a Pro feature) -->
+    <!-- TRIAL STATUS BADGE / BANNER (Shown during active 7-day trial or when expired) -->
+    <div id="trialBanner" class="trial-banner" style="display: none;">
+      <div class="trial-left">
+        <span class="trial-dot"></span>
+        <span id="trialBadgeText" class="trial-badge-text">Trial: 7 days left</span>
+      </div>
+      <a id="upgradeTrialLink" href="https://x2-speedup.vercel.app" target="_blank" rel="noopener noreferrer" class="upgrade-trial-link">Unlock Pro ($1.99)</a>
+    </div>
+
+    <!-- DISCRETE PRO UPGRADE MODAL / OVERLAY (Shown when trial is expired and user triggers Pro features) -->
     <section id="proUpgradeModal" class="pro-upgrade-modal" style="display: none;" role="dialog" aria-modal="true">
       <div class="pro-modal-card">
         <button id="closeUpgradeModalBtn" class="pro-modal-close" title="Continua con versione Free" aria-label="Chiudi">×</button>
         <div class="pro-modal-badge">
-          <span>⚡ PRO FEATURE</span>
+          <span>⚡ PRO LIFETIME</span>
         </div>
-        <p class="pro-modal-title">
-          Unlock SpeedUP Pro — Extreme speeds up to 16x &amp; precision tools for $2.99 (Lifetime)
+        <p id="proModalTitle" class="pro-modal-title">
+          Your 7-day trial has ended. Unlock SpeedUP Video Pro Lifetime for only $1.99
         </p>
         <button id="ctaBuyBtn" class="cta-buy-btn">
-          Unlock SpeedUP Pro — $2.99
+          Unlock SpeedUP Video Pro — $1.99
         </button>
 
         <div class="divider">
@@ -355,11 +364,11 @@
         </main>
       </div>
 
-      <!-- Footer with Free/Pro Status & Upgrade/License Trigger -->
+      <!-- Footer with Free/Trial/Pro Status & Upgrade/License Trigger -->
       <footer class="app-footer">
         <span id="footerLicenseStatus" class="footer-note">Free Tier (0.25x–2.5x)</span>
         <div class="footer-actions">
-          <button id="openUpgradeBtn" class="upgrade-footer-btn">Unlock Pro ($2.99)</button>
+          <button id="openUpgradeBtn" class="upgrade-footer-btn">Unlock Pro ($1.99)</button>
           <button id="logoutKeyBtn" class="logout-link" style="display: none;" title="Disattiva licenza attuale">Disattiva</button>
         </div>
       </footer>
