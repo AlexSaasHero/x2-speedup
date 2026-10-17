@@ -8,7 +8,10 @@
     favoriteSpeed: 'g'
   };
 
-  let isPro = true;
+  const DEV_MASTER_KEY = 'DEV-SPEEDUP-PRO-2026';
+  const TRIAL_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+  let installDate = null;
+  let isPermanentPro = false;
   let targetSpeed = 1.0;
   let isEnforcing = false;
   let hudEnabled = true;
@@ -17,6 +20,12 @@
   let favoriteSpeed = 2.0;
   let domainSpeeds = {};
   let customHotkeys = { ...DEFAULT_HOTKEYS };
+
+  function hasFullAccess() {
+    if (isPermanentPro) return true;
+    if (!installDate) return true;
+    return (Date.now() - installDate) < TRIAL_DURATION_MS;
+  }
 
   function normalizeKey(key) {
     if (!key) return '';
@@ -27,7 +36,10 @@
   function clampSpeed(val) {
     const num = parseFloat(val);
     if (isNaN(num)) return 1.0;
-    return parseFloat(Math.min(Math.max(num, 0.1), 16.0).toFixed(2));
+    if (hasFullAccess()) {
+      return parseFloat(Math.min(Math.max(num, 0.1), 16.0).toFixed(2));
+    }
+    return parseFloat(Math.min(Math.max(num, 0.25), 2.5).toFixed(2));
   }
 
   function formatSpeedText(speed) {

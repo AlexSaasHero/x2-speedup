@@ -190,6 +190,20 @@ body {
   transform: translateY(-1px);
 }
 
+.trial-banner.expired {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.trial-banner.expired .trial-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+.trial-banner.expired .trial-badge-text {
+  color: #f87171;
+}
+
 /* ==========================================
    DISCRETE PRO UPGRADE MODAL / BANNER
    ========================================== */

@@ -19,8 +19,8 @@ chrome.runtime.onInstalled.addListener(async () => {
 
   const updates = {};
   if (!existing.installDate) updates.installDate = Date.now();
-  if (existing.isPro === undefined) updates.isPro = true;
-  if (existing.isLicensed === undefined) updates.isLicensed = true;
+  if (existing.isPro === undefined) updates.isPro = false;
+  if (existing.isLicensed === undefined) updates.isLicensed = false;
   if (existing.defaultSpeed === undefined) updates.defaultSpeed = 1.0;
   if (existing.hudEnabled === undefined) updates.hudEnabled = true;
   if (existing.preservesPitch === undefined) updates.preservesPitch = true;
