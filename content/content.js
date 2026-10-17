@@ -365,6 +365,7 @@
   // ==========================================
   chrome.storage.local.get(
     [
+      'installDate',
       'isPro',
       'isLicensed',
       'licenseKey',
@@ -377,11 +378,10 @@
       'favoriteSpeed'
     ],
     (data) => {
-      if (data.isPro !== undefined || data.isLicensed !== undefined) {
-        isPro = !!(data.isPro || data.isLicensed || data.licenseKey === 'DEV-SPEEDUP-PRO-2026');
-      } else {
-        isPro = true;
+      if (data.installDate) {
+        installDate = data.installDate;
       }
+      isPermanentPro = !!(data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && (data.isPro || data.isLicensed)));
 
       if (data.domainSpeeds && typeof data.domainSpeeds === 'object') {
         domainSpeeds = data.domainSpeeds;
@@ -409,9 +409,13 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.isPro !== undefined || changes.isLicensed !== undefined) {
-      if (changes.isPro !== undefined) isPro = !!changes.isPro.newValue;
-      else if (changes.isLicensed !== undefined) isPro = !!changes.isLicensed.newValue;
+    if (changes.installDate && changes.installDate.newValue) {
+      installDate = changes.installDate.newValue;
+    }
+    if (changes.isPro !== undefined || changes.isLicensed !== undefined || changes.licenseKey !== undefined) {
+      chrome.storage.local.get(['isPro', 'isLicensed', 'licenseKey'], (res) => {
+        isPermanentPro = !!(res.licenseKey === DEV_MASTER_KEY || (res.licenseKey && (res.isPro || res.isLicensed)));
+      });
     }
     if (changes.defaultSpeed && changes.defaultSpeed.newValue !== undefined) {
       const nextSpeed = clampSpeed(changes.defaultSpeed.newValue);
@@ -560,6 +564,10 @@
         break;
 
       case 'STEP_FRAME': {
+        if (!hasFullAccess()) {
+          sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
+          break;
+        }
         // direction: +1 per avanti, -1 per indietro (~0.033s @ 30fps)
         if (mainVideo) {
           mainVideo.pause();
@@ -580,6 +588,10 @@
 
       case 'SKIP_TIME':
       case 'SEEK': {
+        if (!hasFullAccess()) {
+          sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
+          break;
+        }
         // seconds: es. +5 oppure -5
         if (mainVideo) {
           const secs = parseFloat(request.seconds) || 0;
@@ -598,6 +610,10 @@
 
       case 'ADD_CHECKPOINT':
       case 'GET_CURRENT_TIME': {
+        if (request.action === 'ADD_CHECKPOINT' && !hasFullAccess()) {
+          sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
+          break;
+        }
         if (mainVideo) {
           if (request.action === 'ADD_CHECKPOINT') {
             showHUD(`📍 ${formatTimestamp(mainVideo.currentTime)}`);
@@ -617,6 +633,10 @@
       }
 
       case 'SEEK_TO': {
+        if (!hasFullAccess()) {
+          sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
+          break;
+        }
         if (mainVideo && typeof request.time === 'number') {
           mainVideo.currentTime = Math.max(0, request.time);
           showHUD(`📍 ${formatTimestamp(mainVideo.currentTime)}`);
