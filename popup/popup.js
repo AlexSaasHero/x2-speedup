@@ -1,4 +1,4 @@
-// SpeedUp Video Pro v1.5.1 - Instant Modular Popup Controller (Manifest V3)
+// SpeedUp Video Pro v1.5.1.1 - Instant Modular Popup Controller (Manifest V3)
 document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 1. DOM ELEMENTS & CONSTANTS
