@@ -33,9 +33,8 @@
     window.createLemonSqueezy = function () {
       window.LemonSqueezy.Setup({
         eventHandler: (event) => {
-          console.log(event);
           if (event.event === 'Checkout.Success') {
-            // Optional: handle checkout success
+            window.location.href = 'https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh';
           }
         }
       });
@@ -103,15 +102,15 @@
         <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh/reviews" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 font-semibold transition text-xs sm:text-sm">
           <span>⭐</span> Review us on Chrome Store
         </a>
-        <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition font-semibold">Get License</a>
+        <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition font-semibold">Start Free Trial</a>
       </nav>
     </div>
   </header>
 
   <!-- Hero Section -->
   <section class="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-6">
-      🚀 SpeedUP Video Pro · Lightweight Chrome Extension
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs sm:text-sm font-semibold tracking-wide mb-6">
+      ✨ 7-Day Free Trial — Card/PayPal required, then $1.99 lifetime
     </div>
     <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-3xl mx-auto leading-tight sm:leading-none">
       Speed up <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">any video</span> anywhere on the web.
@@ -120,27 +119,51 @@
       Don't let rigid video players waste your time. SpeedUP Video Pro gives you universal playback control on courses, streaming platforms, news sites, and tutorials with a single click.
     </p>
 
+    <!-- Main CTA: Checkout Gate (No direct bypass download) -->
     <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-xl font-bold text-base transition shadow-lg shadow-blue-600/25">
-        Get Lifetime License — $1.99
+      <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-extrabold text-base sm:text-lg transition shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2">
+        <span>🚀</span> Start 7-Day Free Trial
       </a>
-      <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh?authuser=0&hl=it" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto border border-slate-700 hover:border-slate-500 text-slate-300 px-6 py-3.5 rounded-xl font-semibold text-base transition">
-        Install on Chrome
+      <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button w-full sm:w-auto border border-blue-500/40 hover:bg-blue-600/10 text-blue-300 hover:text-white px-6 py-4 rounded-xl font-bold text-base transition flex items-center justify-center gap-2">
+        <span>🔒</span> Get SpeedUP Video Pro ($0 Today)
       </a>
     </div>
 
-    <!-- 7-Day Free Trial Highlight & Chrome Store Rating Link -->
-    <div class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold">
-        <span>✨</span> Try 7 days free with all Pro features included, then just $1.99 lifetime
-      </div>
+    <!-- Micro-copy -->
+    <p class="mt-3.5 text-xs sm:text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+      7-day free trial. Card or PayPal required to start — you will only be charged $1.99 after day 7 if you keep it. Cancel anytime. License key delivered instantly via email.
+    </p>
+
+    <div class="mt-4 flex items-center justify-center gap-3">
       <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh/reviews" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-amber-200 transition font-medium px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
         <span>⭐</span> Rate on Chrome Web Store
       </a>
     </div>
-    <p class="mt-3 text-xs text-slate-400 flex items-center justify-center gap-1.5">
-      <span aria-hidden="true">🔒</span> One-time payment • Instant activation via Lemon Squeezy checkout
-    </p>
+
+    <!-- 3-Step Simple Process -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3.5 max-w-3xl mx-auto text-left">
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 flex items-start gap-3">
+        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600/20 text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-500/30">1</span>
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider">1. Start Free Trial</h4>
+          <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">Activate with Card or PayPal ($0 charged today).</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 flex items-start gap-3">
+        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600/20 text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-500/30">2</span>
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider">2. Instant License Key</h4>
+          <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">Delivered instantly on-screen &amp; via email inbox.</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 flex items-start gap-3">
+        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600/20 text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-500/30">3</span>
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider">3. Install &amp; Unlock</h4>
+          <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">Download on Chrome Store &amp; paste key for full access.</p>
+        </div>
+      </div>
+    </div>
 
     <!-- Interactive UI Controller & Live Video Showcase -->
     <div class="mt-14 max-w-5xl mx-auto bg-slate-900/90 border border-violet-500/30 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl shadow-violet-950/40 relative overflow-hidden backdrop-blur-sm text-left">
@@ -883,12 +906,37 @@
 
   <!-- Pricing -->
   <section id="pricing" class="max-w-5xl mx-auto px-6 py-20 border-t border-slate-900">
-    <div class="text-center mb-14">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4">
-        ✨ 7-Day Free Trial
+    <div class="text-center mb-12">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-4">
+        ✨ 7-Day Free Trial — Card/PayPal required, then $1.99 lifetime
       </div>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Simple, Transparent Pricing</h2>
       <p class="text-slate-400 mt-3 text-base">Try 7 days free with all Pro features included, then just $1.99 lifetime.</p>
+    </div>
+
+    <!-- 3-Step Simple Activation Process -->
+    <div class="max-w-4xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 relative">
+        <div class="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 font-extrabold flex items-center justify-center text-sm mb-3">1</div>
+        <h3 class="font-bold text-white text-base">1. Start Free Trial</h3>
+        <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
+          Activate your 7-day trial with Card or PayPal ($0 charged today). Cancel anytime with one click.
+        </p>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 relative">
+        <div class="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 font-extrabold flex items-center justify-center text-sm mb-3">2</div>
+        <h3 class="font-bold text-white text-base">2. Instant License Key</h3>
+        <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
+          Receive your personal License Key immediately on-screen and directly to your email inbox.
+        </p>
+      </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 relative">
+        <div class="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 font-extrabold flex items-center justify-center text-sm mb-3">3</div>
+        <h3 class="font-bold text-white text-base">3. Install &amp; Unlock</h3>
+        <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
+          Download the extension from the Chrome Web Store and paste your key for unlimited Pro playback.
+        </p>
+      </div>
     </div>
 
     <div class="max-w-md mx-auto">
@@ -899,29 +947,30 @@
         </div>
         <div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3">
-            <span>✨</span> Try 7 days free with all Pro features included
+            <span>✨</span> 7-Day Free Trial Included
           </div>
           <h3 class="text-2xl font-bold text-white">SpeedUP Video Pro - Lifetime License</h3>
-          <p class="text-slate-400 text-sm mt-1">Pay once, own the tool forever.</p>
+          <p class="text-slate-400 text-sm mt-1">Full access for 7 days, then keep it forever for just $1.99.</p>
           <div class="mt-6 flex items-baseline">
             <span class="text-5xl font-black text-white">$1.99</span>
-            <span class="text-slate-400 ml-2 text-sm">one-time payment</span>
+            <span class="text-slate-400 ml-2 text-sm">one-time payment after 7-day trial</span>
           </div>
-          <p class="text-xs text-blue-400 font-medium mt-1">No subscriptions. No recurring fees.</p>
+          <p class="text-xs text-emerald-400 font-medium mt-1">✓ $0.00 due today. Cancel anytime before day 7.</p>
           <ul class="mt-6 space-y-3 text-sm text-slate-300">
             <li class="flex items-center gap-2 text-emerald-400 font-medium">✓ 7 days free trial: test all Pro features risk-free</li>
-            <li class="flex items-center gap-2">✓ SpeedUP Video Pro - Lifetime License: all playback speed features</li>
-            <li class="flex items-center gap-2">✓ Instant License Key delivery via email & screen</li>
-            <li class="flex items-center gap-2">✓ All future updates & enhancements included</li>
-            <li class="flex items-center gap-2">✓ Works across all supported video streaming sites</li>
-            <li class="flex items-center gap-2">✓ No recurring fees or hidden subscriptions</li>
+            <li class="flex items-center gap-2">✓ Speeds up to 16x with real-time HUD and pitch audio protection</li>
+            <li class="flex items-center gap-2">✓ Domain-specific speed memory &amp; custom shortcut remapping</li>
+            <li class="flex items-center gap-2">✓ Frame-by-frame precision stepping &amp; timestamp checkpoints</li>
+            <li class="flex items-center gap-2">✓ Instant License Key delivery via email &amp; on-screen</li>
+            <li class="flex items-center gap-2">✓ Direct Chrome Web Store redirect upon checkout completion</li>
+            <li class="flex items-center gap-2">✓ Lifetime updates — no recurring monthly subscriptions</li>
           </ul>
         </div>
-        <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button mt-8 block text-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-base">
-          Buy Lifetime License — $1.99
+        <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button mt-8 block text-center bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-4 rounded-xl transition shadow-lg shadow-blue-600/30 text-base">
+          Start 7-Day Free Trial — Then $1.99 Lifetime
         </a>
-        <p class="mt-3 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
-          <span aria-hidden="true">🔒</span> One-time payment • Instant activation via Lemon Squeezy checkout
+        <p class="mt-3.5 text-center text-xs text-slate-400 leading-relaxed">
+          7-day free trial. Card or PayPal required to start — you will only be charged $1.99 after day 7 if you keep it. Cancel anytime. License key delivered instantly via email.
         </p>
       </div>
     </div>
@@ -973,7 +1022,7 @@
           </span>
         </summary>
         <div class="px-5 pb-5 sm:px-6 sm:pb-6 text-sm sm:text-base text-slate-300 leading-relaxed border-t border-slate-800/60 pt-4">
-          Yes! SpeedUP Video Pro includes a 7-day free trial with full access to all Pro features (speeds up to 16x, domain-specific memory, custom hotkey mapping, and precision checkpoints). After the 7-day trial, you can continue using the free basic version or unlock permanent Lifetime Pro access for just $1.99 with a single one-time payment.
+          We offer a full 7-day free trial with unrestricted access to all Pro features by entering your preferred payment method (Credit Card or PayPal). Exactly $0.00 is charged today. If you choose to keep the extension, a single one-time payment of $1.99 will be charged after day 7 for lifetime license ownership. You can easily cancel anytime before the end of the 7 days without incurring any cost.
         </div>
       </details>
 
@@ -1038,7 +1087,7 @@
           </span>
         </summary>
         <div class="px-5 pb-5 sm:px-6 sm:pb-6 text-sm sm:text-base text-slate-300 leading-relaxed border-t border-slate-800/60 pt-4">
-          Immediately after your $1.99 one-time checkout, your License Key will appear on screen and be sent to your email address. Just paste it into the extension popup to unlock full access forever.
+          Immediately after starting your 7-day free trial checkout ($0 charged today), your License Key will appear on screen and be sent to your email address. You will also be automatically redirected to the Chrome Web Store to download and install the extension. Just paste your key into the extension popup to unlock full Pro playback.
         </div>
       </details>
     </div>

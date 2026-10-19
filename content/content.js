@@ -1,4 +1,4 @@
-// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.0)
+// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.1)
 (() => {
   const currentHostname = window.location.hostname;
   const DEFAULT_HOTKEYS = {
