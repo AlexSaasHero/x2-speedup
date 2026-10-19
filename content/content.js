@@ -9,8 +9,6 @@
   };
 
   const DEV_MASTER_KEY = 'DEV-SPEEDUP-PRO-2026';
-  const TRIAL_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-  let installDate = null;
   let isPermanentPro = false;
   let targetSpeed = 1.0;
   let isEnforcing = false;
@@ -22,9 +20,7 @@
   let customHotkeys = { ...DEFAULT_HOTKEYS };
 
   function hasFullAccess() {
-    if (isPermanentPro) return true;
-    if (!installDate) return true;
-    return (Date.now() - installDate) < TRIAL_DURATION_MS;
+    return isPermanentPro;
   }
 
   function normalizeKey(key) {
@@ -365,7 +361,6 @@
   // ==========================================
   chrome.storage.local.get(
     [
-      'installDate',
       'isPro',
       'isLicensed',
       'licenseKey',
@@ -378,10 +373,7 @@
       'favoriteSpeed'
     ],
     (data) => {
-      if (data.installDate) {
-        installDate = data.installDate;
-      }
-      isPermanentPro = !!(data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && (data.isPro || data.isLicensed)));
+      isPermanentPro = !!(data.isPro || data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && data.licenseKey.trim().length > 3));
 
       if (data.domainSpeeds && typeof data.domainSpeeds === 'object') {
         domainSpeeds = data.domainSpeeds;
@@ -409,12 +401,9 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.installDate && changes.installDate.newValue) {
-      installDate = changes.installDate.newValue;
-    }
     if (changes.isPro !== undefined || changes.isLicensed !== undefined || changes.licenseKey !== undefined) {
       chrome.storage.local.get(['isPro', 'isLicensed', 'licenseKey'], (res) => {
-        isPermanentPro = !!(res.licenseKey === DEV_MASTER_KEY || (res.licenseKey && (res.isPro || res.isLicensed)));
+        isPermanentPro = !!(res.isPro || res.licenseKey === DEV_MASTER_KEY || (res.licenseKey && res.licenseKey.trim().length > 3));
       });
     }
     if (changes.defaultSpeed && changes.defaultSpeed.newValue !== undefined) {
