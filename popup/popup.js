@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const DEV_MASTER_KEY = "DEV-SPEEDUP-PRO-2026";
   const MIN_SPEED = 0.1;
   const MAX_SPEED = 16.0;
+  const FREE_MAX_SPEED = 2.5;
+  const TRIAL_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
   const DEFAULT_HOTKEYS = {
     speedUp: ']',
@@ -15,22 +17,27 @@ document.addEventListener('DOMContentLoaded', () => {
     favoriteSpeed: 'g'
   };
 
-  // Onboarding / Activation Screen Elements
-  const onboardingView = document.getElementById('onboardingView');
-  const onboardingForm = document.getElementById('onboardingForm');
-  const onboardingKeyInput = document.getElementById('onboardingKeyInput');
-  const onboardingActivateBtn = document.getElementById('onboardingActivateBtn');
-  const onboardingStatusMsg = document.getElementById('onboardingStatusMsg');
-  const onboardingTrialLink = document.getElementById('onboardingTrialLink');
-
-  // Main Suite View Elements
-  const speedControls = document.getElementById('speedControls');
-  const logoutKeyBtn = document.getElementById('logoutKeyBtn');
-  const footerLicenseStatus = document.getElementById('footerLicenseStatus');
-  const tierRangeHint = document.getElementById('tierRangeHint');
-
+  // Header Elements
+  const licenseTierBadge = document.getElementById('licenseTierBadge');
+  const tierBadgeText = document.getElementById('tierBadgeText');
   const statusBadge = document.getElementById('statusBadge');
   const statusText = document.getElementById('statusText');
+
+  // Compact Pro Upgrade Modal Elements
+  const proUpgradeModal = document.getElementById('proUpgradeModal');
+  const closeUpgradeModalBtn = document.getElementById('closeUpgradeModalBtn');
+  const proModalTitle = document.getElementById('proModalTitle');
+  const ctaBuyBtn = document.getElementById('ctaBuyBtn');
+  const keyInput = document.getElementById('keyInput');
+  const activateBtn = document.getElementById('activateBtn');
+  const statusMsg = document.getElementById('statusMsg');
+
+  // Main Suite View & Footer Elements
+  const speedControls = document.getElementById('speedControls');
+  const footerLicenseStatus = document.getElementById('footerLicenseStatus');
+  const openUpgradeBtn = document.getElementById('openUpgradeBtn');
+  const logoutKeyBtn = document.getElementById('logoutKeyBtn');
+  const tierRangeHint = document.getElementById('tierRangeHint');
 
   // Tab Navigation Elements
   const tabButtons = document.querySelectorAll('.tab-btn[data-tab]');
@@ -74,7 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkpointCountBadge = document.getElementById('checkpointCountBadge');
 
   // State & Access Control
-  let isLicensed = false;
+  let isPermanentPro = false;
+  let installDate = null;
   let currentSpeed = 1.0;
   let isPlaying = true;
   let preservesPitch = true;
@@ -143,57 +151,112 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 2. VIEW SWITCHING & ONBOARDING CONTROLLER
+  // 2. TIER & MODAL CONTROLLER (FREEMIUM / PRO)
   // ==========================================
-  function showSuiteView() {
-    if (onboardingView) onboardingView.style.display = 'none';
-    if (speedControls) speedControls.style.display = 'block';
-    if (statusBadge) statusBadge.style.display = 'flex';
-    document.body.classList.add('is-licensed');
-    if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x)';
-    if (footerLicenseStatus) footerLicenseStatus.textContent = 'SpeedUp Video PRO • Active ✨';
-    if (logoutKeyBtn) logoutKeyBtn.style.display = 'inline-block';
+  function getTierStatus() {
+    if (isPermanentPro) {
+      return { isPro: true, isTrial: false, isExpired: false, hasFullAccess: true, daysLeft: 0 };
+    }
+    const now = Date.now();
+    const effectiveInstallDate = installDate || now;
+    const elapsed = now - effectiveInstallDate;
+    if (elapsed <= TRIAL_DURATION_MS) {
+      const remaining = Math.max(0, TRIAL_DURATION_MS - elapsed);
+      const days = Math.max(1, Math.ceil(remaining / (24 * 60 * 60 * 1000)));
+      return { isPro: false, isTrial: true, isExpired: false, hasFullAccess: true, daysLeft: days };
+    }
+    return { isPro: false, isTrial: false, isExpired: true, hasFullAccess: false, daysLeft: 0 };
+  }
+
+  function applyTierUI() {
+    const tier = getTierStatus();
+
+    if (tier.isPro) {
+      document.body.classList.add('is-licensed');
+      document.body.classList.remove('is-trial', 'is-expired');
+      if (licenseTierBadge) {
+        licenseTierBadge.className = 'tier-badge tier-pro';
+        licenseTierBadge.title = 'Licenza PRO Lifetime Attiva';
+      }
+      if (tierBadgeText) tierBadgeText.textContent = '✨ PRO Lifetime';
+      if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x)';
+      if (footerLicenseStatus) footerLicenseStatus.textContent = 'SpeedUp Video PRO • Lifetime ✨';
+      if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
+      if (logoutKeyBtn) logoutKeyBtn.style.display = 'inline-block';
+    } else if (tier.isTrial) {
+      document.body.classList.add('is-licensed', 'is-trial');
+      document.body.classList.remove('is-expired');
+      if (licenseTierBadge) {
+        licenseTierBadge.className = 'tier-badge tier-trial';
+        licenseTierBadge.title = `7-Day Free Trial attivo (${tier.daysLeft} ${tier.daysLeft === 1 ? 'giorno rimanente' : 'giorni rimanenti'}) — Clicca per info / Upgrade`;
+      }
+      if (tierBadgeText) tierBadgeText.textContent = `Trial: ${tier.daysLeft} ${tier.daysLeft === 1 ? 'day' : 'days'} left`;
+      if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x Trial)';
+      if (footerLicenseStatus) footerLicenseStatus.textContent = 'SpeedUp Video PRO • Free Trial';
+      if (openUpgradeBtn) {
+        openUpgradeBtn.style.display = 'inline-block';
+        openUpgradeBtn.textContent = 'Upgrade ($1.99)';
+      }
+      if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
+    } else {
+      document.body.classList.remove('is-licensed', 'is-trial');
+      document.body.classList.add('is-expired');
+      if (licenseTierBadge) {
+        licenseTierBadge.className = 'tier-badge tier-expired';
+        licenseTierBadge.title = 'Trial terminato — Passa a Pro per sbloccare tutto a $1.99';
+      }
+      if (tierBadgeText) tierBadgeText.textContent = 'Trial Expired • Upgrade to Pro ($1.99)';
+      if (tierRangeHint) tierRangeHint.textContent = '(Free: 0.25x–2.5x)';
+      if (footerLicenseStatus) footerLicenseStatus.textContent = 'Free Tier (Max 2.5x)';
+      if (openUpgradeBtn) {
+        openUpgradeBtn.style.display = 'inline-block';
+        openUpgradeBtn.textContent = 'Unlock Pro ($1.99)';
+      }
+      if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
+    }
+
     renderHotkeysUI();
     updateDomainUI();
   }
 
-  function showOnboardingView() {
-    if (speedControls) speedControls.style.display = 'none';
-    if (statusBadge) statusBadge.style.display = 'none';
-    if (onboardingView) onboardingView.style.display = 'block';
-    document.body.classList.remove('is-licensed');
-    if (onboardingStatusMsg) {
-      onboardingStatusMsg.style.display = 'none';
-      onboardingStatusMsg.textContent = '';
-      onboardingStatusMsg.className = 'onboarding-status-msg';
-    }
-    if (onboardingKeyInput) {
-      onboardingKeyInput.value = '';
-    }
-  }
-
-  function showOnboardingStatus(message, type = 'info') {
-    if (!onboardingStatusMsg) return;
-    onboardingStatusMsg.textContent = message;
-    onboardingStatusMsg.className = `onboarding-status-msg ${type}`;
-    onboardingStatusMsg.style.display = 'block';
-  }
-
-  function setActivatingState(isActivating) {
-    if (!onboardingActivateBtn) return;
-    const btnText = onboardingActivateBtn.querySelector('.btn-text');
-    const btnSpinner = onboardingActivateBtn.querySelector('.btn-spinner');
-    onboardingActivateBtn.disabled = isActivating;
-
-    if (btnText && btnSpinner) {
-      if (isActivating) {
-        btnText.style.display = 'none';
-        btnSpinner.style.display = 'inline-block';
+  function openUpgradeModal(customTitle = null) {
+    if (!proUpgradeModal) return;
+    const tier = getTierStatus();
+    if (proModalTitle) {
+      if (customTitle) {
+        proModalTitle.textContent = customTitle;
+      } else if (tier.isPro) {
+        proModalTitle.textContent = "SpeedUP Video Pro Lifetime is active! Enjoy unlimited speed and precision.";
+      } else if (tier.isTrial) {
+        proModalTitle.textContent = "Enjoying your 7-day trial? Unlock SpeedUP Video Pro Lifetime for $1.99";
       } else {
-        btnText.style.display = 'inline';
-        btnSpinner.style.display = 'none';
+        proModalTitle.textContent = "Your 7-day trial has ended. Unlock SpeedUP Video Pro Lifetime for only $1.99 to access speeds up to 16x, custom hotkeys, and precision tools.";
       }
     }
+    if (statusMsg) {
+      statusMsg.textContent = '';
+      statusMsg.className = 'status-msg';
+      statusMsg.style.display = 'none';
+    }
+    if (keyInput) keyInput.value = '';
+    proUpgradeModal.style.display = 'flex';
+  }
+
+  function closeUpgradeModal() {
+    if (proUpgradeModal) proUpgradeModal.style.display = 'none';
+  }
+
+  function showModalStatus(message, type = 'info') {
+    if (!statusMsg) return;
+    statusMsg.textContent = message;
+    statusMsg.className = `status-msg ${type}`;
+    statusMsg.style.display = 'block';
+  }
+
+  function setModalActivating(isActivating) {
+    if (!activateBtn) return;
+    activateBtn.disabled = isActivating;
+    activateBtn.textContent = isActivating ? 'Verifica in corso...' : 'Attiva Licenza';
   }
 
   // ==========================================
@@ -236,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   chrome.storage.local.get(
     [
+      'installDate',
       'isPro',
       'isLicensed',
       'licenseKey',
@@ -251,16 +315,19 @@ document.addEventListener('DOMContentLoaded', () => {
       'videoCheckpoints'
     ],
     (data) => {
-      const isActivated = !!(data.isPro || data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && data.licenseKey.trim().length > 3));
-
-      if (isActivated) {
-        isLicensed = true;
-        showSuiteView();
-        inspectActiveTabAsync();
+      // 1. Initialize 7-Day Free Trial install date if not yet present
+      if (!data.installDate) {
+        installDate = Date.now();
+        chrome.storage.local.set({ installDate });
       } else {
-        isLicensed = false;
-        showOnboardingView();
+        installDate = data.installDate;
       }
+
+      // 2. Compute Pro and Trial state
+      isPermanentPro = !!(data.isPro || data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && data.licenseKey.trim().length > 3));
+
+      applyTierUI();
+      inspectActiveTabAsync();
 
       if (data.activeTab) {
         switchTab(data.activeTab, false);
@@ -274,7 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (data.defaultSpeed !== undefined) {
         const rawSpeed = parseFloat(data.defaultSpeed) || 1.0;
-        currentSpeed = Math.min(Math.max(rawSpeed, MIN_SPEED), MAX_SPEED);
+        const tier = getTierStatus();
+        const max = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
+        currentSpeed = Math.min(Math.max(rawSpeed, MIN_SPEED), max);
         setSpeedUI(currentSpeed);
       }
 
@@ -379,16 +448,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 6. LICENSE ACTIVATION & VERIFICATION
   // ==========================================
-  async function handleOnboardingActivation() {
-    const rawKey = onboardingKeyInput ? onboardingKeyInput.value.trim() : '';
+  async function handleModalActivation() {
+    const rawKey = keyInput ? keyInput.value.trim() : '';
     if (!rawKey) {
-      showOnboardingStatus('Please enter your license key or email.', 'error');
+      showModalStatus('Inserisci la chiave di licenza o la tua email.', 'error');
       return;
     }
 
-    // 1. Dev Master Key — Instant validation without network calls
+    // 1. Dev Master Key — Instant offline validation without network calls
     if (rawKey === DEV_MASTER_KEY) {
-      setActivatingState(true);
+      setModalActivating(true);
       await chrome.storage.local.set({
         isPro: true,
         isLicensed: true,
@@ -406,19 +475,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {}
       }
 
-      showOnboardingStatus('✓ SpeedUP Pro Activated! Unlocking...', 'success');
+      isPermanentPro = true;
+      showModalStatus('✓ SpeedUP Pro Lifetime Attivato!', 'success');
       setTimeout(() => {
-        setActivatingState(false);
-        isLicensed = true;
-        showSuiteView();
-        inspectActiveTabAsync();
+        setModalActivating(false);
+        applyTierUI();
+        closeUpgradeModal();
       }, 400);
       return;
     }
 
     // 2. Standard Key Verification (Lemon Squeezy API or valid pattern)
-    setActivatingState(true);
-    showOnboardingStatus('Verifying license...', 'info');
+    setModalActivating(true);
+    showModalStatus('Verifica licenza in corso...', 'info');
 
     const isValid = await verifyLicenseKeyAsync(rawKey);
 
@@ -440,16 +509,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {}
       }
 
-      showOnboardingStatus('✓ License Validated! Unlocking suite...', 'success');
+      isPermanentPro = true;
+      showModalStatus('✓ Licenza convalidata con successo!', 'success');
       setTimeout(() => {
-        setActivatingState(false);
-        isLicensed = true;
-        showSuiteView();
-        inspectActiveTabAsync();
+        setModalActivating(false);
+        applyTierUI();
+        closeUpgradeModal();
       }, 400);
     } else {
-      setActivatingState(false);
-      showOnboardingStatus('Invalid license key. Check your email or start a trial.', 'error');
+      setModalActivating(false);
+      showModalStatus('Chiave licenza non valida. Controlla l\'email o acquistala sul sito.', 'error');
     }
   }
 
@@ -500,43 +569,66 @@ document.addEventListener('DOMContentLoaded', () => {
     return false;
   }
 
-  if (onboardingForm) {
-    onboardingForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      handleOnboardingActivation();
-    });
+  // Modal & Upgrade Triggers
+  if (activateBtn) {
+    activateBtn.addEventListener('click', handleModalActivation);
   }
 
-  if (onboardingActivateBtn) {
-    onboardingActivateBtn.addEventListener('click', handleOnboardingActivation);
-  }
-
-  if (onboardingKeyInput) {
-    onboardingKeyInput.addEventListener('keydown', (e) => {
+  if (keyInput) {
+    keyInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        handleOnboardingActivation();
+        handleModalActivation();
       }
     });
   }
 
-  if (onboardingTrialLink) {
-    onboardingTrialLink.addEventListener('click', (e) => {
-      e.preventDefault();
+  if (closeUpgradeModalBtn) {
+    closeUpgradeModalBtn.addEventListener('click', closeUpgradeModal);
+  }
+
+  if (licenseTierBadge) {
+    licenseTierBadge.addEventListener('click', () => openUpgradeModal());
+  }
+
+  if (openUpgradeBtn) {
+    openUpgradeBtn.addEventListener('click', () => openUpgradeModal());
+  }
+
+  if (ctaBuyBtn) {
+    ctaBuyBtn.addEventListener('click', () => {
       chrome.tabs.create({ url: LANDING_PAGE_URL });
     });
   }
 
+  if (proUpgradeModal) {
+    proUpgradeModal.addEventListener('click', (e) => {
+      if (e.target === proUpgradeModal) {
+        closeUpgradeModal();
+      }
+    });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && proUpgradeModal && proUpgradeModal.style.display !== 'none') {
+      closeUpgradeModal();
+    }
+  });
+
   if (logoutKeyBtn) {
     logoutKeyBtn.addEventListener('click', async () => {
-      isLicensed = false;
+      isPermanentPro = false;
       await chrome.storage.local.set({ isPro: false, isLicensed: false, licenseKey: '' });
       if (chrome.storage.sync) {
         try {
           chrome.storage.sync.set({ isPro: false, isLicensed: false, licenseKey: '' });
         } catch (e) {}
       }
-      showOnboardingView();
+      applyTierUI();
+      const tier = getTierStatus();
+      if (!tier.hasFullAccess && currentSpeed > FREE_MAX_SPEED) {
+        setSpeed(FREE_MAX_SPEED);
+      }
     });
   }
 
@@ -547,7 +639,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const raw = parseFloat(requestedSpeed);
     if (isNaN(raw)) return;
 
-    const clamped = Math.min(Math.max(raw, MIN_SPEED), MAX_SPEED);
+    const tier = getTierStatus();
+    const maxAllowed = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
+
+    if (!tier.hasFullAccess && raw > FREE_MAX_SPEED) {
+      openUpgradeModal("Your 7-day trial has ended. Speeds above 2.5x require SpeedUP Video Pro Lifetime ($1.99).");
+    }
+
+    const clamped = Math.min(Math.max(raw, MIN_SPEED), maxAllowed);
     currentSpeed = parseFloat(clamped.toFixed(2));
     setSpeedUI(currentSpeed);
 
@@ -621,6 +720,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       if (!btn.dataset.speed) return;
       const speed = parseFloat(btn.dataset.speed);
+      const tier = getTierStatus();
+      if (!tier.hasFullAccess && speed > FREE_MAX_SPEED) {
+        setSpeed(FREE_MAX_SPEED);
+        openUpgradeModal("Your 7-day trial has ended. Speeds above 2.5x require SpeedUP Video Pro Lifetime ($1.99).");
+        return;
+      }
       setSpeed(speed);
     });
   });
@@ -639,6 +744,12 @@ document.addEventListener('DOMContentLoaded', () => {
     rememberDomainToggle.addEventListener('change', (e) => {
       if (!currentHostname) {
         e.target.checked = false;
+        return;
+      }
+      const tier = getTierStatus();
+      if (!tier.hasFullAccess) {
+        e.target.checked = false;
+        openUpgradeModal("Domain speed persistence is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
         return;
       }
       if (e.target.checked) {
@@ -698,6 +809,11 @@ document.addEventListener('DOMContentLoaded', () => {
   hotkeyCaptureBtns.forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      const tier = getTierStatus();
+      if (!tier.hasFullAccess) {
+        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+        return;
+      }
       const action = btn.dataset.action;
       if (listeningHotkeyAction === action) {
         cancelHotkeyListening();
@@ -733,6 +849,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (resetHotkeysBtn) {
     resetHotkeysBtn.addEventListener('click', () => {
+      const tier = getTierStatus();
+      if (!tier.hasFullAccess) {
+        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+        return;
+      }
       cancelHotkeyListening();
       customHotkeys = { ...DEFAULT_HOTKEYS };
       favoriteSpeed = 2.0;
@@ -755,6 +876,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 9. TAB 3: PRECISION SCRUBBING & CHECKPOINTS
   // ==========================================
   async function handleFrameScrub(direction) {
+    const tier = getTierStatus();
+    if (!tier.hasFullAccess) {
+      openUpgradeModal("Frame-by-frame precision stepping is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+      return;
+    }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) return;
 
@@ -772,6 +898,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function handleQuickSkip(seconds) {
+    const tier = getTierStatus();
+    if (!tier.hasFullAccess) {
+      openUpgradeModal("Quick skip scrubbing is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+      return;
+    }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) return;
 
@@ -874,6 +1005,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function addCheckpoint() {
+    const tier = getTierStatus();
+    if (!tier.hasFullAccess) {
+      openUpgradeModal("Video checkpoints are a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+      return;
+    }
+
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) return;
 

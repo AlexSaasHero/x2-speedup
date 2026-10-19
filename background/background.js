@@ -3,6 +3,7 @@
 // Initialize default extension settings & Pro dev state
 chrome.runtime.onInstalled.addListener(async () => {
   const existing = await chrome.storage.local.get([
+    'installDate',
     'isPro',
     'isLicensed',
     'defaultSpeed',
@@ -17,6 +18,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   ]);
 
   const updates = {};
+  if (!existing.installDate) updates.installDate = Date.now();
   if (existing.isPro === undefined) updates.isPro = false;
   if (existing.isLicensed === undefined) updates.isLicensed = false;
   if (existing.defaultSpeed === undefined) updates.defaultSpeed = 1.0;
