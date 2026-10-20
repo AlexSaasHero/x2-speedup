@@ -166,37 +166,35 @@
             
             <!-- Video Element (Big Buck Bunny clip, standard open-source test video) -->
             <!-- data-x2-ignore: opt-out marker so a future SpeedUP Video Pro version can skip this demo video -->
-            <!-- (the current extension is neutralised by the ratechange guard in the demo script) -->
             <video id="demoVideo" data-x2-ignore="true"
                    class="w-full h-full object-cover block cursor-pointer" 
-                   autoplay loop muted playsinline preload="auto">
-              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                   playsinline loop muted autoplay preload="auto">
+              <source src="bigbuckbunny.mp4" type="video/mp4">
+              <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
+              <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_5MB.mp4" type="video/mp4">
+              <source src="demo-abstract.mp4" type="video/mp4">
               Your browser does not support HTML5 video.
             </video>
 
-            <!-- Live speed badge (top-right) -->
-            <div id="videoBadge"
-                 class="video-badge absolute top-3 right-3 z-20 px-3 py-1 rounded-lg bg-violet-600/90 backdrop-blur-md border border-violet-300/50 text-white text-xs sm:text-sm font-black tabular-nums tracking-tight select-none pointer-events-none">
-              2.00x
-            </div>
-
-            <!-- Floating On-Video HUD (Simulating SpeedUP Video Pro Extension Overlay) -->
+            <!-- Top-Left Compact Badge: ● SPEED [ 1.00x ] with - / + keys -->
             <div id="video-hud-container" 
-                 class="absolute top-3 left-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-violet-500/40 shadow-xl shadow-black/60 transition-all duration-300 select-none">
-              <span class="flex h-2 w-2 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
-              </span>
+                 class="absolute top-3 left-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-violet-500/40 shadow-xl shadow-black/60 select-none">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span class="text-[11px] font-bold text-slate-300 tracking-wider">SPEED</span>
               <span class="w-[1px] h-3 bg-slate-700"></span>
               <span id="video-hud-speed" class="text-xs sm:text-sm font-black bg-gradient-to-r from-cyan-400 via-violet-300 to-fuchsia-400 bg-clip-text text-transparent min-w-[36px] text-center">
-                2.00x
+                1.00x
               </span>
-              <!-- Mini HUD Quick Buttons -->
-              <div class="flex items-center gap-1 ml-1 pl-1 border-l border-slate-700/80">
+              <div class="flex items-center gap-1 ml-1 pl-1 border-l border-slate-700">
                 <button type="button" id="hud-speed-dec" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs font-bold transition focus:outline-none" title="Decrease speed (-0.25x)">−</button>
                 <button type="button" id="hud-speed-inc" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs font-bold transition focus:outline-none" title="Increase speed (+0.25x)">+</button>
               </div>
+            </div>
+
+            <!-- Top-Right HUD Badge Overlay (Appears on speed change with fade animation) -->
+            <div id="videoBadge"
+                 class="absolute top-3 right-3 z-20 px-3.5 py-1.5 rounded-xl bg-violet-600/95 backdrop-blur-md border border-violet-300/50 text-white text-xs sm:text-sm font-black tabular-nums tracking-tight select-none pointer-events-none transition-all duration-300 opacity-0 transform scale-95 shadow-xl shadow-violet-950/70">
+              1.00x
             </div>
 
             <!-- Central Floating Toast Overlay (Flash Animation) -->
@@ -206,7 +204,7 @@
                    class="px-5 py-2.5 rounded-2xl bg-slate-950/90 backdrop-blur-xl border border-violet-500/60 shadow-2xl shadow-violet-950/80 flex items-center gap-3 transform scale-90 transition-transform duration-200">
                 <span class="text-xl">⚡</span>
                 <span id="toast-speed-text" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-indigo-300 tracking-tight">
-                  2.00x
+                  1.00x
                 </span>
               </div>
             </div>
@@ -214,11 +212,22 @@
             <!-- Video Bottom Mini Bar with Controls -->
             <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent p-3 pt-6 flex items-center justify-between z-20">
               <div class="flex items-center gap-2">
-                <button type="button" id="video-play-btn" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white transition border border-slate-700/60 flex items-center justify-center focus:outline-none" title="Play / Pause" aria-label="Play or pause video">
+                <button type="button" id="video-play-btn" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white transition border border-slate-700/60 flex items-center justify-center focus:outline-none cursor-pointer" title="Play / Pause" aria-label="Play or pause video">
                   <svg id="play-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   <svg id="pause-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
-                <span class="text-[11px] text-slate-300 font-medium hidden sm:inline">Big Buck Bunny — Open Source Test Video</span>
+                <button type="button" id="video-mute-btn" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-white transition border border-slate-700/60 flex items-center justify-center focus:outline-none cursor-pointer" title="Mute / Unmute" aria-label="Mute or unmute audio">
+                  <svg id="mute-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                  </svg>
+                  <svg id="unmute-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  </svg>
+                </button>
+                <span class="text-[11px] text-slate-300 font-medium hidden sm:inline">Big Buck Bunny — Interactive Playback Test</span>
               </div>
               <div class="text-[11px] text-slate-400 font-medium tabular-nums">
                 <span id="video-time-display">0:00</span>
@@ -232,71 +241,262 @@
               <span class="inline-block w-1.5 h-1.5 rounded-full bg-violet-400"></span>
               Live HTML5 <code class="text-violet-300 bg-violet-950/60 px-1 py-0.5 rounded text-[10px] font-mono">video.playbackRate</code>
             </span>
-            <span class="text-slate-500">Universal support: 0.25x – 16.00x</span>
+            <span class="text-slate-500">Universal support: 0.1x – 16.0x</span>
           </div>
         </div>
 
-        <!-- Right Column: Interactive Speed Controls (5 cols) -->
-        <div class="lg:col-span-5 flex flex-col justify-between bg-slate-950/70 border border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-inner">
-          <!-- Display -->
-          <div class="text-center pb-1">
-            <span class="text-xs text-slate-400 uppercase font-bold tracking-widest block mb-1">Playback Speed</span>
-            <div id="speedDisplay" class="text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 tracking-tight leading-none my-1">
-              2.00x
+        <!-- Right Column: Replica Identica dell'Estensione (Popup UI a 3 Tab) -->
+        <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col justify-between backdrop-blur-sm">
+          
+          <!-- Mockup Header -->
+          <div class="flex items-center justify-between pb-3.5 border-b border-slate-800/80 mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-violet-600/30">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 19 22 12 13 5 13 19"></polygon>
+                  <polygon points="2 19 11 12 2 5 2 19"></polygon>
+                </svg>
+              </div>
+              <div>
+                <h4 class="text-xs sm:text-sm font-bold text-white tracking-tight leading-none">SpeedUP <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400 font-black">PRO</span></h4>
+                <span class="text-[10px] text-slate-400">Universal Video Suite</span>
+              </div>
             </div>
-            <span class="text-[11px] text-slate-400 block font-medium mt-1">Changes reflected instantly in video player</span>
-          </div>
-
-          <!-- Slider -->
-          <div class="my-4">
-            <div class="flex justify-between items-center text-xs font-semibold text-slate-300 mb-2">
-              <span>Slider Control</span>
-              <span id="slider-speed-val" class="text-violet-400 font-bold tabular-nums">2.00x</span>
-            </div>
-            <input type="range" id="speedSlider" min="0.25" max="16.00" step="0.05" value="2.00" 
-              class="w-full accent-violet-500 cursor-pointer h-2.5 bg-slate-800 rounded-lg appearance-none focus:outline-none">
-            <div class="flex justify-between text-[10px] text-slate-500 font-semibold mt-2 px-0.5">
-              <span>0.25x</span>
-              <span>1.0x</span>
-              <span>2.0x</span>
-              <span>4.0x</span>
-              <span>8.0x</span>
-              <span>16.0x</span>
+            <!-- Pill: Trial: 7 days left -->
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-[10px] font-bold text-violet-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+              <span>Trial: 7 days left</span>
             </div>
           </div>
 
-          <!-- Presets (1.0x, 1.25x, 1.5x, 2.0x, 3.0x, Custom) -->
-          <div>
-            <span class="text-xs font-semibold text-slate-400 block mb-2 text-left">Quick Presets</span>
-            <div class="grid grid-cols-3 gap-2">
-              <button type="button" data-speed="1.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
-                1.0x
-              </button>
-              <button type="button" data-speed="1.25" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
-                1.25x
-              </button>
-              <button type="button" data-speed="1.5" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
-                1.5x
-              </button>
-              <button type="button" data-speed="2.0" class="preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-violet-600/30 transition">
-                2.0x
-              </button>
-              <button type="button" data-speed="3.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition">
-                3.0x
-              </button>
-              <button type="button" id="custom-toggle-btn" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-1">
-                <span>Custom</span> ✏️
-              </button>
+          <!-- 3-Tab Selector Bar in Mockup -->
+          <div class="grid grid-cols-3 gap-1 p-1 bg-slate-900/90 border border-slate-800/90 rounded-xl mb-3 text-xs font-semibold" role="tablist">
+            <button type="button" id="demo-tab-speed" class="demo-mockup-tab active py-2 px-2 rounded-lg text-white bg-violet-600 shadow-md shadow-violet-600/30 transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 14l4-4"></path>
+                <path d="M3.34 19a10 10 0 1 1 17.32 0"></path>
+              </svg>
+              <span>Speed</span>
+            </button>
+            <button type="button" id="demo-tab-shortcuts" class="demo-mockup-tab py-2 px-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <line x1="6" y1="8" x2="6.01" y2="8"></line>
+                <line x1="10" y1="8" x2="10.01" y2="8"></line>
+                <line x1="14" y1="8" x2="14.01" y2="8"></line>
+                <line x1="18" y1="8" x2="18.01" y2="8"></line>
+              </svg>
+              <span>Shortcuts</span>
+            </button>
+            <button type="button" id="demo-tab-precision" class="demo-mockup-tab py-2 px-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="22" y1="12" x2="18" y2="12"></line>
+                <line x1="6" y1="12" x2="2" y2="12"></line>
+                <line x1="12" y1="6" x2="12" y2="2"></line>
+                <line x1="12" y1="22" x2="12" y2="18"></line>
+              </svg>
+              <span>Precision</span>
+            </button>
+          </div>
+
+          <!-- TAB 1: SPEED HUB CONTENT -->
+          <div id="demo-pane-speed" class="demo-mockup-pane flex flex-col space-y-3">
+            <!-- Center Speed Display & Reset -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-center relative overflow-hidden">
+              <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold mb-1">
+                <span>Speed Hub (0.1x – 16.0x)</span>
+                <button type="button" id="reset-demo-speed-btn" class="inline-flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 font-bold bg-violet-500/10 hover:bg-violet-500/20 px-2 py-0.5 rounded-md transition cursor-pointer" title="Reset to 1.0x">
+                  ↺ Reset 1.0x
+                </button>
+              </div>
+              <div id="speedDisplay" class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 tracking-tight leading-none my-1">
+                1.00x
+              </div>
+              <span class="text-[10px] text-slate-400 block font-medium">Changes reflected instantly in video player</span>
             </div>
 
-            <!-- Custom Input Drawer -->
-            <div id="custom-speed-drawer" class="hidden mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-2">
-              <label for="custom-speed-input" class="text-xs text-slate-400 font-medium">Speed:</label>
-              <input type="number" id="custom-speed-input" min="0.25" max="16.0" step="0.05" value="2.00" 
-                class="w-20 bg-slate-900 border border-violet-500/60 focus:border-violet-500 text-white text-center py-1.5 px-2 rounded-lg text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/40">
-              <button type="button" id="apply-custom-btn" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold transition shadow-md shadow-violet-600/20">
-                Apply
-              </button>
+            <!-- Continuous Slider (0.1x to 16.0x) -->
+            <div class="px-1">
+              <div class="flex justify-between items-center text-xs font-semibold text-slate-300 mb-1.5">
+                <span>Slider Control</span>
+                <span id="slider-speed-val" class="text-violet-400 font-bold tabular-nums">1.00x</span>
+              </div>
+              <input type="range" id="speedSlider" min="0.1" max="16.0" step="0.05" value="1.00" 
+                class="w-full accent-violet-500 cursor-pointer h-2 bg-slate-800 rounded-lg appearance-none focus:outline-none">
+              <div class="flex justify-between text-[10px] text-slate-500 font-semibold mt-1 px-0.5">
+                <span>0.1x</span>
+                <span>1.0x</span>
+                <span>2.0x</span>
+                <span>4.0x</span>
+                <span>16x ⚡</span>
+              </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 block mb-1.5">Quick Presets</span>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button type="button" data-speed="1.0" class="preset-btn bg-violet-600 border border-violet-500 text-white py-2 rounded-lg text-xs font-bold shadow-md shadow-violet-600/30 transition cursor-pointer">1.0x</button>
+                <button type="button" data-speed="1.5" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-semibold transition cursor-pointer">1.5x</button>
+                <button type="button" data-speed="2.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-semibold transition cursor-pointer">2.0x</button>
+                <button type="button" data-speed="3.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-semibold transition cursor-pointer">3.0x</button>
+                <button type="button" data-speed="4.0" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-semibold transition cursor-pointer">4.0x</button>
+                <button type="button" id="custom-toggle-btn" class="preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 cursor-pointer">Custom ✏️</button>
+              </div>
+
+              <!-- Custom Drawer -->
+              <div id="custom-speed-drawer" class="hidden mt-2 pt-2 border-t border-slate-800 flex items-center justify-center gap-2">
+                <label for="custom-speed-input" class="text-xs text-slate-400 font-medium">Speed:</label>
+                <input type="number" id="custom-speed-input" min="0.1" max="16.0" step="0.05" value="1.00" 
+                  class="w-20 bg-slate-900 border border-violet-500/60 text-white text-center py-1 px-2 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-violet-500">
+                <button type="button" id="apply-custom-btn" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-3 py-1 rounded-lg font-bold transition cursor-pointer">Apply</button>
+              </div>
+            </div>
+
+            <!-- Toggles (Remember domain & Pitch Lock) -->
+            <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
+              <div class="flex items-center justify-between text-xs py-0.5">
+                <div class="flex items-center gap-1.5 text-slate-300 font-medium">
+                  <span>Remember speed for this domain</span>
+                  <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-300">PRO</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="remember-domain-toggle" checked class="sr-only peer">
+                  <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-600"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between text-xs py-0.5 text-slate-400">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span class="text-[11px] text-slate-300">Pitch Lock: <strong class="text-emerald-400">Active</strong></span>
+                </div>
+                <span class="text-[10px] text-slate-400">Natural tone preservation</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: SHORTCUTS CONTENT -->
+          <div id="demo-pane-shortcuts" class="demo-mockup-pane hidden flex flex-col space-y-2.5">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-2.5">
+              <div class="flex items-center justify-between text-xs font-bold text-white mb-1">
+                <span>Interactive Hotkeys</span>
+                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-300">PRO REMAP</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-snug">Click any shortcut button or press the key on your physical keyboard to test:</p>
+            </div>
+
+            <!-- Shortcuts List -->
+            <div class="space-y-1.5 text-xs">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition">
+                <div>
+                  <span class="font-bold text-white block text-xs">Speed Up</span>
+                  <span class="text-[10px] text-slate-400">Accelerate playback (+0.25x)</span>
+                </div>
+                <button type="button" id="hk-speedup-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-violet-600 border border-slate-700 hover:border-violet-500 text-white font-mono font-bold text-xs transition cursor-pointer shadow-sm" title="Speed up video">
+                  ]
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition">
+                <div>
+                  <span class="font-bold text-white block text-xs">Speed Down</span>
+                  <span class="text-[10px] text-slate-400">Slow down playback (-0.25x)</span>
+                </div>
+                <button type="button" id="hk-speeddown-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-violet-600 border border-slate-700 hover:border-violet-500 text-white font-mono font-bold text-xs transition cursor-pointer shadow-sm" title="Slow down video">
+                  [
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition">
+                <div>
+                  <span class="font-bold text-white block text-xs">Reset Speed</span>
+                  <span class="text-[10px] text-slate-400">Return instantly to 1.00x</span>
+                </div>
+                <button type="button" id="hk-reset-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-violet-600 border border-slate-700 hover:border-violet-500 text-white font-mono font-bold text-xs transition cursor-pointer shadow-sm" title="Reset speed">
+                  R
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition">
+                <div>
+                  <span class="font-bold text-white block text-xs">Toggle Favorite</span>
+                  <span class="text-[10px] text-slate-400">Toggle favorite speed (2.00x)</span>
+                </div>
+                <button type="button" id="hk-fav-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-violet-600 border border-slate-700 hover:border-violet-500 text-white font-mono font-bold text-xs transition cursor-pointer shadow-sm" title="Toggle favorite speed">
+                  G
+                </button>
+              </div>
+            </div>
+
+            <!-- Tip banner -->
+            <div class="p-2 rounded-lg bg-violet-950/40 border border-violet-500/30 text-[11px] text-violet-300 flex items-center gap-2">
+              <span class="text-sm">⚡</span>
+              <span>Tip: Press <kbd class="px-1 py-0.5 bg-slate-900 border border-violet-500/40 rounded text-[10px] font-mono">[</kbd> and <kbd class="px-1 py-0.5 bg-slate-900 border border-violet-500/40 rounded text-[10px] font-mono">]</kbd> on your keyboard anywhere on this page!</span>
+            </div>
+          </div>
+
+          <!-- TAB 3: PRECISION & CHECKPOINTS CONTENT -->
+          <div id="demo-pane-precision" class="demo-mockup-pane hidden flex flex-col space-y-2.5">
+            <!-- Frame Scrubbing & Timeline Skips -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5">
+              <div class="flex items-center justify-between text-xs font-bold text-white mb-2">
+                <span>Frame-by-Frame Scrubbing</span>
+                <span id="precision-time-badge" class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">00:00.00</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 mb-2">
+                <button type="button" id="prev-frame-btn" class="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition flex items-center justify-center gap-1 cursor-pointer">
+                  <span>⏮ -1 Frame</span>
+                  <span class="text-[9px] text-slate-400">(-0.033s)</span>
+                </button>
+                <button type="button" id="next-frame-btn" class="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition flex items-center justify-center gap-1 cursor-pointer">
+                  <span>+1 Frame ⏭</span>
+                  <span class="text-[9px] text-slate-400">(+0.033s)</span>
+                </button>
+              </div>
+
+              <!-- Jump Skips (-5s / +5s) -->
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" id="seek-back-btn" class="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition flex items-center justify-center gap-1 cursor-pointer">
+                  <span>⏪ -5s Jump</span>
+                </button>
+                <button type="button" id="seek-fwd-btn" class="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition flex items-center justify-center gap-1 cursor-pointer">
+                  <span>+5s Jump ⏩</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Video Checkpoints Section -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5">
+              <div class="flex items-center justify-between text-xs font-bold text-white mb-2">
+                <span>Video Checkpoints</span>
+                <span id="cp-count-badge" class="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">2 saved</span>
+              </div>
+              <div class="flex gap-1.5 mb-2">
+                <input type="text" id="checkpoint-input" placeholder="Note (e.g. Highlight)" maxlength="25"
+                  class="flex-1 bg-slate-950 border border-slate-700 text-white text-xs px-2.5 py-1 rounded-lg focus:outline-none focus:border-violet-500">
+                <button type="button" id="add-checkpoint-btn" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition whitespace-nowrap cursor-pointer">
+                  + Add
+                </button>
+              </div>
+
+              <!-- Interactive Checkpoints List -->
+              <div id="checkpoints-list" class="space-y-1 max-h-24 overflow-y-auto pr-0.5 text-xs">
+                <div class="checkpoint-item flex items-center justify-between p-1.5 rounded bg-slate-950/70 border border-slate-800 hover:border-violet-500/50 cursor-pointer transition" data-time="2.0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-mono bg-violet-500/20 text-violet-300 px-1.5 py-0.5 rounded font-bold">00:02</span>
+                    <span class="text-slate-300 text-[11px]">Intro Clip</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 hover:text-violet-400">Jump ➔</span>
+                </div>
+                <div class="checkpoint-item flex items-center justify-between p-1.5 rounded bg-slate-950/70 border border-slate-800 hover:border-violet-500/50 cursor-pointer transition" data-time="6.0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-mono bg-violet-500/20 text-violet-300 px-1.5 py-0.5 rounded font-bold">00:06</span>
+                    <span class="text-slate-300 text-[11px]">Action Scene</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 hover:text-violet-400">Jump ➔</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -861,9 +1061,6 @@
   <!-- Pricing -->
   <section id="pricing" class="max-w-5xl mx-auto px-6 py-20 border-t border-slate-900">
     <div class="text-center mb-12">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-4">
-        ✨ 7-Day Free Trial — Card/PayPal required, then $1.99 lifetime
-      </div>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Simple, Transparent Pricing</h2>
       <p class="text-slate-400 mt-3 text-base">Try 7 days free with all Pro features included, then just $1.99 lifetime.</p>
     </div>
@@ -1073,27 +1270,58 @@
       const customDrawer = document.getElementById('custom-speed-drawer');
       const customInput = document.getElementById('custom-speed-input');
       const applyCustomBtn = document.getElementById('apply-custom-btn');
+      const resetDemoSpeedBtn = document.getElementById('reset-demo-speed-btn');
+
+      // Video Controls
       const videoPlayBtn = document.getElementById('video-play-btn');
       const playIcon = document.getElementById('play-icon');
       const pauseIcon = document.getElementById('pause-icon');
+      const videoMuteBtn = document.getElementById('video-mute-btn');
+      const muteIcon = document.getElementById('mute-icon');
+      const unmuteIcon = document.getElementById('unmute-icon');
       const videoTimeDisplay = document.getElementById('video-time-display');
 
-      const MIN_SPEED = 0.25;
-      const MAX_SPEED = 16.0;
-      const BTN_ACTIVE = 'preset-btn bg-violet-600 border border-violet-500 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-violet-600/30 transition';
-      const BTN_IDLE = 'preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition';
-      const BTN_FLEX = ' flex items-center justify-center gap-1';
+      // Mockup Tab Navigation
+      const mockupTabs = {
+        speed: document.getElementById('demo-tab-speed'),
+        shortcuts: document.getElementById('demo-tab-shortcuts'),
+        precision: document.getElementById('demo-tab-precision')
+      };
+      const mockupPanes = {
+        speed: document.getElementById('demo-pane-speed'),
+        shortcuts: document.getElementById('demo-pane-shortcuts'),
+        precision: document.getElementById('demo-pane-precision')
+      };
 
-      let currentSpeed = 2.0;
+      // Shortcuts Tab Buttons
+      const hkSpeedUp = document.getElementById('hk-speedup-btn');
+      const hkSpeedDown = document.getElementById('hk-speeddown-btn');
+      const hkReset = document.getElementById('hk-reset-btn');
+      const hkFav = document.getElementById('hk-fav-btn');
+
+      // Precision Tab Elements
+      const prevFrameBtn = document.getElementById('prev-frame-btn');
+      const nextFrameBtn = document.getElementById('next-frame-btn');
+      const seekBackBtn = document.getElementById('seek-back-btn');
+      const seekFwdBtn = document.getElementById('seek-fwd-btn');
+      const precisionTimeBadge = document.getElementById('precision-time-badge');
+      const checkpointInput = document.getElementById('checkpoint-input');
+      const addCheckpointBtn = document.getElementById('add-checkpoint-btn');
+      const checkpointsList = document.getElementById('checkpoints-list');
+      const cpCountBadge = document.getElementById('cp-count-badge');
+
+      const MIN_SPEED = 0.1;
+      const MAX_SPEED = 16.0;
+      const BTN_ACTIVE = 'preset-btn bg-violet-600 border border-violet-500 text-white py-2 rounded-lg text-xs font-bold shadow-md shadow-violet-600/30 transition cursor-pointer';
+      const BTN_IDLE = 'preset-btn bg-slate-800/80 border border-slate-700 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-semibold transition cursor-pointer';
+
+      let currentSpeed = 1.0;
       let toastTimer = null;
+      let hudBadgeTimer = null;
 
       /*
        * Playback-rate guard.
-       * Other scripts on the page (most notably the SpeedUP Video Pro extension itself, which listens
-       * for `ratechange` and forces its own stored speed on every <video>) can silently
-       * reset the demo's playbackRate. We intercept `ratechange` in the capture phase on
-       * window, so it runs before any listener attached to the video element, stop it
-       * from propagating, and re-apply the speed chosen in the demo.
+       * Prevents any external script from resetting our demo video rate.
        */
       if (demoVideo) {
         window.addEventListener('ratechange', function (e) {
@@ -1104,7 +1332,6 @@
           }
         }, true);
 
-        // Loading a (new) source resets playbackRate to defaultPlaybackRate: re-apply.
         demoVideo.addEventListener('loadedmetadata', function () {
           demoVideo.playbackRate = currentSpeed;
         });
@@ -1116,11 +1343,17 @@
         return Math.max(MIN_SPEED, Math.min(MAX_SPEED, Math.round(val * 100) / 100));
       }
 
-      function popBadge() {
+      // Top-Right HUD Badge animation (fade & scale)
+      function triggerHudBadge(text) {
         if (!videoBadge) return;
-        videoBadge.classList.remove('badge-pop');
-        void videoBadge.offsetWidth; // restart the CSS animation
-        videoBadge.classList.add('badge-pop');
+        videoBadge.textContent = text;
+        videoBadge.classList.remove('opacity-0', 'scale-95');
+        videoBadge.classList.add('opacity-100', 'scale-100');
+        clearTimeout(hudBadgeTimer);
+        hudBadgeTimer = setTimeout(function () {
+          videoBadge.classList.remove('opacity-100', 'scale-100');
+          videoBadge.classList.add('opacity-0', 'scale-95');
+        }, 1200);
       }
 
       function showToast(text) {
@@ -1137,16 +1370,13 @@
 
       function highlightPresets(val) {
         const customOpen = customDrawer && !customDrawer.classList.contains('hidden');
-        let matched = false;
         presetButtons.forEach(function (btn) {
           const isMatch = !customOpen && Math.abs(parseFloat(btn.dataset.speed) - val) < 0.01;
           btn.className = isMatch ? BTN_ACTIVE : BTN_IDLE;
-          if (isMatch) matched = true;
         });
         if (customToggleBtn) {
-          customToggleBtn.className = (customOpen ? BTN_ACTIVE : BTN_IDLE) + BTN_FLEX;
+          customToggleBtn.className = (customOpen ? BTN_ACTIVE : BTN_IDLE) + ' flex items-center justify-center gap-1 cursor-pointer';
         }
-        return matched;
       }
 
       function setSpeed(speed, opts) {
@@ -1155,34 +1385,35 @@
         const label = val.toFixed(2) + 'x';
         currentSpeed = val;
 
-        // 1. Real playback speed change on the <video>
+        // 1. Update playbackRate on <video>
         if (demoVideo) {
           demoVideo.defaultPlaybackRate = val;
           demoVideo.playbackRate = val;
         }
 
-        // 2. Sync every UI element
+        // 2. Sync UI displays & inputs
         if (speedSlider && options.syncSlider !== false) speedSlider.value = val;
         if (speedDisplay) speedDisplay.textContent = label;
         if (sliderVal) sliderVal.textContent = label;
         if (customInput) customInput.value = val.toFixed(2);
         if (hudSpeed) hudSpeed.textContent = label;
-        if (videoBadge) videoBadge.textContent = label;
 
-        // 3. Visual feedback
-        popBadge();
+        // 3. Trigger HUD overlay fade badge
+        triggerHudBadge(label);
+
+        // 4. Subtle pop on top-left pill
         if (hudContainer) {
-          hudContainer.classList.add('scale-105', 'border-violet-400');
+          hudContainer.classList.add('border-violet-400', 'scale-105');
           setTimeout(function () {
-            hudContainer.classList.remove('scale-105', 'border-violet-400');
-          }, 250);
+            hudContainer.classList.remove('border-violet-400', 'scale-105');
+          }, 200);
         }
-        if (options.toast) showToast(label);
 
+        if (options.toast) showToast(label);
         highlightPresets(val);
       }
 
-      // Slider: live update while dragging, toast on release
+      // Slider listener
       if (speedSlider) {
         speedSlider.addEventListener('input', function (e) {
           setSpeed(e.target.value, { syncSlider: false });
@@ -1192,13 +1423,20 @@
         });
       }
 
-      // Preset buttons (1.0x, 1.25x, 1.5x, 2.0x, 3.0x)
+      // Presets
       presetButtons.forEach(function (btn) {
         btn.addEventListener('click', function () {
           if (customDrawer) customDrawer.classList.add('hidden');
-          setSpeed(btn.getAttribute('data-speed') || parseFloat(btn.textContent), { toast: true });
+          setSpeed(btn.getAttribute('data-speed'), { toast: true });
         });
       });
+
+      // Reset Button in Speed Hub
+      if (resetDemoSpeedBtn) {
+        resetDemoSpeedBtn.addEventListener('click', function () {
+          setSpeed(1.0, { toast: true });
+        });
+      }
 
       // HUD − / + buttons
       if (hudSpeedDec) {
@@ -1214,7 +1452,7 @@
         });
       }
 
-      // Custom speed drawer
+      // Custom speed input drawer
       if (customToggleBtn && customDrawer) {
         customToggleBtn.addEventListener('click', function () {
           customDrawer.classList.toggle('hidden');
@@ -1236,13 +1474,145 @@
         });
       }
 
-      // Play / pause + time display
+      // Tab Navigation inside Mockup
+      function switchMockupTab(targetTab) {
+        Object.keys(mockupTabs).forEach(function (tabKey) {
+          const btn = mockupTabs[tabKey];
+          const pane = mockupPanes[tabKey];
+          if (!btn || !pane) return;
+          if (tabKey === targetTab) {
+            btn.className = 'demo-mockup-tab active py-2 px-2 rounded-lg text-white bg-violet-600 shadow-md shadow-violet-600/30 transition flex items-center justify-center gap-1.5 cursor-pointer';
+            pane.classList.remove('hidden');
+          } else {
+            btn.className = 'demo-mockup-tab py-2 px-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer';
+            pane.classList.add('hidden');
+          }
+        });
+      }
+
+      if (mockupTabs.speed) mockupTabs.speed.addEventListener('click', () => switchMockupTab('speed'));
+      if (mockupTabs.shortcuts) mockupTabs.shortcuts.addEventListener('click', () => switchMockupTab('shortcuts'));
+      if (mockupTabs.precision) mockupTabs.precision.addEventListener('click', () => switchMockupTab('precision'));
+
+      // Tab 2 Shortcuts Actions
+      if (hkSpeedUp) {
+        hkSpeedUp.addEventListener('click', function () {
+          setSpeed(currentSpeed + 0.25, { toast: true });
+        });
+      }
+      if (hkSpeedDown) {
+        hkSpeedDown.addEventListener('click', function () {
+          setSpeed(currentSpeed - 0.25, { toast: true });
+        });
+      }
+      if (hkReset) {
+        hkReset.addEventListener('click', function () {
+          setSpeed(1.0, { toast: true });
+        });
+      }
+      if (hkFav) {
+        hkFav.addEventListener('click', function () {
+          setSpeed(Math.abs(currentSpeed - 2.0) < 0.05 ? 1.0 : 2.0, { toast: true });
+        });
+      }
+
+      // Global Keyboard Shortcut Bindings
+      window.addEventListener('keydown', function (e) {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        if (e.key === ']' || e.key === '}') {
+          e.preventDefault();
+          setSpeed(currentSpeed + (e.shiftKey ? 0.5 : 0.25), { toast: true });
+        } else if (e.key === '[' || e.key === '{') {
+          e.preventDefault();
+          setSpeed(currentSpeed - (e.shiftKey ? 0.5 : 0.25), { toast: true });
+        } else if (e.key === 'r' || e.key === 'R') {
+          e.preventDefault();
+          setSpeed(1.0, { toast: true });
+        } else if (e.key === 'g' || e.key === 'G') {
+          e.preventDefault();
+          setSpeed(Math.abs(currentSpeed - 2.0) < 0.05 ? 1.0 : 2.0, { toast: true });
+        }
+      });
+
+      // Tab 3 Precision Actions
+      function formatTimePrecise(seconds) {
+        const sec = Math.max(0, seconds || 0);
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        const cs = Math.floor((sec % 1) * 100).toString().padStart(2, '0');
+        return m + ':' + s + '.' + cs;
+      }
+
+      if (prevFrameBtn && demoVideo) {
+        prevFrameBtn.addEventListener('click', function () {
+          demoVideo.currentTime = Math.max(0, demoVideo.currentTime - 0.033);
+        });
+      }
+      if (nextFrameBtn && demoVideo) {
+        nextFrameBtn.addEventListener('click', function () {
+          demoVideo.currentTime = Math.min(demoVideo.duration || 60, demoVideo.currentTime + 0.033);
+        });
+      }
+      if (seekBackBtn && demoVideo) {
+        seekBackBtn.addEventListener('click', function () {
+          demoVideo.currentTime = Math.max(0, demoVideo.currentTime - 5);
+        });
+      }
+      if (seekFwdBtn && demoVideo) {
+        seekFwdBtn.addEventListener('click', function () {
+          demoVideo.currentTime = Math.min(demoVideo.duration || 60, demoVideo.currentTime + 5);
+        });
+      }
+
+      // Checkpoints
+      function bindCheckpointItems() {
+        if (!checkpointsList || !demoVideo) return;
+        const items = checkpointsList.querySelectorAll('.checkpoint-item');
+        items.forEach(function (item) {
+          item.onclick = function () {
+            const time = parseFloat(item.getAttribute('data-time'));
+            if (!isNaN(time)) {
+              demoVideo.currentTime = time;
+              if (precisionTimeBadge) precisionTimeBadge.textContent = formatTimePrecise(time);
+            }
+          };
+        });
+        if (cpCountBadge) {
+          cpCountBadge.textContent = items.length + ' saved';
+        }
+      }
+      bindCheckpointItems();
+
+      if (addCheckpointBtn && checkpointInput && demoVideo) {
+        addCheckpointBtn.addEventListener('click', function () {
+          const t = demoVideo.currentTime || 0;
+          const note = checkpointInput.value.trim() || ('Point ' + (checkpointsList.querySelectorAll('.checkpoint-item').length + 1));
+          checkpointInput.value = '';
+          const m = Math.floor(t / 60).toString().padStart(2, '0');
+          const s = Math.floor(t % 60).toString().padStart(2, '0');
+          const timeStr = m + ':' + s;
+
+          const row = document.createElement('div');
+          row.className = 'checkpoint-item flex items-center justify-between p-1.5 rounded bg-slate-950/70 border border-slate-800 hover:border-violet-500/50 cursor-pointer transition';
+          row.setAttribute('data-time', t.toFixed(2));
+          row.innerHTML = '<div class="flex items-center gap-1.5">' +
+            '<span class="text-[10px] font-mono bg-violet-500/20 text-violet-300 px-1.5 py-0.5 rounded font-bold">' + timeStr + '</span>' +
+            '<span class="text-slate-300 text-[11px]">' + note + '</span>' +
+            '</div><span class="text-[10px] text-slate-500 hover:text-violet-400">Jump ➔</span>';
+
+          checkpointsList.prepend(row);
+          bindCheckpointItems();
+        });
+      }
+
+      // Video Play / Pause + Mute / Unmute + Time display
       if (demoVideo) {
         function syncPlayIcon() {
           if (!playIcon || !pauseIcon) return;
           playIcon.classList.toggle('hidden', !demoVideo.paused);
           pauseIcon.classList.toggle('hidden', demoVideo.paused);
         }
+
         function togglePlay() {
           if (demoVideo.paused) {
             demoVideo.play().catch(function () {});
@@ -1258,10 +1628,26 @@
             togglePlay();
           });
         }
+
+        // Mute / Unmute
+        if (videoMuteBtn) {
+          videoMuteBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            demoVideo.muted = !demoVideo.muted;
+            if (muteIcon && unmuteIcon) {
+              muteIcon.classList.toggle('hidden', !demoVideo.muted);
+              unmuteIcon.classList.toggle('hidden', demoVideo.muted);
+            }
+          });
+        }
+
         demoVideo.addEventListener('play', syncPlayIcon);
         demoVideo.addEventListener('pause', syncPlayIcon);
 
         demoVideo.addEventListener('timeupdate', function () {
+          if (precisionTimeBadge) {
+            precisionTimeBadge.textContent = formatTimePrecise(demoVideo.currentTime);
+          }
           if (!videoTimeDisplay || !demoVideo.duration) return;
           const fmt = function (t) {
             return Math.floor(t / 60) + ':' + Math.floor(t % 60).toString().padStart(2, '0');
@@ -1269,11 +1655,13 @@
           videoTimeDisplay.textContent = fmt(demoVideo.currentTime) + ' / ' + fmt(demoVideo.duration);
         });
 
+        // Autoplay safe start
+        demoVideo.muted = true;
         demoVideo.play().catch(syncPlayIcon);
       }
 
-      // Initial state
-      setSpeed(2.0);
+      // Initialize default speed
+      setSpeed(1.0);
     })();
   </script>
 
