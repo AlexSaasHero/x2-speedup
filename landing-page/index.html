@@ -106,9 +106,6 @@
         <a href="#how-it-works" class="text-slate-400 hover:text-white transition">How It Works</a>
         <a href="#pricing" class="text-slate-400 hover:text-white transition">Pricing</a>
         <a href="#faq" class="text-slate-400 hover:text-white transition">FAQ</a>
-        <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh/reviews" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 font-semibold transition text-xs sm:text-sm">
-          <span>⭐</span> Review us on Chrome Store
-        </a>
         <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition font-semibold">Start 7-Day Free Trial</a>
       </nav>
     </div>
@@ -133,11 +130,6 @@
       </a>
     </div>
 
-    <div class="mt-4 flex items-center justify-center gap-3">
-      <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh/reviews" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-amber-200 transition font-medium px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
-        <span>⭐</span> Rate on Chrome Web Store
-      </a>
-    </div>
 
     <!-- Interactive UI Controller & Live Video Showcase -->
     <div class="mt-14 max-w-5xl mx-auto bg-slate-900/90 border border-violet-500/30 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl shadow-violet-950/40 relative overflow-hidden backdrop-blur-sm text-left">
@@ -172,14 +164,13 @@
         <div class="lg:col-span-7 flex flex-col justify-between space-y-3">
           <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl group aspect-video flex items-center justify-center">
             
-            <!-- Video Element (abstract light streaks loop, Mixkit free license) -->
+            <!-- Video Element (Big Buck Bunny clip, standard open-source test video) -->
             <!-- data-x2-ignore: opt-out marker so a future SpeedUP Video Pro version can skip this demo video -->
             <!-- (the current extension is neutralised by the ratechange guard in the demo script) -->
             <video id="demoVideo" data-x2-ignore="true"
                    class="w-full h-full object-cover block cursor-pointer" 
                    autoplay loop muted playsinline preload="auto">
-              <source src="demo-abstract.mp4" type="video/mp4">
-              <source src="https://assets.mixkit.co/videos/41221/41221-720.mp4" type="video/mp4">
+              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
               Your browser does not support HTML5 video.
             </video>
 
@@ -227,7 +218,7 @@
                   <svg id="play-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   <svg id="pause-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
-                <span class="text-[11px] text-slate-300 font-medium hidden sm:inline">Abstract Light Streaks — Demo Loop</span>
+                <span class="text-[11px] text-slate-300 font-medium hidden sm:inline">Big Buck Bunny — Open Source Test Video</span>
               </div>
               <div class="text-[11px] text-slate-400 font-medium tabular-nums">
                 <span id="video-time-display">0:00</span>
@@ -859,22 +850,11 @@
 
     </div>
 
-    <!-- Carousel Footer Navigation Controls (Prev / Dots / Next) -->
-    <div class="mt-12 flex items-center justify-between pt-6 border-t border-slate-800/80">
-      <button type="button" id="tour-prev-btn" class="px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition flex items-center gap-2 cursor-pointer">
-        <span>←</span> <span>Previous Tab</span>
-      </button>
-
-      <!-- Dots Indicator -->
-      <div class="flex items-center gap-2">
-        <button type="button" class="tour-dot w-8 h-2 rounded-full bg-violet-500 transition-all duration-300 cursor-pointer" data-slide="0" aria-label="Slide 1"></button>
-        <button type="button" class="tour-dot w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300 cursor-pointer" data-slide="1" aria-label="Slide 2"></button>
-        <button type="button" class="tour-dot w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300 cursor-pointer" data-slide="2" aria-label="Slide 3"></button>
-      </div>
-
-      <button type="button" id="tour-next-btn" class="px-4 py-2.5 rounded-xl bg-violet-600/90 border border-violet-500/40 hover:bg-violet-600 text-white text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-lg shadow-violet-600/20 cursor-pointer">
-        <span>Next Tab</span> <span>→</span>
-      </button>
+    <!-- Carousel Dots Indicator -->
+    <div class="mt-10 flex items-center justify-center gap-2">
+      <button type="button" class="tour-dot w-8 h-2 rounded-full bg-violet-500 transition-all duration-300 cursor-pointer" data-slide="0" aria-label="Slide 1"></button>
+      <button type="button" class="tour-dot w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300 cursor-pointer" data-slide="1" aria-label="Slide 2"></button>
+      <button type="button" class="tour-dot w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300 cursor-pointer" data-slide="2" aria-label="Slide 3"></button>
     </div>
   </section>
 
@@ -1067,9 +1047,6 @@
       <div class="flex items-center gap-6">
         <a href="https://speedup-videopro.lemonsqueezy.com/checkout/buy/fa978c6b-7606-43e1-ab09-c3f16b6380fa?embed=1" class="lemonsqueezy-button text-blue-400 hover:text-blue-300 font-semibold transition text-xs sm:text-sm">
           Start 7-Day Free Trial
-        </a>
-        <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh/reviews" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 font-semibold transition text-xs sm:text-sm">
-          <span>⭐</span> Review us on Chrome Store
         </a>
         <a href="privacy.html" class="text-slate-400 hover:text-slate-300 transition">Privacy Policy</a>
       </div>
@@ -1306,8 +1283,6 @@
       const tourTabs = document.querySelectorAll('.tour-nav-tab');
       const tourSlides = document.querySelectorAll('.tour-slide');
       const tourDots = document.querySelectorAll('.tour-dot');
-      const tourPrevBtn = document.getElementById('tour-prev-btn');
-      const tourNextBtn = document.getElementById('tour-next-btn');
       let currentTourSlide = 0;
 
       window.showTourSlide = function (index) {
@@ -1353,18 +1328,6 @@
           window.showTourSlide(parseInt(dot.dataset.slide, 10));
         });
       });
-
-      if (tourPrevBtn) {
-        tourPrevBtn.addEventListener('click', () => {
-          window.showTourSlide(currentTourSlide - 1);
-        });
-      }
-
-      if (tourNextBtn) {
-        tourNextBtn.addEventListener('click', () => {
-          window.showTourSlide(currentTourSlide + 1);
-        });
-      }
     })();
   </script>
 </body>
