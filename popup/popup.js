@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 1. DOM ELEMENTS & CONSTANTS
   // ==========================================
-  const LANDING_PAGE_URL = "https://x2-speedup.vercel.app";
+  const LANDING_PAGE_URL = "https://speedupvideopro.vercel.app";
   const DEV_MASTER_KEY = "DEV-SPEEDUP-PRO-2026";
   const MIN_SPEED = 0.1;
   const MAX_SPEED = 16.0;
@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Main Suite View & Footer Elements
   const speedControls = document.getElementById('speedControls');
+  const footerCtaSection = document.getElementById('footerCtaSection');
+  const mainCtaBtn = document.getElementById('mainCtaBtn');
   const footerLicenseStatus = document.getElementById('footerLicenseStatus');
   const openUpgradeBtn = document.getElementById('openUpgradeBtn');
   const logoutKeyBtn = document.getElementById('logoutKeyBtn');
@@ -180,7 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (tierBadgeText) tierBadgeText.textContent = '✨ PRO Lifetime';
       if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x)';
-      if (footerLicenseStatus) footerLicenseStatus.textContent = 'SpeedUp Video PRO • Lifetime ✨';
+      if (footerLicenseStatus) {
+        footerLicenseStatus.textContent = 'SpeedUP Pro Lifetime Active ✓';
+        footerLicenseStatus.className = 'footer-note footer-pro-active';
+      }
+      if (footerCtaSection) footerCtaSection.style.display = 'none';
       if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'inline-block';
     } else if (tier.isTrial) {
@@ -192,11 +198,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (tierBadgeText) tierBadgeText.textContent = `Trial: ${tier.daysLeft} ${tier.daysLeft === 1 ? 'day' : 'days'} left`;
       if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x Trial)';
-      if (footerLicenseStatus) footerLicenseStatus.textContent = 'SpeedUp Video PRO • Free Trial';
-      if (openUpgradeBtn) {
-        openUpgradeBtn.style.display = 'inline-block';
-        openUpgradeBtn.textContent = 'Upgrade ($1.99)';
+      if (footerLicenseStatus) {
+        footerLicenseStatus.textContent = 'SpeedUp Video PRO • Free Trial';
+        footerLicenseStatus.className = 'footer-note';
       }
+      if (footerCtaSection) footerCtaSection.style.display = 'flex';
+      if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
     } else {
       document.body.classList.remove('is-licensed', 'is-trial');
@@ -207,11 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (tierBadgeText) tierBadgeText.textContent = 'Trial Expired • Upgrade to Pro ($1.99)';
       if (tierRangeHint) tierRangeHint.textContent = '(Free: 0.25x–2.5x)';
-      if (footerLicenseStatus) footerLicenseStatus.textContent = 'Free Tier (Max 2.5x)';
-      if (openUpgradeBtn) {
-        openUpgradeBtn.style.display = 'inline-block';
-        openUpgradeBtn.textContent = 'Unlock Pro ($1.99)';
+      if (footerLicenseStatus) {
+        footerLicenseStatus.textContent = 'Free Tier (Max 2.5x)';
+        footerLicenseStatus.className = 'footer-note';
       }
+      if (footerCtaSection) footerCtaSection.style.display = 'flex';
+      if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
     }
 
@@ -597,6 +605,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (ctaBuyBtn) {
     ctaBuyBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: LANDING_PAGE_URL });
+    });
+  }
+
+  if (mainCtaBtn) {
+    mainCtaBtn.addEventListener('click', () => {
       chrome.tabs.create({ url: LANDING_PAGE_URL });
     });
   }
