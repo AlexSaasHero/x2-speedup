@@ -1,4 +1,4 @@
-// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.1.1)
+// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.1.5)
 (() => {
   const currentHostname = window.location.hostname;
   const DEFAULT_HOTKEYS = {
@@ -435,6 +435,9 @@
     if (changes.preservesPitch && changes.preservesPitch.newValue !== undefined) {
       preservesPitch = !!changes.preservesPitch.newValue;
       applySettingsToAllVideos();
+    } else if (changes.preservePitch && changes.preservePitch.newValue !== undefined) {
+      preservesPitch = !!changes.preservePitch.newValue;
+      applySettingsToAllVideos();
     }
     if (changes.hudEnabled && changes.hudEnabled.newValue !== undefined) {
       hudEnabled = !!changes.hudEnabled.newValue;
@@ -548,6 +551,14 @@
 
     switch (request.action) {
       case 'SET_SPEED':
+        if (request.preservesPitch !== undefined) {
+          preservesPitch = !!request.preservesPitch;
+        } else if (request.preservePitch !== undefined) {
+          preservesPitch = !!request.preservePitch;
+        }
+        if (request.hudEnabled !== undefined) {
+          hudEnabled = !!request.hudEnabled;
+        }
         applySpeed(request.speed, true, true);
         sendResponse({ success: true, currentSpeed: targetSpeed, speed: targetSpeed });
         break;

@@ -1,9 +1,15 @@
-// SpeedUp Video Pro v1.5.1.1 - Instant Modular Popup Controller (Manifest V3)
-document.addEventListener('DOMContentLoaded', () => {
+// SpeedUp Video Pro v1.5.1.5 - Instant Modular Popup Controller (Manifest V3)
+import { sendTelemetryEvent } from '../utils/analytics.js';
+
+// Top-level feature flag defaults
+const HUD_ENABLED_DEFAULT = true;
+const PRESERVE_PITCH_DEFAULT = true;
+
+function initPopup() {
   // ==========================================
   // 1. DOM ELEMENTS & CONSTANTS
   // ==========================================
-  const LANDING_PAGE_URL = "https://speedupvideopro.vercel.app";
+  const LANDING_PAGE_URL = "https://x2-speedup.vercel.app/";
   const DEV_MASTER_KEY = "DEV-SPEEDUP-PRO-2026";
   const MIN_SPEED = 0.1;
   const MAX_SPEED = 16.0;
@@ -35,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Main Suite View & Footer Elements
   const speedControls = document.getElementById('speedControls');
   const footerCtaSection = document.getElementById('footerCtaSection');
-  const mainCtaBtn = document.getElementById('mainCtaBtn');
+  const upgradeLifetimeBtn = document.getElementById('btn-upgrade-pro') || document.getElementById('upgradeLifetimeBtn');
+  const mainCtaBtn = upgradeLifetimeBtn;
   const footerLicenseStatus = document.getElementById('footerLicenseStatus');
   const openUpgradeBtn = document.getElementById('openUpgradeBtn');
   const logoutKeyBtn = document.getElementById('logoutKeyBtn');
@@ -56,12 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const stepBtns = document.querySelectorAll('.step-btn');
   const customSpeedInput = document.getElementById('customSpeedInput');
   const resetBtn = document.getElementById('resetBtn');
-
-  const rememberDomainToggle = document.getElementById('rememberDomainToggle');
-  const domainHintText = document.getElementById('domainHintText');
-  const pitchToggle = document.getElementById('pitchToggle');
-  const loopToggle = document.getElementById('loopToggle');
-  const hudToggle = document.getElementById('hudToggle');
 
   // Tab 2: Custom Hotkeys Elements
   const hotkeyCaptureBtns = document.querySelectorAll('.hotkey-capture-btn[data-action]');
@@ -87,7 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let installDate = null;
   let currentSpeed = 1.0;
   let isPlaying = true;
-  let preservesPitch = true;
+  let preservesPitch = PRESERVE_PITCH_DEFAULT;
+  let hudEnabled = HUD_ENABLED_DEFAULT;
+  let loopVideo = false;
   let activeTabId = null;
   let activeTabUrl = '';
   let activeTabTitle = '';
@@ -97,6 +100,30 @@ document.addEventListener('DOMContentLoaded', () => {
   let favoriteSpeed = 2.0;
   let videoCheckpoints = {};
   let listeningHotkeyAction = null;
+
+  // ==========================================
+  // TELEMETRY: EVENT 1 - POPUP OPENED
+  // ==========================================
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    let activeHostname = 'empty_tab';
+    if (tabs && tabs[0] && tabs[0].url) {
+      try {
+        activeHostname = new URL(tabs[0].url).hostname;
+      } catch (e) {
+        activeHostname = 'invalid_url';
+      }
+    }
+    if (!currentHostname && activeHostname && activeHostname !== 'empty_tab' && activeHostname !== 'invalid_url') {
+      currentHostname = activeHostname;
+    }
+
+    chrome.storage.local.get(['isPro'], (res) => {
+      sendTelemetryEvent('popup_opened', {
+        domain: activeHostname,
+        is_pro: res.isPro ? 'true' : 'false'
+      });
+    });
+  });
 
   // Helpers
   function formatKeyLabel(key) {
@@ -306,22 +333,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. INSTANT LOCAL CACHE RENDER (<10ms)
   // ==========================================
   chrome.storage.local.get(
-    [
-      'installDate',
-      'isPro',
-      'isLicensed',
-      'licenseKey',
-      'activatedAt',
-      'defaultSpeed',
-      'domainSpeeds',
-      'hudEnabled',
-      'preservesPitch',
-      'loopVideo',
-      'activeTab',
-      'customHotkeys',
-      'favoriteSpeed',
-      'videoCheckpoints'
-    ],
+    {
+      installDate: null,
+      isPro: false,
+      isLicensed: false,
+      licenseKey: '',
+      activatedAt: 0,
+      defaultSpeed: 1.0,
+      domainSpeeds: {},
+      hudEnabled: HUD_ENABLED_DEFAULT,
+      preservesPitch: PRESERVE_PITCH_DEFAULT,
+      preservePitch: PRESERVE_PITCH_DEFAULT,
+      loopVideo: false,
+      activeTab: 'speed',
+      customHotkeys: DEFAULT_HOTKEYS,
+      favoriteSpeed: 2.0,
+      videoCheckpoints: {}
+    },
     (data) => {
       // 1. Initialize 7-Day Free Trial install date if not yet present
       if (!data.installDate) {
@@ -355,10 +383,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setSpeedUI(currentSpeed);
       }
 
-      preservesPitch = data.preservesPitch !== undefined ? !!data.preservesPitch : true;
-      if (pitchToggle) pitchToggle.checked = preservesPitch;
-      if (data.hudEnabled !== undefined && hudToggle) hudToggle.checked = data.hudEnabled;
-      if (data.loopVideo !== undefined && loopToggle) loopToggle.checked = data.loopVideo;
+      preservesPitch = data.preservesPitch !== undefined
+        ? !!data.preservesPitch
+        : (data.preservePitch !== undefined ? !!data.preservePitch : PRESERVE_PITCH_DEFAULT);
+      hudEnabled = data.hudEnabled !== undefined ? !!data.hudEnabled : HUD_ENABLED_DEFAULT;
+      loopVideo = data.loopVideo !== undefined ? !!data.loopVideo : false;
+
+      // Guarantee background optimal defaults
+      if (data.preservesPitch === undefined || data.preservePitch === undefined || data.hudEnabled === undefined) {
+        chrome.storage.local.set({
+          preservesPitch: PRESERVE_PITCH_DEFAULT,
+          preservePitch: PRESERVE_PITCH_DEFAULT,
+          hudEnabled: HUD_ENABLED_DEFAULT
+        });
+      }
 
       if (data.customHotkeys && typeof data.customHotkeys === 'object') {
         customHotkeys = { ...DEFAULT_HOTKEYS, ...data.customHotkeys };
@@ -434,24 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function updateDomainUI() {
-    if (!rememberDomainToggle || !domainHintText) return;
-    if (!currentHostname) {
-      rememberDomainToggle.checked = false;
-      domainHintText.textContent = 'Salva velocità per il sito corrente';
-      return;
-    }
-
-    const hasSavedDomainSpeed = domainSpeeds[currentHostname] !== undefined;
-    rememberDomainToggle.checked = hasSavedDomainSpeed;
-
-    if (hasSavedDomainSpeed) {
-      const savedVal = parseFloat(domainSpeeds[currentHostname]).toFixed(2);
-      domainHintText.textContent = `Attivo su ${currentHostname} (${savedVal}x)`;
-    } else {
-      domainHintText.textContent = `Salva velocità per ${currentHostname}`;
-    }
-  }
+  function updateDomainUI() {}
 
   // ==========================================
   // 6. LICENSE ACTIVATION & VERIFICATION
@@ -604,14 +625,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (ctaBuyBtn) {
-    ctaBuyBtn.addEventListener('click', () => {
+    ctaBuyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tier = getTierStatus();
+      sendTelemetryEvent('cta_upgrade_clicked', {
+        target_url: 'https://x2-speedup.vercel.app/',
+        domain: currentHostname || 'unknown',
+        tier_state: tier.isTrial ? 'trial' : (tier.isPro ? 'pro' : 'expired'),
+        is_pro: tier.isPro ? 'true' : 'false'
+      });
       chrome.tabs.create({ url: LANDING_PAGE_URL });
     });
   }
 
-  if (mainCtaBtn) {
-    mainCtaBtn.addEventListener('click', () => {
-      chrome.tabs.create({ url: LANDING_PAGE_URL });
+  const upgradeBtn = document.getElementById('btn-upgrade-pro') || document.getElementById('upgradeLifetimeBtn');
+  if (upgradeBtn) {
+    upgradeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tier = getTierStatus();
+      sendTelemetryEvent('cta_upgrade_clicked', {
+        target_url: 'https://x2-speedup.vercel.app/',
+        domain: currentHostname || 'unknown',
+        tier_state: tier.isTrial ? 'trial' : (tier.isPro ? 'pro' : 'expired'),
+        is_pro: tier.isPro ? 'true' : 'false'
+      });
+      chrome.tabs.create({ url: 'https://x2-speedup.vercel.app/' });
     });
   }
 
@@ -664,21 +702,35 @@ document.addEventListener('DOMContentLoaded', () => {
     currentSpeed = parseFloat(clamped.toFixed(2));
     setSpeedUI(currentSpeed);
 
-    const storageUpdates = { defaultSpeed: currentSpeed };
-    if (rememberDomainToggle && rememberDomainToggle.checked && currentHostname) {
+    const storageUpdates = {
+      defaultSpeed: currentSpeed,
+      preservesPitch: PRESERVE_PITCH_DEFAULT,
+      preservePitch: PRESERVE_PITCH_DEFAULT,
+      hudEnabled: HUD_ENABLED_DEFAULT
+    };
+    if (currentHostname && domainSpeeds[currentHostname] !== undefined) {
       domainSpeeds[currentHostname] = currentSpeed;
       storageUpdates.domainSpeeds = domainSpeeds;
-      updateDomainUI();
     }
     chrome.storage.local.set(storageUpdates);
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { action: 'SET_SPEED', speed: currentSpeed }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.warn('SpeedUP: content script not ready or error', chrome.runtime.lastError);
+      chrome.tabs.sendMessage(
+        tab.id,
+        {
+          action: 'SET_SPEED',
+          speed: currentSpeed,
+          hudEnabled: HUD_ENABLED_DEFAULT,
+          preservesPitch: PRESERVE_PITCH_DEFAULT,
+          preservePitch: PRESERVE_PITCH_DEFAULT
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.warn('SpeedUP: content script not ready or error', chrome.runtime.lastError);
+          }
         }
-      });
+      );
     }
 
     try {
@@ -726,9 +778,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playText) playText.textContent = isPlaying ? 'Pausa' : 'Play';
   }
 
-  if (slider) slider.addEventListener('input', (e) => setSpeed(e.target.value));
-  if (customSpeedInput) customSpeedInput.addEventListener('change', (e) => setSpeed(e.target.value));
-  if (resetBtn) resetBtn.addEventListener('click', () => setSpeed(1.0));
+  if (slider) {
+    slider.addEventListener('input', (e) => setSpeed(e.target.value));
+    slider.addEventListener('change', (e) => {
+      sendTelemetryEvent('speed_updated', {
+        target_speed: String(e.target.value),
+        domain: currentHostname || 'unknown'
+      });
+    });
+  }
+
+  if (customSpeedInput) {
+    customSpeedInput.addEventListener('change', (e) => {
+      setSpeed(e.target.value);
+      sendTelemetryEvent('speed_updated', {
+        target_speed: String(e.target.value),
+        domain: currentHostname || 'unknown'
+      });
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      setSpeed(1.0);
+      sendTelemetryEvent('speed_updated', {
+        target_speed: '1',
+        domain: currentHostname || 'unknown'
+      });
+    });
+  }
 
   presetButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -737,10 +815,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const tier = getTierStatus();
       if (!tier.hasFullAccess && speed > FREE_MAX_SPEED) {
         setSpeed(FREE_MAX_SPEED);
+        sendTelemetryEvent('speed_updated', {
+          target_speed: String(FREE_MAX_SPEED),
+          domain: currentHostname || 'unknown'
+        });
         openUpgradeModal("Your 7-day trial has ended. Speeds above 2.5x require SpeedUP Video Pro Lifetime ($1.99).");
         return;
       }
       setSpeed(speed);
+      sendTelemetryEvent('speed_updated', {
+        target_speed: String(speed),
+        domain: currentHostname || 'unknown'
+      });
     });
   });
 
@@ -752,56 +838,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-
-  // Remember speed for this domain toggle
-  if (rememberDomainToggle) {
-    rememberDomainToggle.addEventListener('change', (e) => {
-      if (!currentHostname) {
-        e.target.checked = false;
-        return;
-      }
-      const tier = getTierStatus();
-      if (!tier.hasFullAccess) {
-        e.target.checked = false;
-        openUpgradeModal("Domain speed persistence is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
-        return;
-      }
-      if (e.target.checked) {
-        domainSpeeds[currentHostname] = currentSpeed;
-      } else {
-        delete domainSpeeds[currentHostname];
-      }
-      chrome.storage.local.set({ domainSpeeds });
-      updateDomainUI();
-    });
-  }
-
-  if (pitchToggle) {
-    pitchToggle.addEventListener('change', async (e) => {
-      preservesPitch = e.target.checked;
-      chrome.storage.local.set({ preservesPitch });
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SET_PITCH', preservesPitch }, 250);
-    });
-  }
-
-  if (loopToggle) {
-    loopToggle.addEventListener('change', async (e) => {
-      const val = e.target.checked;
-      chrome.storage.local.set({ loopVideo: val });
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SET_LOOP', loop: val }, 250);
-    });
-  }
-
-  if (hudToggle) {
-    hudToggle.addEventListener('change', async (e) => {
-      const val = e.target.checked;
-      chrome.storage.local.set({ hudEnabled: val });
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) sendTabMessageWithTimeout(tab.id, { action: 'SET_HUD', enabled: val }, 250);
-    });
-  }
 
   // ==========================================
   // 8. TAB 2: CUSTOM HOTKEYS REMAPPING
@@ -1087,4 +1123,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPopup);
+} else {
+  initPopup();
+}
