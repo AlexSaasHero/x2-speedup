@@ -258,5 +258,10 @@
   "changelog_16_overlay": "New draggable on-video overlay that also works in fullscreen.",
   "changelog_16_persist": "Speed survives ads, quality changes and playlists; native player menus are respected.",
   "changelog_16_privacy": "Analytics removed: 100% local, zero tracking.",
-  "overlay_seek_unsupported": "Seeking isn't supported on this site"
+  "overlay_seek_unsupported": "Seeking isn't supported on this site",
+  "site_access_title": "0. Allow SpeedUp on websites",
+  "site_access_body": "Firefox asks you to grant access to websites before extensions can work on them. SpeedUp only touches video and audio elements and never reads or sends page content.",
+  "site_access_button": "Allow on all websites",
+  "site_access_granted": "✓ Access granted. Shortcuts and the overlay now work on every site.",
+  "site_access_popup": "SpeedUp needs access to websites to control their videos."
 }

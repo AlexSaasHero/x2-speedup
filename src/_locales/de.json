@@ -248,5 +248,10 @@
   "changelog_16_overlay": "Neues verschiebbares Overlay auf dem Video, auch im Vollbild.",
   "changelog_16_persist": "Die Geschwindigkeit bleibt nach Werbung, Qualitätswechsel und Playlists erhalten; native Player-Menüs werden respektiert.",
   "changelog_16_privacy": "Analytics entfernt: 100 % lokal, kein Tracking.",
-  "overlay_seek_unsupported": "Springen wird auf dieser Website nicht unterstützt"
+  "overlay_seek_unsupported": "Springen wird auf dieser Website nicht unterstützt",
+  "site_access_title": "0. SpeedUp auf Websites erlauben",
+  "site_access_body": "Firefox verlangt, dass du Erweiterungen den Zugriff auf Websites erlaubst. SpeedUp greift nur auf Video- und Audioelemente zu und liest oder sendet niemals Seiteninhalte.",
+  "site_access_button": "Auf allen Websites erlauben",
+  "site_access_granted": "✓ Zugriff erteilt. Tastenkürzel und Overlay funktionieren jetzt auf jeder Website.",
+  "site_access_popup": "SpeedUp braucht Zugriff auf Websites, um deren Videos zu steuern."
 }

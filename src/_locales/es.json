@@ -248,5 +248,10 @@
   "changelog_16_overlay": "Nueva superposición arrastrable sobre el vídeo, también en pantalla completa.",
   "changelog_16_persist": "La velocidad se mantiene tras anuncios, cambios de calidad y listas; se respetan los menús nativos del reproductor.",
   "changelog_16_privacy": "Analítica eliminada: 100 % local, sin rastreo.",
-  "overlay_seek_unsupported": "Saltar no es compatible con este sitio"
+  "overlay_seek_unsupported": "Saltar no es compatible con este sitio",
+  "site_access_title": "0. Permite SpeedUp en los sitios web",
+  "site_access_body": "Firefox te pide conceder acceso a los sitios antes de que una extensión pueda funcionar en ellos. SpeedUp solo interactúa con elementos de vídeo y audio y nunca lee ni envía el contenido de las páginas.",
+  "site_access_button": "Permitir en todos los sitios",
+  "site_access_granted": "✓ Acceso concedido. Los atajos y la superposición ya funcionan en todos los sitios.",
+  "site_access_popup": "SpeedUp necesita acceso a los sitios para controlar sus vídeos."
 }

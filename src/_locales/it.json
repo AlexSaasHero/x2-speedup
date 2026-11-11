@@ -248,5 +248,10 @@
   "changelog_16_overlay": "Nuovo overlay trascinabile sul video, funziona anche a schermo intero.",
   "changelog_16_persist": "La velocità resta dopo pubblicità, cambi di qualità e playlist; i menu nativi del player sono rispettati.",
   "changelog_16_privacy": "Analytics rimossi: 100% locale, zero tracciamento.",
-  "overlay_seek_unsupported": "Il salto non è supportato su questo sito"
+  "overlay_seek_unsupported": "Il salto non è supportato su questo sito",
+  "site_access_title": "0. Consenti SpeedUp sui siti",
+  "site_access_body": "Firefox chiede di concedere l'accesso ai siti prima che un'estensione possa funzionarci. SpeedUp interagisce solo con gli elementi video e audio e non legge né invia mai il contenuto delle pagine.",
+  "site_access_button": "Consenti su tutti i siti",
+  "site_access_granted": "✓ Accesso concesso. Scorciatoie e overlay ora funzionano su ogni sito.",
+  "site_access_popup": "SpeedUp ha bisogno dell'accesso ai siti per controllarne i video."
 }

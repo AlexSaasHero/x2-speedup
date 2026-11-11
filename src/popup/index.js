@@ -14,6 +14,7 @@ import { isInGrace, validateLicense } from '../shared/license';
 import { applyI18n, t } from '../shared/i18n';
 import { REVIEW_THRESHOLD_SECONDS, completeReview, shouldAskForReview, snoozeReview } from '../shared/review';
 import { reviewUrl } from '../shared/links';
+import { hasSiteAccess, requestSiteAccess } from '../shared/site-access';
 import { STATS_BUFFER_KEY, STATS_KEY, applyBuffer, formatDuration, validateStats } from '../shared/stats';
 import { isHostListed, normalizeHostPattern } from '../shared/hosts';
 import { roundSpeed } from '../shared/media-math';
@@ -798,6 +799,16 @@ function initPopup() {
     if (reviewBanner) reviewBanner.hidden = true;
   });
   void maybeAskForReview();
+
+  // Firefox: the user must grant access to websites before shortcuts/overlay can work.
+  const siteAccessBanner = document.getElementById('siteAccessBanner');
+  hasSiteAccess().then((ok) => {
+    if (siteAccessBanner) siteAccessBanner.hidden = ok;
+  });
+  document.getElementById('siteAccessGrant')?.addEventListener('click', async () => {
+    const ok = await requestSiteAccess();
+    if (siteAccessBanner) siteAccessBanner.hidden = ok;
+  });
 
   // A-B repeat (Pro)
   const abState = document.getElementById('abState');

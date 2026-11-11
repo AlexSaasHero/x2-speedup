@@ -5,6 +5,7 @@ import { formatSpeed, planLimits } from '../config/plans';
 import { isPro } from '../shared/entitlement';
 import { applyI18n, t } from '../shared/i18n';
 import { LANDING_PAGE_URL } from '../shared/links';
+import { hasSiteAccess, needsSiteAccessPrompt, requestSiteAccess } from '../shared/site-access';
 import { roundSpeed, seekTarget } from '../shared/media-math';
 import { migrate } from '../shared/migrations';
 import { findShortcut, formatShortcut, type ShortcutAction } from '../shared/shortcuts';
@@ -176,8 +177,23 @@ function mountChangelog() {
   if (location.hash === '#whats-new') $('whats-new').scrollIntoView();
 }
 
+async function mountSiteAccess() {
+  if (!needsSiteAccessPrompt()) return;
+  const section = $('siteAccess');
+  const msg = $('siteAccessMsg');
+  const render = (granted: boolean) => {
+    section.hidden = false;
+    msg.className = `msg ${granted ? 'ok' : ''}`;
+    msg.textContent = granted ? t('site_access_granted') : '';
+    $<HTMLButtonElement>('grantAccess').hidden = granted;
+  };
+  render(await hasSiteAccess());
+  $('grantAccess').addEventListener('click', async () => render(await requestSiteAccess()));
+}
+
 async function init() {
   applyI18n();
+  void mountSiteAccess();
   const state = migrate(await chrome.storage.local.get(null)).set as StoredState;
   mountDemo(state);
   mountTrial();

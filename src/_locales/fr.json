@@ -248,5 +248,10 @@
   "changelog_16_overlay": "Nouvel overlay déplaçable sur la vidéo, aussi en plein écran.",
   "changelog_16_persist": "La vitesse est conservée après les publicités, les changements de qualité et les playlists ; les menus natifs du lecteur sont respectés.",
   "changelog_16_privacy": "Analytics supprimés : 100 % local, zéro pistage.",
-  "overlay_seek_unsupported": "Le saut n'est pas pris en charge sur ce site"
+  "overlay_seek_unsupported": "Le saut n'est pas pris en charge sur ce site",
+  "site_access_title": "0. Autorisez SpeedUp sur les sites web",
+  "site_access_body": "Firefox demande d'accorder l'accès aux sites avant qu'une extension puisse y fonctionner. SpeedUp n'interagit qu'avec les éléments vidéo et audio et ne lit ni n'envoie jamais le contenu des pages.",
+  "site_access_button": "Autoriser sur tous les sites",
+  "site_access_granted": "✓ Accès accordé. Les raccourcis et l'overlay fonctionnent désormais sur tous les sites.",
+  "site_access_popup": "SpeedUp a besoin d'accéder aux sites pour contrôler leurs vidéos."
 }

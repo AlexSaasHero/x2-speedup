@@ -1,7 +1,7 @@
 {
   "name": "speedup-video-pro",
   "private": true,
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "SpeedUp Video Pro — Chrome MV3 extension (version of record lives in public/manifest.json)",
   "type": "module",
   "scripts": {
@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "check": "npm run typecheck && npm run test && npm run build",
     "test:e2e": "npm run build && PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1 playwright test",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "qa:live": "npm run build && PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1 playwright test -c playwright.live.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

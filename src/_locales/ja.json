@@ -248,5 +248,10 @@
   "changelog_16_overlay": "ドラッグできる新しいオーバーレイ、全画面でも表示。",
   "changelog_16_persist": "広告、画質変更、プレイリスト後も速度を維持。プレーヤー標準のメニューも尊重します。",
   "changelog_16_privacy": "アナリティクスを削除: 100% ローカル、トラッキングなし。",
-  "overlay_seek_unsupported": "このサイトではシークに対応していません"
+  "overlay_seek_unsupported": "このサイトではシークに対応していません",
+  "site_access_title": "0. サイトでの SpeedUp を許可",
+  "site_access_body": "Firefox では、拡張機能がサイト上で動作する前にアクセスを許可する必要があります。SpeedUp は動画と音声の要素だけを操作し、ページの内容を読み取ったり送信したりすることはありません。",
+  "site_access_button": "すべてのサイトで許可",
+  "site_access_granted": "✓ アクセスを許可しました。ショートカットとオーバーレイがすべてのサイトで使えます。",
+  "site_access_popup": "動画を操作するには、SpeedUp にサイトへのアクセスを許可してください。"
 }

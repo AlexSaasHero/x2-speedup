@@ -59,5 +59,7 @@ describe('Firefox manifest', () => {
     expect(ff.browser_specific_settings.gecko.id).toMatch(/@/);
     expect(ff.content_scripts[0]).not.toHaveProperty('match_origin_as_fallback');
     expect(manifest.content_scripts[0]).toHaveProperty('match_origin_as_fallback');
+    expect(ff.optional_host_permissions).toEqual(['<all_urls>']);
+    expect(manifest).not.toHaveProperty('optional_host_permissions');
   });
 });

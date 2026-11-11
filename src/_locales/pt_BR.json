@@ -248,5 +248,10 @@
   "changelog_16_overlay": "Novo overlay arrastável no vídeo, também em tela cheia.",
   "changelog_16_persist": "A velocidade se mantém após anúncios, mudanças de qualidade e playlists; os menus nativos do player são respeitados.",
   "changelog_16_privacy": "Analytics removido: 100% local, zero rastreamento.",
-  "overlay_seek_unsupported": "Saltos não são compatíveis com este site"
+  "overlay_seek_unsupported": "Saltos não são compatíveis com este site",
+  "site_access_title": "0. Permita o SpeedUp nos sites",
+  "site_access_body": "O Firefox pede que você conceda acesso aos sites antes que uma extensão funcione neles. O SpeedUp só interage com elementos de vídeo e áudio e nunca lê nem envia o conteúdo das páginas.",
+  "site_access_button": "Permitir em todos os sites",
+  "site_access_granted": "✓ Acesso concedido. Atalhos e overlay agora funcionam em todos os sites.",
+  "site_access_popup": "O SpeedUp precisa de acesso aos sites para controlar os vídeos."
 }

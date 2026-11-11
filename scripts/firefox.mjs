@@ -14,5 +14,7 @@ export function toFirefoxManifest(chrome) {
     const { match_origin_as_fallback, ...rest } = cs;
     return rest;
   });
+  // Lets the onboarding/popup ask for access to all sites (opt-in in Firefox MV3).
+  m.optional_host_permissions = ['<all_urls>'];
   return m;
 }
