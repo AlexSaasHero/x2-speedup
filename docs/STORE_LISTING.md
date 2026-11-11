@@ -1,7 +1,6 @@
 # Store listing — SpeedUp Video Pro (v1.8.x)
 
-> Prices are intentionally **not** stated here. `CHROMEWEBSTORE.md` says "$3.99 lifetime" while the landing page says "$1.99 lifetime after the 7-day trial": align before publishing (pricing is your call).
-> Keep the wording "7-Day Free Trial" consistent with the landing page and the extension.
+> Pricing (decided 2026-11-11): 7-day free trial, then a one-time **$1.99** lifetime license — same as the landing page and the Lemon Squeezy checkout.
 
 ---
 
@@ -26,7 +25,7 @@ FREE
 • Settings sync across your devices; import your Video Speed Controller settings in one paste
 • Available in English, Italiano, Español, Deutsch, Français, Português (Brasil) and 日本語
 
-PRO (7-Day Free Trial)
+PRO — 7-day free trial, then a one-time $1.99 (lifetime, no subscription)
 • Up to 16x and frame-by-frame stepping
 • Skip silence: automatically speeds through pauses in lectures and podcasts
 • Speed rules per YouTube channel, URL or site — set it once, it's always right
@@ -62,7 +61,7 @@ GRATIS
 • Impostazioni sincronizzate tra i dispositivi; importa le impostazioni di Video Speed Controller con un incolla
 • Disponibile in English, Italiano, Español, Deutsch, Français, Português (Brasil) e 日本語
 
-PRO (prova gratuita di 7 giorni)
+PRO — prova gratuita di 7 giorni, poi $1.99 una tantum (a vita, nessun abbonamento)
 • Fino a 16x e avanzamento fotogramma per fotogramma
 • Salta silenzi: accelera automaticamente le pause in lezioni e podcast
 • Regole di velocità per canale YouTube, URL o sito — imposti una volta, è sempre giusta
@@ -95,4 +94,4 @@ Nessuna analytics, nessun tracciamento, nessuna pubblicità. Impostazioni, stati
 
 **Data usage disclosure:** The extension does not collect or transmit user data. The license key the user enters is sent to the license server for verification. Nothing is sold or shared; no analytics.
 
-> ⚠️ The landing page (x2-speedup.vercel.app) loads Google Analytics and Microsoft Clarity, while `landing-page/privacy.html` states "We do NOT use any analytics". The extension itself no longer tracks anything, but the website's privacy policy and trackers should be aligned before the store review (not changed here: landing/sales content is outside this task).
+**Privacy policy URL:** https://x2-speedup.vercel.app/privacy.html — updated 2026-11-11: separates the extension (zero tracking, only license verification) from the website (Google Analytics 4 + Microsoft Clarity).

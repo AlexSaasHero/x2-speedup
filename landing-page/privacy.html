@@ -9,7 +9,7 @@
   <meta property="og:title" content="Privacy Policy — SpeedUP Video Pro">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Privacy Policy — SpeedUP Video Pro">
-  <meta name="description" content="Official Privacy Policy for SpeedUP Video Pro Chrome Extension. 100% private, local video playback control, zero data tracking.">
+  <meta name="description" content="Privacy Policy for the SpeedUP Video Pro browser extension (100% local, zero tracking) and its website.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -46,96 +46,131 @@
   <main class="flex-grow max-w-4xl mx-auto px-6 py-16">
     <div class="mb-10 pb-6 border-b border-slate-800">
       <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">Privacy Policy</h1>
-      <p class="text-sm text-slate-400">Official Privacy Statement for <strong>SpeedUP Video Pro</strong> (Chrome Extension)</p>
-      <p class="text-xs text-slate-500 mt-1">Effective Date: October 2, 2026 | Last Updated: October 2, 2026</p>
+      <p class="text-sm text-slate-400">Privacy Statement for the <strong>SpeedUP Video Pro</strong> browser extension and the website <strong>x2-speedup.vercel.app</strong></p>
+      <p class="text-xs text-slate-500 mt-1">Effective Date: October 2, 2026 | Last Updated: November 11, 2026</p>
     </div>
 
     <div class="space-y-8 text-slate-300 text-sm sm:text-base leading-relaxed">
-      
+
       <!-- Introduction -->
       <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
           <span>🔒</span> Introduction & Overview
         </h2>
-        <p>
-          This Privacy Policy governs the use of the <strong>SpeedUP Video Pro</strong> browser extension ("the Extension", "our Extension", "we", "us"). We are committed to maintaining strict user privacy and confidentiality. SpeedUP Video Pro is engineered with a privacy-first architecture, ensuring that all video speed controls operate <strong>100% locally on your computer</strong> without transmitting your personal data or browsing activity to remote servers.
-        </p>
-      </section>
-
-      <!-- 1. Zero Data Collection -->
-      <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
-        <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>🚫</span> 1. Data Collection & Telemetry (Zero Tracking)
-        </h2>
         <p class="mb-3">
-          <strong>SpeedUP Video Pro does NOT collect, record, log, monitor, transmit, or sell any personal data or browsing activity.</strong>
+          This Privacy Policy covers two different things, which handle data differently:
         </p>
         <ul class="list-disc list-inside space-y-2 text-slate-400 ml-1">
-          <li>We do <strong>NOT</strong> collect your IP address, device identifier, location, or browser history.</li>
-          <li>We do <strong>NOT</strong> monitor or track the websites you visit, video titles you watch, or video URLs.</li>
-          <li>We do <strong>NOT</strong> sell, rent, trade, or monetize any user information to advertisers, third parties, or data brokers.</li>
-          <li>We do <strong>NOT</strong> use any analytics, web beacons, tracking scripts, or telemetry frameworks.</li>
+          <li><strong>The SpeedUP Video Pro browser extension</strong> ("the Extension") — works <strong>100% locally</strong> in your browser and contains <strong>no analytics or tracking of any kind</strong> (Section 1).</li>
+          <li><strong>This website</strong>, x2-speedup.vercel.app ("the Website") — uses third-party analytics to understand how visitors use the site (Section 3).</li>
         </ul>
       </section>
 
-      <!-- 2. Local Storage Permissions -->
+      <!-- 1. Extension: zero tracking -->
       <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>💾</span> 2. Browser Storage & Permissions (<code class="text-blue-400">chrome.storage.local</code>)
+          <span>🚫</span> 1. The Extension: Zero Tracking
         </h2>
         <p class="mb-3">
-          The Extension requests standard Chrome extension permissions solely to deliver video playback control functionality. All stored data remains exclusively inside your browser's isolated local storage:
+          <strong>The Extension does NOT collect, record, monitor, transmit, or sell personal data or browsing activity.</strong>
         </p>
         <ul class="list-disc list-inside space-y-2 text-slate-400 ml-1">
-          <li><strong>User Playback Preferences:</strong> Remembers your preferred video speed multiplier (e.g. 1.5x, 2.0x) locally.</li>
-          <li><strong>License & Trial Status:</strong> Saves your validated license key token or trial duration locally to enable premium features.</li>
-          <li><strong>Script Injection:</strong> Interacts with standard HTML5 <code class="text-blue-400">&lt;video&gt;</code> elements directly on pages you browse to adjust speed locally. No external web pages or background scripts are requested or executed.</li>
+          <li>It does <strong>NOT</strong> include any analytics, telemetry, web beacons, or tracking scripts.</li>
+          <li>It does <strong>NOT</strong> send the websites you visit, video titles, or video URLs anywhere.</li>
+          <li>It does <strong>NOT</strong> sell, rent, or share any information with advertisers, third parties, or data brokers.</li>
+          <li>
+            <strong>The only network request</strong> the Extension makes is the verification of the license key you enter (at activation and then at most once a day).
+            Only the key is sent, to our license endpoint (x2-speedup.vercel.app) and to our payment provider Lemon Squeezy (api.lemonsqueezy.com).
+            As with any internet request, the receiving servers technically process standard connection data such as your IP address in order to respond.
+          </li>
+        </ul>
+      </section>
+
+      <!-- 2. Local storage & permissions -->
+      <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
+        <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+          <span>💾</span> 2. What the Extension Stores in Your Browser
+        </h2>
+        <p class="mb-3">
+          Everything below stays in your browser's extension storage (<code class="text-blue-400">chrome.storage</code>) and never reaches our servers:
+        </p>
+        <ul class="list-disc list-inside space-y-2 text-slate-400 ml-1">
+          <li><strong>Preferences:</strong> speed, keyboard shortcuts, overlay settings, sites where shortcuts are disabled, speed rules.</li>
+          <li><strong>Time-saved statistics:</strong> daily totals only (no list of videos or sites).</li>
+          <li><strong>Video bookmarks:</strong> the timestamps and notes you save, keyed by the video's address.</li>
+          <li><strong>License status:</strong> your license key and the result of its last verification.</li>
+          <li>
+            <strong>Optional settings sync:</strong> if enabled (Options → Backup &amp; sync), your preferences — not your license, statistics or bookmarks — are synced through your browser's own sync service (e.g. your Google, Microsoft or Mozilla account), under that provider's privacy policy.
+          </li>
+          <li><strong>Page access:</strong> the Extension interacts only with <code class="text-blue-400">&lt;video&gt;</code> and <code class="text-blue-400">&lt;audio&gt;</code> elements on the pages you visit, to change their speed locally. It does not read or transmit page content.</li>
         </ul>
         <p class="mt-4 text-xs text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          Note: Clearing your browser data or uninstalling the Extension completely removes all stored local preferences from your device.
+          Uninstalling the Extension, or clearing its data, removes all of the above from your device.
         </p>
       </section>
 
-      <!-- 3. Third-Party Payment Processor -->
+      <!-- 3. Website analytics -->
       <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>💳</span> 3. Third-Party Payment Processor (Lemon Squeezy)
+          <span>📊</span> 3. The Website: Analytics
         </h2>
         <p class="mb-3">
-          Optional lifetime license key purchases for SpeedUP Video Pro are securely handled by our external Merchant of Record, <strong>Lemon Squeezy</strong>.
+          To understand how visitors use this Website and improve it, the Website (not the Extension) uses:
         </p>
-        <p class="text-slate-400">
-          When you purchase a license key, payment processing is conducted entirely through Lemon Squeezy's secure payment platform under their Privacy Policy and terms. <strong>SpeedUP Video Pro never sees, collects, stores, or processes credit card details, financial data, or billing addresses.</strong>
+        <ul class="list-disc list-inside space-y-2 text-slate-400 ml-1">
+          <li><strong>Google Analytics 4</strong> (Google LLC / Google Ireland Ltd.) — pages visited, approximate location, device and browser type, how you arrived on the site.</li>
+          <li><strong>Microsoft Clarity</strong> (Microsoft Corporation) — how visitors interact with the pages (clicks, scrolling, session replays and heatmaps).</li>
+        </ul>
+        <p class="mt-3 text-slate-400">
+          These services may set cookies or similar technologies and process data under their own privacy policies:
+          <a class="text-blue-400 hover:underline" href="https://policies.google.com/privacy" rel="noopener">Google</a> ·
+          <a class="text-blue-400 hover:underline" href="https://privacy.microsoft.com/privacystatement" rel="noopener">Microsoft</a>.
+          You can block or delete cookies in your browser settings, or use the
+          <a class="text-blue-400 hover:underline" href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a>.
+          None of this data is connected to the Extension or to your license key.
         </p>
       </section>
 
-      <!-- 4. GDPR & CCPA Compliance -->
+      <!-- 4. Third-Party Payment Processor -->
       <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>⚖️</span> 4. User Rights (GDPR & CCPA Compliance)
+          <span>💳</span> 4. Payments (Lemon Squeezy)
         </h2>
         <p class="mb-3">
-          Because SpeedUP Video Pro does not collect, store, or process any personal data on external servers, we fully comply with the European Union General Data Protection Regulation (<strong>GDPR</strong>) and the California Consumer Privacy Act (<strong>CCPA</strong>).
+          The free trial and license purchases are handled by our Merchant of Record, <strong>Lemon Squeezy</strong>, under its own privacy policy and terms.
         </p>
         <p class="text-slate-400">
-          Since no personal data exists on our servers, there is no personal data to view, export, modify, or delete.
+          <strong>We never see, collect, or store credit card details, financial data, or billing addresses.</strong> Lemon Squeezy issues your license key and tells us whether it is valid.
         </p>
       </section>
 
-      <!-- 5. Changes to This Privacy Policy -->
+      <!-- 5. GDPR & CCPA -->
       <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>📝</span> 5. Policy Updates
+          <span>⚖️</span> 5. Your Rights (GDPR &amp; CCPA)
+        </h2>
+        <p class="mb-3">
+          The Extension does not send personal data to our servers, so there is no Extension data for us to view, export, modify, or delete: it all lives in your browser and you control it.
+        </p>
+        <p class="text-slate-400">
+          For Website analytics data, and for any other request (access, deletion, objection), contact us at the address below; you can also exercise your rights directly with Google and Microsoft.
+        </p>
+      </section>
+
+      <!-- 6. Changes -->
+      <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
+        <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+          <span>📝</span> 6. Policy Updates
         </h2>
         <p class="text-slate-400">
-          We may update this Privacy Policy from time to time to reflect functional improvements or legal requirements. Any modifications will be posted directly on this page with an updated effective date.
+          We may update this Privacy Policy to reflect product changes or legal requirements. Changes are posted on this page with an updated date.
         </p>
       </section>
 
-      <!-- 6. Contact Information -->
+      <!-- 7. Contact -->
       <section class="bg-slate-900/50 border border-slate-800 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>✉️</span> 6. Contact & Support
+          <span>✉️</span> 7. Contact &amp; Support
         </h2>
         <p>
           If you have any questions, concerns, or requests regarding this Privacy Policy or SpeedUP Video Pro, please contact us via email at:

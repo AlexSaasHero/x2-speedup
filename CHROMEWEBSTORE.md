@@ -1,4 +1,4 @@
-> ⚠️ **Superato** da [docs/STORE_LISTING.md](docs/STORE_LISTING.md) (testi EN/IT aggiornati alla v1.8, tab privacy) e dalla tabella "Permessi finali" in [docs/ROADMAP_IMPL.md](docs/ROADMAP_IMPL.md). Questo file resta per lo storico delle versioni ≤ 1.4.2. Nota: qui il prezzo indicato è $3.99, sulla landing $1.99 — da allineare.
+> ⚠️ **Superato** da [docs/STORE_LISTING.md](docs/STORE_LISTING.md) (testi EN/IT aggiornati alla v1.8, tab privacy) e dalla tabella "Permessi finali" in [docs/ROADMAP_IMPL.md](docs/ROADMAP_IMPL.md). Questo file resta per lo storico delle versioni ≤ 1.4.2. Prezzo deciso (2026-11-11): prova di 7 giorni, poi $1.99 una tantum; il $3.99 qui sotto è storico.
 
 # CHROMEWEBSTORE.md — SpeedUp Video Pro
 

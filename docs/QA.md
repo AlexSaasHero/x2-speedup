@@ -5,7 +5,24 @@ Per testare Pro senza acquisto: `npm run build:dev` e chiave `DEV-SPEEDUP-PRO-20
 
 Legenda: ✅ ok · ⚠️ parziale (nota) · ❌ rotto (nota) · — non applicabile.
 
-## 1. Checklist per sito
+## 0. QA automatica su siti reali — `npm run qa:live`
+
+Suite Playwright su YouTube reale (video pubblico, nessun login, cookie rifiutati), esclusa dalla CI perché dipende dal sito. Ultimo run **2026-11-11 (v1.8.2)**: ✅ 4 passati, ⏭ 1 saltato.
+
+| Scenario (YouTube) | Esito automatico |
+|---|---|
+| A Scorciatoie D/S/G, velocità >2x mantenuta contro il limite di YouTube, overlay presente | ✅ |
+| B X: +10 s | ✅ |
+| H Scrivere "sdrzxv" nella ricerca: testo digitato, velocità invariata | ✅ |
+| F Nuovo caricamento del video riparte dalla velocità ricordata | ✅ |
+| G Shift+. di YouTube (1 → 1.25) rispettato dall'estensione | ✅ (bug trovato e corretto, BUGS #19) |
+| E Fullscreen (tasto F di YouTube): overlay dentro l'elemento fullscreen, scorciatoie attive | ✅ |
+| Pro: canale rilevato (`@BlenderOfficial`, "Blender") e regola canale applicata | ✅ |
+| Pro: pubblicità a 16x + muto e ripristino | ⏭ YouTube non ha servito pubblicità in questo run: da verificare a mano |
+
+Limiti: il Chromium di Playwright non decodifica H.264 (Twitch, Vimeo, gran parte dei corsi) e non ha DRM (Netflix, Prime Video, Spotify): questi siti restano nella checklist manuale qui sotto.
+
+## 1. Checklist per sito (manuale)
 
 | Scenario | YouTube | Netflix | Prime Video | Udemy | Coursera | Twitch | Vimeo | Spotify web |
 |---|---|---|---|---|---|---|---|---|
