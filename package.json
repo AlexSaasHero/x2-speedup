@@ -1,0 +1,26 @@
+{
+  "name": "speedup-video-pro",
+  "private": true,
+  "version": "1.5.1",
+  "description": "SpeedUp Video Pro — Chrome MV3 extension (version of record lives in public/manifest.json)",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:dev": "node scripts/build.mjs --dev",
+    "watch": "node scripts/build.mjs --dev --watch",
+    "zip": "node scripts/build.mjs --zip",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "test:e2e": "npm run build && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/chrome": "^0.0.293",
+    "@types/node": "^20.17.10",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
+  }
+}

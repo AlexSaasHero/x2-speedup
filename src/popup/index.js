@@ -1,5 +1,19 @@
-// SpeedUp Video Pro v1.5.1.8 - Instant Modular Popup Controller (Manifest V3)
-import { sendTelemetryEvent } from '../utils/analytics.js';
+// SpeedUp Video Pro - Popup Controller (Manifest V3)
+import {
+  ABSOLUTE_MAX_SPEED,
+  ABSOLUTE_MIN_SPEED,
+  FREE_MAX_SPEED,
+  FREE_MIN_SPEED,
+  PRO_MAX_SPEED,
+  PRO_MIN_SPEED,
+  formatSpeed,
+  planLimits
+} from '../config/plans';
+import { isPro } from '../shared/entitlement';
+import { DEFAULT_HOTKEYS } from '../shared/storage';
+
+// Offline master key for local development only; '' in store builds (see scripts/build.mjs).
+const DEV_MASTER_KEY = __DEV_MASTER_KEY__;
 
 // Top-level feature flag defaults
 const HUD_ENABLED_DEFAULT = true;
@@ -11,18 +25,10 @@ function initPopup() {
   // ==========================================
   const LANDING_PAGE_URL = "https://x2-speedup.vercel.app/";
   const VALIDATE_ENDPOINT = "https://x2-speedup.vercel.app/api/validate-license";
-  const DEV_MASTER_KEY = "DEV-SPEEDUP-PRO-2026";
-  const MIN_SPEED = 0.1;
-  const MAX_SPEED = 16.0;
-  const FREE_MIN_SPEED = 0.25;
-  const FREE_MAX_SPEED = 2.0;
-
-  const DEFAULT_HOTKEYS = {
-    speedUp: ']',
-    speedDown: '[',
-    resetSpeed: 'r',
-    favoriteSpeed: 'g'
-  };
+  const MIN_SPEED = PRO_MIN_SPEED;
+  const MAX_SPEED = PRO_MAX_SPEED;
+  const UNLOCK_TITLE = `Unlock speeds up to ${formatSpeed(PRO_MAX_SPEED)} with Pro (7-Day Free Trial)`;
+  const FREE_TIER_LABEL = `Free Tier (Max ${formatSpeed(FREE_MAX_SPEED)})`;
 
   // Header Elements
   const licenseTierBadge = document.getElementById('licenseTierBadge');
@@ -103,30 +109,6 @@ function initPopup() {
   let videoCheckpoints = {};
   let listeningHotkeyAction = null;
 
-  // ==========================================
-  // TELEMETRY: EVENT 1 - POPUP OPENED
-  // ==========================================
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    let activeHostname = 'empty_tab';
-    if (tabs && tabs[0] && tabs[0].url) {
-      try {
-        activeHostname = new URL(tabs[0].url).hostname;
-      } catch (e) {
-        activeHostname = 'invalid_url';
-      }
-    }
-    if (!currentHostname && activeHostname && activeHostname !== 'empty_tab' && activeHostname !== 'invalid_url') {
-      currentHostname = activeHostname;
-    }
-
-    chrome.storage.local.get(['isPro'], (res) => {
-      sendTelemetryEvent('popup_opened', {
-        domain: activeHostname,
-        is_pro: res.isPro ? 'true' : 'false'
-      });
-    });
-  });
-
   // Helpers
   function formatKeyLabel(key) {
     if (!key) return '-';
@@ -188,7 +170,11 @@ function initPopup() {
     if (isPermanentPro) {
       return { isPro: true, hasFullAccess: true, label: 'Pro Active ✨' };
     }
-    return { isPro: false, hasFullAccess: false, label: 'Free Tier (Max 2.0x)' };
+    return { isPro: false, hasFullAccess: false, label: FREE_TIER_LABEL };
+  }
+
+  function canUse(feature) {
+    return planLimits(isPermanentPro).features[feature];
   }
 
   function applyTierUI() {
@@ -203,7 +189,7 @@ function initPopup() {
         licenseTierBadge.title = 'Licenza PRO Lifetime Attiva';
       }
       if (tierBadgeText) tierBadgeText.textContent = 'Pro Active ✨';
-      if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16.0x)';
+      if (tierRangeHint) tierRangeHint.textContent = `(${formatSpeed(PRO_MIN_SPEED)}–${formatSpeed(PRO_MAX_SPEED)})`;
       if (footerLicenseStatus) {
         footerLicenseStatus.textContent = 'Pro Active ✨';
         footerLicenseStatus.className = 'footer-note footer-pro-active';
@@ -213,12 +199,12 @@ function initPopup() {
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'inline-block';
 
       if (slider) {
-        slider.min = "0.1";
-        slider.max = "16.0";
+        slider.min = String(PRO_MIN_SPEED);
+        slider.max = String(PRO_MAX_SPEED);
       }
       if (customSpeedInput) {
-        customSpeedInput.min = "0.1";
-        customSpeedInput.max = "16.0";
+        customSpeedInput.min = String(PRO_MIN_SPEED);
+        customSpeedInput.max = String(PRO_MAX_SPEED);
       }
       if (sliderTicks) {
         sliderTicks.innerHTML = '<span>0.25x</span><span>1.0x</span><span>2.0x</span><span>4.0x</span><span>16x ⚡</span>';
@@ -228,12 +214,12 @@ function initPopup() {
       document.body.classList.add('is-free');
       if (licenseTierBadge) {
         licenseTierBadge.className = 'tier-badge tier-free';
-        licenseTierBadge.title = 'Free Tier (Max 2.0x) — Clicca per attivare Pro o iniziare il trial gratuito';
+        licenseTierBadge.title = `${FREE_TIER_LABEL} — Clicca per attivare Pro o iniziare il trial gratuito`;
       }
-      if (tierBadgeText) tierBadgeText.textContent = 'Free Tier (Max 2.0x)';
-      if (tierRangeHint) tierRangeHint.textContent = '(Free: 0.25x–2.0x)';
+      if (tierBadgeText) tierBadgeText.textContent = FREE_TIER_LABEL;
+      if (tierRangeHint) tierRangeHint.textContent = `(Free: ${formatSpeed(FREE_MIN_SPEED)}–${formatSpeed(FREE_MAX_SPEED)})`;
       if (footerLicenseStatus) {
-        footerLicenseStatus.textContent = 'Free Tier (Max 2.0x)';
+        footerLicenseStatus.textContent = FREE_TIER_LABEL;
         footerLicenseStatus.className = 'footer-note';
       }
       if (footerCtaSection) footerCtaSection.style.display = 'flex';
@@ -242,15 +228,18 @@ function initPopup() {
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
 
       if (slider) {
-        slider.min = "0.25";
-        slider.max = "2.0";
+        slider.min = String(FREE_MIN_SPEED);
+        slider.max = String(FREE_MAX_SPEED);
       }
       if (customSpeedInput) {
-        customSpeedInput.min = "0.25";
-        customSpeedInput.max = "2.0";
+        customSpeedInput.min = String(FREE_MIN_SPEED);
+        customSpeedInput.max = String(FREE_MAX_SPEED);
       }
       if (sliderTicks) {
-        sliderTicks.innerHTML = '<span>0.25x</span><span>0.5x</span><span>1.0x</span><span>1.5x</span><span>2.0x</span>';
+        const ticks = [...new Set([FREE_MIN_SPEED, 0.5, 1, 1.5, FREE_MAX_SPEED])]
+          .filter((v) => v >= FREE_MIN_SPEED && v <= FREE_MAX_SPEED)
+          .sort((a, b) => a - b);
+        sliderTicks.innerHTML = ticks.map((v) => `<span>${formatSpeed(v)}</span>`).join('');
       }
 
       if (currentSpeed > FREE_MAX_SPEED) {
@@ -271,7 +260,7 @@ function initPopup() {
       } else if (tier.isPro) {
         proModalTitle.textContent = "SpeedUP Video Pro is active! Enjoy unlimited speed and precision.";
       } else {
-        proModalTitle.textContent = "Unlock speeds up to 16.0x with Pro (7-Day Free Trial)";
+        proModalTitle.textContent = UNLOCK_TITLE;
       }
     }
     if (statusMsg) {
@@ -341,17 +330,13 @@ function initPopup() {
   // ==========================================
   chrome.storage.local.get(
     {
-      is_pro: false,
       isPro: false,
-      isLicensed: false,
-      license_key: null,
       licenseKey: '',
       activatedAt: 0,
       defaultSpeed: 1.0,
       domainSpeeds: {},
       hudEnabled: HUD_ENABLED_DEFAULT,
       preservesPitch: PRESERVE_PITCH_DEFAULT,
-      preservePitch: PRESERVE_PITCH_DEFAULT,
       loopVideo: false,
       activeTab: 'speed',
       customHotkeys: DEFAULT_HOTKEYS,
@@ -359,15 +344,7 @@ function initPopup() {
       videoCheckpoints: {}
     },
     (data) => {
-      // Compute Pro state: is_pro or isPro or valid license key
-      isPermanentPro = !!(
-        data.is_pro ||
-        data.isPro ||
-        data.license_key === DEV_MASTER_KEY ||
-        data.licenseKey === DEV_MASTER_KEY ||
-        (data.license_key && typeof data.license_key === 'string' && data.license_key.trim().length > 3) ||
-        (data.licenseKey && typeof data.licenseKey === 'string' && data.licenseKey.trim().length > 3)
-      );
+      isPermanentPro = isPro(data);
 
       applyTierUI();
       inspectActiveTabAsync();
@@ -391,17 +368,14 @@ function initPopup() {
         setSpeedUI(currentSpeed);
       }
 
-      preservesPitch = data.preservesPitch !== undefined
-        ? !!data.preservesPitch
-        : (data.preservePitch !== undefined ? !!data.preservePitch : PRESERVE_PITCH_DEFAULT);
+      preservesPitch = data.preservesPitch !== undefined ? !!data.preservesPitch : PRESERVE_PITCH_DEFAULT;
       hudEnabled = data.hudEnabled !== undefined ? !!data.hudEnabled : HUD_ENABLED_DEFAULT;
       loopVideo = data.loopVideo !== undefined ? !!data.loopVideo : false;
 
       // Guarantee background optimal defaults
-      if (data.preservesPitch === undefined || data.preservePitch === undefined || data.hudEnabled === undefined) {
+      if (data.preservesPitch === undefined || data.hudEnabled === undefined) {
         chrome.storage.local.set({
           preservesPitch: PRESERVE_PITCH_DEFAULT,
-          preservePitch: PRESERVE_PITCH_DEFAULT,
           hudEnabled: HUD_ENABLED_DEFAULT
         });
       }
@@ -496,13 +470,10 @@ function initPopup() {
     setModalActivating(true);
     showModalStatus('Validating license key...', 'info');
 
-    // 1. Dev Master Key — Instant offline validation without network calls
-    if (rawKey === DEV_MASTER_KEY) {
+    // 1. Dev Master Key (dev builds only) — instant offline validation without network calls
+    if (DEV_MASTER_KEY && rawKey === DEV_MASTER_KEY) {
       const licenseData = {
-        is_pro: true,
         isPro: true,
-        isLicensed: true,
-        license_key: DEV_MASTER_KEY,
         licenseKey: DEV_MASTER_KEY,
         activatedAt: Date.now()
       };
@@ -528,10 +499,7 @@ function initPopup() {
 
     if (isValid) {
       const licenseData = {
-        is_pro: true,
         isPro: true,
-        isLicensed: true,
-        license_key: rawKey,
         licenseKey: rawKey,
         activatedAt: Date.now()
       };
@@ -556,19 +524,10 @@ function initPopup() {
   }
 
   async function verifyLicenseKeyAsync(key) {
-    if (key === DEV_MASTER_KEY) return true;
+    if (DEV_MASTER_KEY && key === DEV_MASTER_KEY) return true;
 
     const clean = (key || '').trim();
     if (!clean) return false;
-
-    // Get telemetry client ID for attribution
-    let clientId = '';
-    try {
-      const stored = await chrome.storage.local.get('telemetry_client_id');
-      clientId = stored.telemetry_client_id || self.crypto.randomUUID();
-    } catch (e) {
-      clientId = self.crypto.randomUUID();
-    }
 
     // 1. Primary validation endpoint: POST https://x2-speedup.vercel.app/api/validate-license
     try {
@@ -578,10 +537,7 @@ function initPopup() {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          license_key: clean,
-          telemetry_client_id: clientId
-        }),
+        body: JSON.stringify({ license_key: clean }),
         signal: AbortSignal.timeout(6000)
       });
 
@@ -662,13 +618,6 @@ function initPopup() {
   if (ctaBuyBtn) {
     ctaBuyBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const tier = getTierStatus();
-      sendTelemetryEvent('cta_upgrade_clicked', {
-        target_url: 'https://x2-speedup.vercel.app/',
-        domain: currentHostname || 'unknown',
-        tier_state: tier.isTrial ? 'trial' : (tier.isPro ? 'pro' : 'expired'),
-        is_pro: tier.isPro ? 'true' : 'false'
-      });
       chrome.tabs.create({ url: LANDING_PAGE_URL });
     });
   }
@@ -677,14 +626,7 @@ function initPopup() {
   if (upgradeBtn) {
     upgradeBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const tier = getTierStatus();
-      sendTelemetryEvent('cta_upgrade_clicked', {
-        target_url: 'https://x2-speedup.vercel.app/',
-        domain: currentHostname || 'unknown',
-        tier_state: tier.isTrial ? 'trial' : (tier.isPro ? 'pro' : 'expired'),
-        is_pro: tier.isPro ? 'true' : 'false'
-      });
-      chrome.tabs.create({ url: 'https://x2-speedup.vercel.app/' });
+      chrome.tabs.create({ url: LANDING_PAGE_URL });
     });
   }
 
@@ -706,10 +648,7 @@ function initPopup() {
     logoutKeyBtn.addEventListener('click', async () => {
       isPermanentPro = false;
       const resetData = {
-        is_pro: false,
         isPro: false,
-        isLicensed: false,
-        license_key: null,
         licenseKey: ''
       };
       await chrome.storage.local.set(resetData);
@@ -738,7 +677,7 @@ function initPopup() {
     const maxAllowed = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
 
     if (!tier.hasFullAccess && raw > FREE_MAX_SPEED) {
-      openUpgradeModal("Unlock speeds up to 16.0x with Pro (7-Day Free Trial)");
+      openUpgradeModal(UNLOCK_TITLE);
     }
 
     const clamped = Math.min(Math.max(raw, minAllowed), maxAllowed);
@@ -748,7 +687,6 @@ function initPopup() {
     const storageUpdates = {
       defaultSpeed: currentSpeed,
       preservesPitch: PRESERVE_PITCH_DEFAULT,
-      preservePitch: PRESERVE_PITCH_DEFAULT,
       hudEnabled: HUD_ENABLED_DEFAULT
     };
     if (currentHostname && domainSpeeds[currentHostname] !== undefined) {
@@ -764,11 +702,9 @@ function initPopup() {
         {
           action: 'SET_SPEED',
           speed: currentSpeed,
-          is_pro: tier.hasFullAccess,
           isPro: tier.hasFullAccess,
           hudEnabled: HUD_ENABLED_DEFAULT,
-          preservesPitch: PRESERVE_PITCH_DEFAULT,
-          preservePitch: PRESERVE_PITCH_DEFAULT
+          preservesPitch: PRESERVE_PITCH_DEFAULT
         },
         (response) => {
           if (chrome.runtime.lastError) {
@@ -825,31 +761,17 @@ function initPopup() {
 
   if (slider) {
     slider.addEventListener('input', (e) => setSpeed(e.target.value));
-    slider.addEventListener('change', (e) => {
-      sendTelemetryEvent('speed_updated', {
-        target_speed: String(e.target.value),
-        domain: currentHostname || 'unknown'
-      });
-    });
   }
 
   if (customSpeedInput) {
     customSpeedInput.addEventListener('change', (e) => {
       setSpeed(e.target.value);
-      sendTelemetryEvent('speed_updated', {
-        target_speed: String(e.target.value),
-        domain: currentHostname || 'unknown'
-      });
     });
   }
 
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       setSpeed(1.0);
-      sendTelemetryEvent('speed_updated', {
-        target_speed: '1',
-        domain: currentHostname || 'unknown'
-      });
     });
   }
 
@@ -860,18 +782,10 @@ function initPopup() {
       const tier = getTierStatus();
       if (!tier.hasFullAccess && speed > FREE_MAX_SPEED) {
         setSpeed(FREE_MAX_SPEED);
-        sendTelemetryEvent('speed_updated', {
-          target_speed: String(FREE_MAX_SPEED),
-          domain: currentHostname || 'unknown'
-        });
-        openUpgradeModal("Unlock speeds up to 16.0x with Pro (7-Day Free Trial)");
+        openUpgradeModal(UNLOCK_TITLE);
         return;
       }
       setSpeed(speed);
-      sendTelemetryEvent('speed_updated', {
-        target_speed: String(speed),
-        domain: currentHostname || 'unknown'
-      });
     });
   });
 
@@ -904,9 +818,8 @@ function initPopup() {
   hotkeyCaptureBtns.forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const tier = getTierStatus();
-      if (!tier.hasFullAccess) {
-        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
+      if (!canUse('customHotkeys')) {
+        openUpgradeModal(`Custom keyboard shortcuts remapping is a Pro feature. ${UNLOCK_TITLE}.`);
         return;
       }
       const action = btn.dataset.action;
@@ -944,9 +857,8 @@ function initPopup() {
 
   if (resetHotkeysBtn) {
     resetHotkeysBtn.addEventListener('click', () => {
-      const tier = getTierStatus();
-      if (!tier.hasFullAccess) {
-        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
+      if (!canUse('customHotkeys')) {
+        openUpgradeModal(`Custom keyboard shortcuts remapping is a Pro feature. ${UNLOCK_TITLE}.`);
         return;
       }
       cancelHotkeyListening();
@@ -960,7 +872,7 @@ function initPopup() {
 
   if (favoriteSpeedInput) {
     favoriteSpeedInput.addEventListener('change', (e) => {
-      const val = Math.min(Math.max(parseFloat(e.target.value) || 2.0, MIN_SPEED), MAX_SPEED);
+      const val = Math.min(Math.max(parseFloat(e.target.value) || 2.0, ABSOLUTE_MIN_SPEED), ABSOLUTE_MAX_SPEED);
       favoriteSpeed = parseFloat(val.toFixed(2));
       favoriteSpeedInput.value = favoriteSpeed.toFixed(1);
       chrome.storage.local.set({ favoriteSpeed });
@@ -971,9 +883,8 @@ function initPopup() {
   // 9. TAB 3: PRECISION SCRUBBING & CHECKPOINTS
   // ==========================================
   async function handleFrameScrub(direction) {
-    const tier = getTierStatus();
-    if (!tier.hasFullAccess) {
-      openUpgradeModal("Frame-by-frame precision stepping is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
+    if (!canUse('frameStep')) {
+      openUpgradeModal(`Frame-by-frame precision stepping is a Pro feature. ${UNLOCK_TITLE}.`);
       return;
     }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -993,9 +904,8 @@ function initPopup() {
   }
 
   async function handleQuickSkip(seconds) {
-    const tier = getTierStatus();
-    if (!tier.hasFullAccess) {
-      openUpgradeModal("Quick skip scrubbing is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
+    if (!canUse('skipTime')) {
+      openUpgradeModal(`Quick skip scrubbing is a Pro feature. ${UNLOCK_TITLE}.`);
       return;
     }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -1100,9 +1010,8 @@ function initPopup() {
   }
 
   async function addCheckpoint() {
-    const tier = getTierStatus();
-    if (!tier.hasFullAccess) {
-      openUpgradeModal("Video checkpoints are a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
+    if (!canUse('checkpoints')) {
+      openUpgradeModal(`Video checkpoints are a Pro feature. ${UNLOCK_TITLE}.`);
       return;
     }
 

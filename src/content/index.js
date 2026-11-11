@@ -1,14 +1,13 @@
-// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.1.8)
+// SpeedUp Video Pro - Universal HTML5 Content Script Controller
+// Phase 1 splits this file into media-registry / rate-controller / shortcuts / overlay modules.
+import { FREE_MAX_SPEED, clampSpeed as clampSpeedForPlan, formatSpeed, planLimits } from '../config/plans';
+import { affectsEntitlement, isPro } from '../shared/entitlement';
+import { DEFAULT_HOTKEYS } from '../shared/storage';
+
 (() => {
   const currentHostname = window.location.hostname;
-  const DEFAULT_HOTKEYS = {
-    speedUp: ']',
-    speedDown: '[',
-    resetSpeed: 'r',
-    favoriteSpeed: 'g'
-  };
-
-  const DEV_MASTER_KEY = 'DEV-SPEEDUP-PRO-2026';
+  // YouTube's own player tops out at 2x and fights anything above it.
+  const YT_NATIVE_MAX_SPEED = 2.0;
   let isPermanentPro = false;
   let targetSpeed = 1.0;
   let isEnforcing = false;
@@ -23,6 +22,10 @@
     return isPermanentPro;
   }
 
+  function canUse(feature) {
+    return planLimits(hasFullAccess()).features[feature];
+  }
+
   function normalizeKey(key) {
     if (!key) return '';
     if (key === ' ') return 'Space';
@@ -30,17 +33,11 @@
   }
 
   function clampSpeed(val) {
-    const num = parseFloat(val);
-    if (isNaN(num)) return 1.0;
-    if (hasFullAccess()) {
-      return parseFloat(Math.min(Math.max(num, 0.1), 16.0).toFixed(2));
-    }
-    return parseFloat(Math.min(Math.max(num, 0.25), 2.0).toFixed(2));
+    return clampSpeedForPlan(val, hasFullAccess());
   }
 
   function formatSpeedText(speed) {
-    const num = parseFloat(speed) || 1.0;
-    return Number.isInteger(num * 10) ? `${num.toFixed(1)}x` : `${num.toFixed(2)}x`;
+    return formatSpeed(parseFloat(speed) || 1.0);
   }
 
   function formatTimestamp(sec) {
@@ -111,20 +108,20 @@
     video.addEventListener(
       'ratechange',
       (e) => {
-        // Content script protection: prevent direct console manipulation beyond 2.0x if is_pro is false
-        if (!hasFullAccess() && video.playbackRate > 2.0) {
+        // Free plan: keep the page from pushing the rate past the free limit
+        if (!hasFullAccess() && video.playbackRate > FREE_MAX_SPEED) {
           e.stopImmediatePropagation();
           e.stopPropagation();
-          targetSpeed = 2.0;
+          targetSpeed = FREE_MAX_SPEED;
           forceRateOnVideo(video);
           updateHUDForVideo(video);
-          showHUD('Max Free Speed: 2.0x');
+          showHUD(`Max Free Speed: ${formatSpeedText(FREE_MAX_SPEED)}`);
           return;
         }
 
         if (isEnforcing) {
           // Block YouTube's internal ratechange listener from resetting >2x speeds
-          if (targetSpeed > 2.0) {
+          if (targetSpeed > YT_NATIVE_MAX_SPEED) {
             e.stopImmediatePropagation();
             e.stopPropagation();
           }
@@ -134,7 +131,7 @@
           e.stopImmediatePropagation();
           e.stopPropagation();
           forceRateOnVideo(video);
-        } else if (targetSpeed > 2.0) {
+        } else if (targetSpeed > YT_NATIVE_MAX_SPEED) {
           e.stopImmediatePropagation();
           e.stopPropagation();
         }
@@ -169,7 +166,7 @@
       attachVideoListeners(video);
 
       if (isEnforcing) {
-        if (targetSpeed > 2.0) {
+        if (targetSpeed > YT_NATIVE_MAX_SPEED) {
           e.stopImmediatePropagation();
           e.stopPropagation();
         }
@@ -180,7 +177,7 @@
         e.stopImmediatePropagation();
         e.stopPropagation();
         forceRateOnVideo(video);
-      } else if (targetSpeed > 2.0) {
+      } else if (targetSpeed > YT_NATIVE_MAX_SPEED) {
         e.stopImmediatePropagation();
         e.stopPropagation();
       }
@@ -372,29 +369,18 @@
   // ==========================================
   chrome.storage.local.get(
     [
-      'is_pro',
       'isPro',
-      'isLicensed',
-      'license_key',
       'licenseKey',
       'defaultSpeed',
       'domainSpeeds',
       'hudEnabled',
       'preservesPitch',
-      'preservePitch',
       'loopVideo',
       'customHotkeys',
       'favoriteSpeed'
     ],
     (data) => {
-      isPermanentPro = !!(
-        data.is_pro ||
-        data.isPro ||
-        data.license_key === DEV_MASTER_KEY ||
-        data.licenseKey === DEV_MASTER_KEY ||
-        (data.license_key && typeof data.license_key === 'string' && data.license_key.trim().length > 3) ||
-        (data.licenseKey && typeof data.licenseKey === 'string' && data.licenseKey.trim().length > 3)
-      );
+      isPermanentPro = isPro(data);
 
       if (data.domainSpeeds && typeof data.domainSpeeds === 'object') {
         domainSpeeds = data.domainSpeeds;
@@ -407,9 +393,7 @@
       }
 
       if (typeof data.hudEnabled !== 'undefined') hudEnabled = data.hudEnabled;
-      if (typeof data.preservesPitch !== 'undefined') preservesPitch = data.preservesPitch;
-      else if (typeof data.preservePitch !== 'undefined') preservesPitch = data.preservePitch;
-      else preservesPitch = true;
+      preservesPitch = typeof data.preservesPitch !== 'undefined' ? data.preservesPitch : true;
       if (typeof data.loopVideo !== 'undefined') loopVideo = data.loopVideo;
       if (typeof data.favoriteSpeed !== 'undefined') favoriteSpeed = parseFloat(data.favoriteSpeed) || 2.0;
 
@@ -423,18 +407,11 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.is_pro !== undefined || changes.isPro !== undefined || changes.isLicensed !== undefined || changes.license_key !== undefined || changes.licenseKey !== undefined) {
-      chrome.storage.local.get(['is_pro', 'isPro', 'isLicensed', 'license_key', 'licenseKey'], (res) => {
-        isPermanentPro = !!(
-          res.is_pro ||
-          res.isPro ||
-          res.license_key === DEV_MASTER_KEY ||
-          res.licenseKey === DEV_MASTER_KEY ||
-          (res.license_key && typeof res.license_key === 'string' && res.license_key.trim().length > 3) ||
-          (res.licenseKey && typeof res.licenseKey === 'string' && res.licenseKey.trim().length > 3)
-        );
-        if (!isPermanentPro && targetSpeed > 2.0) {
-          applySpeed(2.0, true, true);
+    if (affectsEntitlement(changes)) {
+      chrome.storage.local.get(['isPro', 'licenseKey'], (res) => {
+        isPermanentPro = isPro(res);
+        if (!isPermanentPro && targetSpeed > FREE_MAX_SPEED) {
+          applySpeed(FREE_MAX_SPEED, true, true);
         }
       });
     }
@@ -457,9 +434,6 @@
     }
     if (changes.preservesPitch && changes.preservesPitch.newValue !== undefined) {
       preservesPitch = !!changes.preservesPitch.newValue;
-      applySettingsToAllVideos();
-    } else if (changes.preservePitch && changes.preservePitch.newValue !== undefined) {
-      preservesPitch = !!changes.preservePitch.newValue;
       applySettingsToAllVideos();
     }
     if (changes.hudEnabled && changes.hudEnabled.newValue !== undefined) {
@@ -574,21 +548,17 @@
 
     switch (request.action) {
       case 'SET_SPEED':
-        if (request.is_pro !== undefined) {
-          isPermanentPro = !!request.is_pro;
-        } else if (request.isPro !== undefined) {
+        if (request.isPro !== undefined) {
           isPermanentPro = !!request.isPro;
         }
         if (request.preservesPitch !== undefined) {
           preservesPitch = !!request.preservesPitch;
-        } else if (request.preservePitch !== undefined) {
-          preservesPitch = !!request.preservePitch;
         }
         if (request.hudEnabled !== undefined) {
           hudEnabled = !!request.hudEnabled;
         }
         applySpeed(request.speed, true, true);
-        sendResponse({ success: true, currentSpeed: targetSpeed, speed: targetSpeed, is_pro: isPermanentPro });
+        sendResponse({ success: true, currentSpeed: targetSpeed, speed: targetSpeed, isPro: isPermanentPro });
         break;
 
       case 'GET_SPEED':
@@ -601,7 +571,7 @@
         break;
 
       case 'STEP_FRAME': {
-        if (!hasFullAccess()) {
+        if (!canUse('frameStep')) {
           sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
           break;
         }
@@ -625,7 +595,7 @@
 
       case 'SKIP_TIME':
       case 'SEEK': {
-        if (!hasFullAccess()) {
+        if (!canUse('skipTime')) {
           sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
           break;
         }
@@ -647,7 +617,7 @@
 
       case 'ADD_CHECKPOINT':
       case 'GET_CURRENT_TIME': {
-        if (request.action === 'ADD_CHECKPOINT' && !hasFullAccess()) {
+        if (request.action === 'ADD_CHECKPOINT' && !canUse('checkpoints')) {
           sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
           break;
         }
@@ -670,7 +640,7 @@
       }
 
       case 'SEEK_TO': {
-        if (!hasFullAccess()) {
+        if (!canUse('checkpoints')) {
           sendResponse({ success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' });
           break;
         }
