@@ -125,7 +125,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const defaults = migrate({}).set;
       for (const p of context.pages()) if (!p.url().startsWith('about:blank')) await p.close().catch(() => {});
       await sw.evaluate(
-        (d) => Promise.all([chrome.storage.session.clear(), chrome.storage.local.clear().then(() => chrome.storage.local.set(d))]),
+        (d) =>
+          Promise.all([
+            chrome.storage.session.clear(),
+            chrome.storage.sync.clear(),
+            chrome.storage.local.clear().then(() => chrome.storage.local.set(d))
+          ]),
         defaults
       );
       await use();
@@ -161,4 +166,13 @@ export async function sendToTabs(sw: Worker, message: Record<string, unknown>): 
 /** Wait until the content script has found media and is ready in the page's top frame. */
 export async function rateOf(page: Page, selector = '#v'): Promise<number> {
   return page.locator(selector).evaluate((m: HTMLMediaElement) => m.playbackRate);
+}
+
+/** A license the extension treats as validated just now (no network needed). */
+export function proLicense(now = Date.now()) {
+  return { key: 'TEST-PRO', status: 'active', source: 'x2', lastValidAt: now, lastCheckedAt: now, expiresAt: null };
+}
+
+export async function setPro(sw: Worker, extra: Record<string, unknown> = {}): Promise<void> {
+  await sw.evaluate((d) => chrome.storage.local.set(d), { license: proLicense(), ...extra });
 }

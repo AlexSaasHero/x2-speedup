@@ -1,8 +1,5 @@
 import type { Page, Worker } from '@playwright/test';
-import { expect, rateOf, sendToTabs, test } from './harness';
-
-const setPro = (sw: Worker, extra: Record<string, unknown> = {}) =>
-  sw.evaluate((d) => chrome.storage.local.set({ isPro: true, ...d }), extra);
+import { expect, rateOf, sendToTabs, setPro, test } from './harness';
 
 async function readyBasic(page: Page, origin: string, sw: Worker, path = 'basic.html') {
   await page.goto(`${origin}/${path}`);

@@ -4,8 +4,8 @@ Trovati durante l'esplorazione. Corretti solo se bloccano la fase corrente; altr
 
 | # | Gravità | Dove | Problema | Fase fix |
 |---|---|---|---|---|
-| 1 | Alta | `content.js:390-397`, `popup.js:363-370` | Pro attivo se `license_key` è una stringa qualsiasi di >3 caratteri: basta scrivere in storage (o nella console dell'estensione) per sbloccare tutto. | 3 |
-| 2 | Alta | `popup.js:624-631` | Se i due endpoint non rispondono, qualsiasi chiave `PRO-*`, `TRIAL-*` o UUID viene accettata offline. | 3 |
+| 1 | Alta | `content.js:390-397`, `popup.js:363-370` | Pro attivo se `license_key` è una stringa qualsiasi di >3 caratteri: basta scrivere in storage (o nella console dell'estensione) per sbloccare tutto. | ✅ Fase 3 |
+| 2 | Alta | `popup.js:624-631` | Se i due endpoint non rispondono, qualsiasi chiave `PRO-*`, `TRIAL-*` o UUID viene accettata offline. | ✅ Fase 3 |
 | 3 | Alta | `content.js:11`, `popup.js:14` | Master key `DEV-SPEEDUP-PRO-2026` inclusa nel bundle pubblicato. | ✅ Fase 0 (solo build dev) |
 | 4 | Alta | `utils/analytics.js` | `api_secret` GA4 in chiaro + invio del dominio visitato: contraddice "zero tracking" e `landing-page/privacy.html` ("We do NOT use any analytics…"). | ✅ Fase 0 |
 | 5 | Media | `content.js:111-144, 164-190` | `ratechange` viene sempre bloccato/sovrascritto: il menu velocità nativo di YouTube/Vimeo non funziona più. | ✅ Fase 1 |
@@ -19,3 +19,4 @@ Trovati durante l'esplorazione. Corretti solo se bloccano la fase corrente; altr
 | 13 | Bassa | `popup.js:669, 684` | `tier.isTrial` non esiste mai → `tier_state` sempre `pro`/`expired`. | ✅ Fase 0 (rimosso con telemetria) |
 | 14 | Bassa | `CHROMEWEBSTORE.md` | Dichiara il permesso `scripting` (non presente), versione 1.4.2 e prezzo $3.99 (landing: $1.99). | 4 |
 | 15 | Bassa | root repo | 15 zip di release committati in git. | ✅ Fase 0 |
+| 16 | Media | `src/pro/skip-silence.ts` (v1.7.0) | Se l'`AudioContext` era ancora sospeso al momento del `play`, skip silence non si collegava più fino al play successivo (trovato da un E2E intermittente). | ✅ Fase 3 |

@@ -47,3 +47,22 @@ Attiva Pro con la build dev (`npm run build:dev`, master key DEV) e verifica anc
 | A-B repeat: Shift+A tre volte (A, B+loop, off) | | | | |
 | "This week you saved" aumenta guardando a >1x | | | | |
 | Segnalibri: stesso video con `&t=…` o da youtu.be mostra gli stessi segnalibri | | | | |
+
+## Fase 3 (v1.8.0) — prodotto e crescita
+
+| Scenario | Chrome | Edge | Firefox | Note |
+|---|---|---|---|---|
+| Installazione pulita: si apre l'onboarding locale; la demo risponde a D/S/R/G/Z/X | | | | |
+| Aggiornamento da 1.7.x: si apre "What's new" in background; nessuna pagina su aggiornamenti patch | | | — | |
+| Aggiornamento da 1.5.1.8 con chiave **vera**: resta Pro dopo il controllo | | | — | |
+| Aggiornamento da 1.5.1.8 con chiave "finta" (es. `PRO-1234`): torna Free con "License key not valid" | | | — | |
+| Attivazione chiave valida / scaduta / disattivata: messaggi corretti | | | | |
+| Offline (Wi-Fi spento) per un giorno: resta Pro, badge "offline, will re-verify" | | | | |
+| Sync: cambio uno step su un computer → compare sull'altro (stesso profilo Chrome) | | | | |
+| Nuovo dispositivo con sync attiva: adotta le impostazioni esistenti invece di resettarle | | | | |
+| Export → Import dello stesso file | | | | |
+| Import da Video Speed Controller (incolla il JSON da `chrome://extensions` → VSC → storage) | | | | |
+| Lingue: browser in it/es/de/fr/pt-BR/ja → popup, opzioni, onboarding e overlay tradotti, nessun testo tagliato | | | | |
+| Recensione: dopo 30 min risparmiati compare il banner; "Not now" lo nasconde per 14 giorni | | | | |
+| Firefox: concedere i permessi dei siti da about:addons, poi scorciatoie e overlay funzionano | — | — | | |
+| Firefox: skip silence (vedi docs/FIREFOX.md) | — | — | | |

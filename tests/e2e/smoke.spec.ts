@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { FREE_MAX_SPEED, PRO_MAX_SPEED, formatSpeed } from '../../src/config/plans';
 import { SHORTCUT_ACTIONS } from '../../src/shared/shortcuts';
-import { expect, rateOf, sendToTabs, test } from './harness';
+import { expect, rateOf, sendToTabs, setPro, test } from './harness';
 
 test('manifest declares only the minimal permissions', () => {
   const manifest = JSON.parse(readFileSync('dist/manifest.json', 'utf8'));
-  expect(manifest.permissions).toEqual(['storage', 'activeTab']);
+  expect(manifest.permissions).toEqual(['storage', 'activeTab', 'alarms']);
   expect(manifest.host_permissions).toEqual(['https://x2-speedup.vercel.app/*', 'https://api.lemonsqueezy.com/*']);
   expect(manifest.content_scripts[0].css).toBeUndefined();
 });
@@ -19,7 +19,7 @@ test('popup SET_SPEED is clamped to the free limit, Pro unlocks 16x', async ({ c
   expect(res.speed).toBe(FREE_MAX_SPEED);
   await expect.poll(() => rateOf(page)).toBe(FREE_MAX_SPEED);
 
-  await sw.evaluate(() => chrome.storage.local.set({ isPro: true }));
+  await setPro(sw);
   await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 99 }).then((r) => r?.speed)).toBe(PRO_MAX_SPEED);
   await expect.poll(() => rateOf(page)).toBe(PRO_MAX_SPEED);
 });
@@ -37,7 +37,7 @@ test('popup renders free tier from plans config with no errors and no network', 
   await expect(page.locator('#speedSlider')).toHaveAttribute('max', String(FREE_MAX_SPEED));
   await expect(page.locator('#shortcutEditor .hotkey-remap-row')).toHaveCount(SHORTCUT_ACTIONS.length);
 
-  await sw.evaluate(() => chrome.storage.local.set({ isPro: true }));
+  await setPro(sw);
   await page.reload();
   await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active ✨');
 

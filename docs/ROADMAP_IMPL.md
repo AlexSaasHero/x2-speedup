@@ -8,7 +8,7 @@
 > | 0 — Fondamenta | ✅ |
 > | 1 — Parità leader | ✅ (v1.6.0) |
 > | 2 — Pro | ✅ (v1.7.0) |
-> | 3 — Prodotto/crescita | ⏳ |
+> | 3 — Prodotto/crescita | ✅ (v1.8.0) |
 > | 4 — Qualità | ⏳ (smoke E2E già attivi da Fase 0) |
 
 Legenda stato: ✅ fatto · ⚠️ parziale (+motivo) · ❌ non fatto (+motivo) · ⏳ da fare
@@ -113,18 +113,20 @@ Test: 69 unit + 34 E2E (skip silence verificato con audio reale tono/silenzio, r
 
 ⚠️ Dimensione: `content.js` 65 KB non minificato (target Fase 4: < 25 KB minificato).
 
-## Fase 3 — Prodotto e crescita
+## Fase 3 — Prodotto e crescita — ✅ v1.8.0
 
-| # | Feature | Note |
-|---|---|---|
-| 3.1 | Licenza | Spostata nel SW. Stato `{key, status: active|trial|expired|revoked|invalid, lastCheckedAt, lastValidAt}`. Rivalidazione con `chrome.alarms` max 1/giorno. Server irraggiungibile → resta valida per **grace period 7 giorni** da `lastValidAt`. Rimuovo: fallback offline per formato (`PRO-*`, `TRIAL-*`, UUID accettati senza rete), "qualsiasi chiave > 3 caratteri = Pro", master key DEV nel bundle di produzione (resta solo nel build `dev`). **"Cache firmata"**: senza una firma del server (es. JWT/Ed25519 restituito da `/api/validate-license`) la cache resta falsificabile da chi modifica lo storage; lo annoto e non tocco il backend (regola 6). Troppi dispositivi: Lemon Squeezy supporta `activation_limit` via `/v1/licenses/activate` + `instance_id`; il backend attuale non è in questo repo → ⚠️ da verificare con te. Aggiunge permesso `alarms`. |
-| 3.2 | Onboarding / changelog | Pagina locale `onboarding.html` (demo scorciatoie su video locale + CTA trial) su `install`. Su `update` apro changelog solo se cambia major/minor. Sostituisce l'apertura della landing esterna. |
-| 3.3 | Sync + import/export | Impostazioni in `storage.sync` (regole in chunk ≤ 7KB, indice + checksum; fallback a local se quota superata). Stats, licenza e segnalibri restano in `local`. Export/import JSON con `schemaVersion` + validazione manuale (niente lib pesanti). Import da VSC: mappa `speeds`, `keyBindings`, `blacklist`. |
-| 3.4 | i18n | `_locales/{en,it,es,de,fr,pt_BR,ja}`; `default_locale: en`; `data-i18n` nell'HTML. Traduzioni non-en/it generate da me: ⚠️ da far rileggere a un madrelingua. |
-| 3.5 | Richiesta recensione | Dopo 30 min risparmiati totali, una volta; "non ora" = +14 giorni. Banner nel popup (non notifiche → niente permesso `notifications`). |
-| 3.6 | Edge / Firefox | Edge: stesso build. Firefox: target `dist-firefox/` con `browser_specific_settings.gecko.id`, `background.scripts` (Firefox MV3 non supporta `service_worker`), niente `use_dynamic_url`. Annoto API non supportate in `docs/FIREFOX.md`. |
+| # | Feature | Stato | Note |
+|---|---|---|---|
+| 3.1 | Licenza | ✅ / ⚠️ | Tutta la validazione è nel service worker (`src/background/license.ts`, logica pura in `src/shared/license.ts`). Stato `license = {key, status, lastCheckedAt, lastValidAt, source, expiresAt}`. Controllo **max 1 volta al giorno** (`chrome.alarms` orario + `needsCheck`), più all'avvio e all'attivazione. **Grace**: Pro resta attivo fino a 1 giorno (intervallo) + 7 giorni dall'ultima conferma del server. **Nessun blocco se il server non risponde**: errori di rete, timeout, 5xx, 404, 429 non cambiano lo stato. Stati gestiti: trial/licenza scaduta (`expired`), chiave disattivata/rimborsata (`revoked`), chiave inesistente (`invalid`), troppi dispositivi (`limit`), ognuno con messaggio nel popup e chiave rimovibile. Fonti: endpoint X2 (primario) + Lemon Squeezy `/v1/licenses/validate` (seconda opinione), valido se uno dei due conferma. **Rimossi** (BUGS #1, #2): "qualsiasi chiave > 3 caratteri = Pro" e accettazione offline per formato (`PRO-*`, `TRIAL-*`, UUID). Gli utenti con chiave salvata vengono migrati come "da riverificare" e controllati subito: chi aveva una chiave vera resta Pro, chi l'aveva solo "per formato" torna Free. Solo le pagine dell'estensione possono attivare/rimuovere una licenza (controllo del mittente). ⚠️ **Cache non firmata crittograficamente**: il server non restituisce una firma da verificare, quindi chi modifica lo storage locale a mano può falsificare lo stato (vale per ogni estensione senza firma lato server). Per chiuderlo serve che `/api/validate-license` restituisca un token firmato (es. Ed25519) → backend, da decidere con te. ⚠️ **Troppi dispositivi**: l'estensione non chiama `/v1/licenses/activate` di Lemon Squeezy (non registra istanze), quindi il limite dispositivi si rileva solo se un server lo segnala (`activation_usage > activation_limit` o stato `limit`). Attivarlo cambierebbe il modello commerciale (quanti browser per chiave): decisione tua. ⚠️ Lo schema esatto delle risposte di `/api/validate-license` non è nel repo: interpretate le forme già accettate (`status: valid`, `valid: true`, `is_valid: true`) più parole di stato comuni. |
+| 3.2 | Onboarding e changelog | ✅ | Pagina locale `onboarding/onboarding.html` su `install`: come fissare l'icona, **demo interattiva delle scorciatoie** (audio generato in pagina, nessun file media incluso, usa i tasti reali dell'utente), CTA trial esistente + campo chiave di licenza, novità. Su `update` apre `#whats-new` in background **solo** se cambia major/minor (`isFeatureUpdate`). Sostituisce l'apertura della landing esterna all'install. |
+| 3.3 | Sync, import/export, import VSC | ✅ | Impostazioni (`SYNC_KEYS`: step, seek, scorciatoie, blacklist, regole, skip silence, hold, ads, overlay, pitch, loop…) replicate in `chrome.storage.sync` dal service worker: JSON stabile diviso in chunk da 6000 caratteri (`cfg_0…n` + `cfg_meta` con hash FNV, versione, device, data), sotto gli 8 KB per item; oltre ~90 KB totali la sync si mette in pausa e lo dice nelle opzioni. Prima esecuzione su un nuovo dispositivo: **adotta** le impostazioni esistenti invece di sovrascriverle con i default. Niente loop di eco (hash + device id). Licenza, statistiche, segnalibri, posizioni overlay, `deviceId` restano locali. Toggle nelle opzioni. Export/import JSON (`format`, `version`, `settings`) con validazione tramite la migrazione dello schema (limiti, chiavi ignote scartate, versioni più nuove rifiutate). Import da **Video Speed Controller**: incollando il JSON delle sue impostazioni (`keyBindings` con keyCode, `blacklist`, `rememberSpeed`, `startHidden`) → scorciatoie, step, secondi di seek, velocità preferita, blacklist; azioni senza equivalente (`mark`, `jump`, `louder`, `softer`, `pause`, `muted`) e righe regex della blacklist vengono elencate come "non importate". |
+| 3.4 | i18n | ✅ / ⚠️ | `_locales` en (default), it, es, de, fr, pt_BR, ja; nome e descrizione del manifest localizzati. Sorgenti leggibili in `src/_locales/<lang>.json` con `{1}` come segnaposto, compilati in `messages.json` dal build (che fallisce se una lingua ha chiavi mancanti/in più o segnaposto diversi). Popup, opzioni, onboarding, overlay sul video, editor scorciatoie e moduli Pro usano solo chiavi (`data-i18n*` nell'HTML, `t()` nel codice). Testi di vendita in inglese invariati; le altre lingue li traducono. ⚠️ Traduzioni scritte da me: da far rileggere a madrelingua (soprattutto ja, de, pt_BR) prima dello store. ⚠️ Il test E2E della lingua italiana gira solo su Linux/Windows: su macOS Chromium prende la lingua dal sistema. |
+| 3.5 | Richiesta recensione | ✅ | Banner nel popup quando il tempo risparmiato totale (incluso il buffer non ancora scritto) arriva a 30 min; "Valuta" apre la pagina recensioni dello store giusto (Chrome Web Store / Edge Add-ons / AMO) e non lo chiede più; "Non ora" lo rimanda di 14 giorni. Nessun permesso `notifications`. |
+| 3.6 | Edge / Firefox | ✅ / ⚠️ | Edge: stesso pacchetto Chrome (MV3 Chromium); link recensione verso Edge Add-ons se lo user agent è Edge. Firefox: `npm run build -- --target=firefox` → `dist-firefox/` (manifest con `background.scripts`, `browser_specific_settings.gecko`, senza `match_origin_as_fallback`). Dettagli e API non supportate in `docs/FIREFOX.md`. ⚠️ **Non testato** su Edge e Firefox reali (nessuna automazione disponibile qui): checklist in `docs/QA.md`. |
 
----
+Permessi: aggiunto `alarms` (controllo licenza giornaliero senza tenere vivo il service worker). Nessun altro.
+
+Test: 100 unit + 42 E2E (1 saltato su macOS). Bug trovato con gli E2E e corretto: skip silence non si ricollegava se l'`AudioContext` partiva sospeso (ora riprova su `statechange` e `timeupdate`).
 
 ## Fase 4 — Qualità
 
@@ -138,19 +140,17 @@ Test: 69 unit + 34 E2E (skip silence verificato con audio reale tono/silenzio, r
 
 ---
 
-## Permessi finali previsti
+## Permessi finali (v1.8.0) — giustificazione per la review dello store
 
 | Permesso | Giustificazione |
 |---|---|
-| `storage` | Impostazioni, regole, statistiche, stato licenza — tutto locale/sync. |
-| `activeTab` | Il popup legge URL/titolo della scheda attiva (regola "da questa pagina", segnalibri). Sufficiente: rende `tabs` superfluo. |
-| `alarms` (nuovo, Fase 3) | Rivalidazione licenza 1/giorno senza tenere vivo il service worker. |
-| `content_scripts.matches: <all_urls>`, `all_frames` | Scorciatoie, overlay e persistenza velocità devono funzionare su qualsiasi sito con video **senza** che l'utente apra il popup; `activeTab`+`scripting` coprirebbe solo l'iniezione on-click e romperebbe scorciatoie e persistenza. È il modello di VSC e Global Speed. |
-| `host_permissions` | Ristretto da `<all_urls>` a `https://x2-speedup.vercel.app/*` e `https://api.lemonsqueezy.com/*` (solo verifica licenza dal SW). |
-| ~~`tabs`~~ | **Rimosso**: `activeTab` dà già l'URL della scheda attiva al popup; il badge usa `sender.tab.id`. |
-| ~~`scripting`~~ | Non necessario (non presente nemmeno oggi, ma dichiarato in `CHROMEWEBSTORE.md`). |
-
----
+| `storage` | Impostazioni, regole, scorciatoie, statistiche del tempo risparmiato e stato della licenza in `chrome.storage.local`; impostazioni (non dati personali) in `chrome.storage.sync` per seguire l'utente tra i dispositivi; buffer temporaneo in `chrome.storage.session`. Nessun dato lascia il browser. |
+| `activeTab` | Il popup legge URL e titolo della scheda attiva solo quando l'utente lo apre (segnalibri per video, regole "da questa pagina", stato del video). Sostituisce `tabs`. |
+| `alarms` | Un allarme orario sveglia il service worker per verificare la licenza **al massimo una volta al giorno**, senza tenerlo attivo. |
+| `host_permissions`: `https://x2-speedup.vercel.app/*`, `https://api.lemonsqueezy.com/*` | Le uniche chiamate di rete dell'estensione: verifica della chiave di licenza (endpoint proprio + fallback del merchant of record). Inviata solo la chiave. |
+| `content_scripts` su `<all_urls>`, `all_frames`, `match_about_blank`, `match_origin_as_fallback` | Le scorciatoie da tastiera, l'overlay e la persistenza della velocità devono funzionare su qualsiasi sito con video HTML5 e dentro i player in iframe, senza che l'utente apra il popup. Con `activeTab` + `scripting` le scorciatoie funzionerebbero solo dopo un click sull'icona, a ogni pagina. Lo script non legge né invia il contenuto delle pagine: osserva solo gli elementi `<video>`/`<audio>`. |
+| `web_accessible_resources`: `pro/*.js` | Moduli Pro (skip silence, pubblicità YouTube) caricati con `import()` solo per utenti Pro che li attivano, per tenere leggero lo script principale. Nessun codice remoto. |
+| ~~`tabs`~~, ~~`scripting`~~, ~~`<all_urls>` host~~ | Non richiesti. |
 
 ## Rischi principali
 
