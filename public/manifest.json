@@ -1,15 +1,15 @@
 {
   "manifest_version": 3,
   "name": "SpeedUp Video Pro",
-  "version": "1.5.1.8",
+  "version": "1.6.0",
   "description": "Controllo rapido della velocità per qualsiasi video web.",
   "permissions": [
     "storage",
-    "activeTab",
-    "tabs"
+    "activeTab"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://x2-speedup.vercel.app/*",
+    "https://api.lemonsqueezy.com/*"
   ],
   "icons": {
     "16": "icons/icon16.png",
@@ -32,14 +32,17 @@
       "js": [
         "content/content.js"
       ],
-      "css": [
-        "content/content.css"
-      ],
       "run_at": "document_start",
-      "all_frames": true
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true
     }
   ],
   "background": {
     "service_worker": "background/background.js"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
   }
 }

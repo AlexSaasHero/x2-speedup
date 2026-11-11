@@ -20,8 +20,9 @@ const outdir = path.join(root, 'dist');
 // and a single format keeps the service worker free of `"type": "module"` constraints.
 const entryPoints = {
   'background/background': 'src/background/index.ts',
-  'content/content': 'src/content/index.js',
-  'popup/popup': 'src/popup/index.js'
+  'content/content': 'src/content/index.ts',
+  'popup/popup': 'src/popup/index.js',
+  'options/options': 'src/options/index.ts'
 };
 
 /** @type {esbuild.BuildOptions} */

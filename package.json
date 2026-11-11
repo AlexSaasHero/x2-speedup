@@ -1,7 +1,7 @@
 {
   "name": "speedup-video-pro",
   "private": true,
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "SpeedUp Video Pro — Chrome MV3 extension (version of record lives in public/manifest.json)",
   "type": "module",
   "scripts": {

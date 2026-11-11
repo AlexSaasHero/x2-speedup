@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpeedUp Video Pro — Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="page-head">
+      <img src="../icons/icon48.png" alt="" width="32" height="32">
+      <div>
+        <h1>SpeedUp Video Pro</h1>
+        <p class="muted">Settings are stored locally in your browser. Nothing is tracked.</p>
+      </div>
+      <span id="savedHint" class="saved" aria-live="polite"></span>
+    </header>
+
+    <section class="card">
+      <h2>Speed</h2>
+      <div class="grid">
+        <label>Speed step
+          <span class="field"><input type="number" id="speedStep" min="0.01" max="1" step="0.05"><span>x</span></span>
+          <small>Used by Slower/Faster shortcuts and the popup fine buttons.</small>
+        </label>
+        <label>Preferred speed
+          <span class="field"><input type="number" id="favoriteSpeed" min="0.1" max="16" step="0.1"><span>x</span></span>
+          <small id="favoriteHint">Toggled by the Preferred speed shortcut.</small>
+        </label>
+      </div>
+      <label class="check"><input type="checkbox" id="rememberSpeed"> Remember the last speed for new pages (otherwise start at 1.0x)</label>
+      <label class="check"><input type="checkbox" id="applyToAll"> Apply speed changes to every video/audio on the page (default: only the active one)</label>
+      <label class="check"><input type="checkbox" id="preservesPitch"> Preserve audio pitch at high speed</label>
+    </section>
+
+    <section class="card">
+      <h2>Seeking</h2>
+      <div class="grid">
+        <label>Rewind / Advance by
+          <span class="field"><input type="number" id="seekSeconds" min="1" max="600" step="1"><span>s</span></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>On-video overlay</h2>
+      <label class="check"><input type="checkbox" id="hudEnabled"> Show the speed overlay on videos</label>
+      <div class="grid">
+        <label>Hide after
+          <span class="field"><input type="number" id="overlayAutoHideSec" min="0.5" max="10" step="0.5"><span>s</span></span>
+        </label>
+      </div>
+      <p class="muted">Drag the overlay on any video to move it; the position is saved per site.
+        <button type="button" id="resetPositions" class="link">Reset saved positions (<span id="positionsCount">0</span>)</button></p>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Keyboard shortcuts</h2>
+        <button type="button" id="resetShortcuts" class="btn">Restore defaults</button>
+      </div>
+      <p class="muted">Shortcuts never fire while you type in a text field or editor. Defaults match Video Speed Controller.</p>
+      <div id="shortcutEditor" class="hotkey-remap-list"></div>
+    </section>
+
+    <section class="card">
+      <h2>Disable shortcuts on these sites</h2>
+      <p class="muted">One domain per line. Subdomains are included (e.g. <code>google.com</code> also covers <code>docs.google.com</code>).</p>
+      <textarea id="shortcutBlacklist" rows="5" spellcheck="false" placeholder="docs.google.com"></textarea>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

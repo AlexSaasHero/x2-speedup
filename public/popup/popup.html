@@ -135,18 +135,18 @@
 
             <!-- Fine Adjustments Bar -->
             <div class="fine-adjust">
-              <button class="step-btn" data-step="-0.25">-0.25x</button>
-              <button class="step-btn" data-step="-0.10">-0.10x</button>
+              <button class="step-btn" data-step-mult="-2.5">-0.25x</button>
+              <button class="step-btn" data-step-mult="-1">-0.10x</button>
               <div class="custom-input-wrapper">
                 <input type="number" id="customSpeedInput" min="0.1" max="16.0" step="0.05" value="1.00" aria-label="Velocità personalizzata">
                 <span class="input-unit">x</span>
               </div>
-              <button class="step-btn" data-step="+0.10">+0.10x</button>
-              <button class="step-btn" data-step="+0.25">+0.25x</button>
+              <button class="step-btn" data-step-mult="1">+0.10x</button>
+              <button class="step-btn" data-step-mult="2.5">+0.25x</button>
             </div>
           </section>
 
-          <!-- Quick Presets (0.5x, 1.0x, 1.5x, 2.0x unlocked, 3.0x, 4.0x PRO) -->
+          <!-- Quick Presets (all within the free range; >4x via slider/input with Pro) -->
           <section class="presets-section">
             <span class="section-title">Preset Rapidi</span>
             <div class="presets presets-six">
@@ -154,8 +154,8 @@
               <button class="preset-btn active" data-speed="1.0">1.0x</button>
               <button class="preset-btn" data-speed="1.5">1.5x</button>
               <button class="preset-btn" data-speed="2.0">2.0x</button>
-              <button class="preset-btn pro-preset" data-speed="3.0">3.0x <span class="pro-mini-tag">PRO</span></button>
-              <button class="preset-btn pro-preset" data-speed="4.0">4.0x <span class="pro-mini-tag">PRO</span></button>
+              <button class="preset-btn" data-speed="3.0">3.0x</button>
+              <button class="preset-btn" data-speed="4.0">4.0x</button>
             </div>
           </section>
         </main>
@@ -169,51 +169,20 @@
           <section class="shortcuts-card">
             <div class="shortcuts-header">
               <div>
-                <span class="label">Shortcuts &amp; Custom Hotkeys <span class="pro-pill-tag">PRO REMAP</span></span>
-                <p class="shortcuts-sub">Clicca su qualsiasi tasto per rimappare la scorciatoia desiderata.</p>
+                <span class="label">Keyboard Shortcuts</span>
+                <p class="shortcuts-sub">Click a key to change it, + to add another, × to remove.</p>
               </div>
-              <button id="resetHotkeysBtn" class="reset-btn" title="Ripristina tasti predefiniti">
+              <button id="resetHotkeysBtn" class="reset-btn" title="Restore default shortcuts">
                 Default
               </button>
             </div>
 
-            <div class="hotkey-remap-list">
-              <!-- Speed Up -->
-              <div class="hotkey-remap-row">
-                <div class="hotkey-meta">
-                  <span class="hotkey-name">Speed Up</span>
-                  <span class="hotkey-desc">Accelera video (+0.10x / Shift +0.25x)</span>
-                </div>
-                <button class="hotkey-capture-btn" data-action="speedUp" id="hk-speedUp" title="Clicca per rimappare">]</button>
-              </div>
+            <div id="shortcutEditor" class="hotkey-remap-list"></div>
 
-              <!-- Speed Down -->
-              <div class="hotkey-remap-row">
-                <div class="hotkey-meta">
-                  <span class="hotkey-name">Speed Down</span>
-                  <span class="hotkey-desc">Rallenta video (-0.10x / Shift -0.25x)</span>
-                </div>
-                <button class="hotkey-capture-btn" data-action="speedDown" id="hk-speedDown" title="Clicca per rimappare">[</button>
-              </div>
-
-              <!-- Reset 1.0x -->
-              <div class="hotkey-remap-row">
-                <div class="hotkey-meta">
-                  <span class="hotkey-name">Reset 1.0x</span>
-                  <span class="hotkey-desc">Torna istantaneamente a 1.0x</span>
-                </div>
-                <button class="hotkey-capture-btn" data-action="resetSpeed" id="hk-resetSpeed" title="Clicca per rimappare">R</button>
-              </div>
-
-              <!-- Toggle Favorite Speed -->
-              <div class="hotkey-remap-row">
-                <div class="hotkey-meta">
-                  <span class="hotkey-name">Toggle Favorite Speed <span class="pro-pill-tag">PRO</span></span>
-                  <span class="hotkey-desc">Attiva/disattiva velocità preferita</span>
-                </div>
-                <button class="hotkey-capture-btn" data-action="favoriteSpeed" id="hk-favoriteSpeed" title="Clicca per rimappare">G</button>
-              </div>
-            </div>
+            <label class="site-toggle-row">
+              <input type="checkbox" id="siteShortcutsToggle">
+              <span>Disable shortcuts on <strong id="siteShortcutsHost">—</strong></span>
+            </label>
 
             <!-- Favorite Speed Target Setting -->
             <div class="fav-speed-row">
@@ -230,8 +199,9 @@
 
           <div class="hud-feedback-banner">
             <span class="hud-banner-icon">⚡</span>
-            <span>Ogni scorciatoia mostra una pill HUD in alto a destra sul player video (~1s) a conferma dell'azione.</span>
+            <span>The on-video badge confirms every action. Drag it to move it (saved per site).</span>
           </div>
+          <button id="openOptionsBtn" class="options-link-btn" type="button">All settings →</button>
         </main>
       </div>
 
@@ -243,7 +213,7 @@
           <!-- Frame-by-Frame Scrubbing & Quick Jumps -->
           <section class="precision-card">
             <div class="precision-header">
-              <span class="label">Frame Scrubbing <span class="pro-pill-tag">PRO</span></span>
+              <span class="label">Frame &amp; Seek <span class="pro-pill-tag">PRO frames</span></span>
               <span id="precisionTimeBadge" class="time-pill">00:00</span>
             </div>
 
@@ -272,7 +242,7 @@
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
                 </svg>
-                <span>-5s</span>
+                <span id="seekBackLabel">-10s</span>
               </button>
 
               <button id="togglePlayBtn" class="scrub-btn play-Ctrl-btn" title="Play / Pausa">
@@ -280,7 +250,7 @@
               </button>
 
               <button id="seekFwd5Btn" class="scrub-btn" title="Salta avanti di 5 secondi">
-                <span>+5s</span>
+                <span id="seekFwdLabel">+10s</span>
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M13 5l5 5-5 5M6 5l5 5-5 5"></path>
                 </svg>

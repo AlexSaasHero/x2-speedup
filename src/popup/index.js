@@ -10,7 +10,10 @@ import {
   planLimits
 } from '../config/plans';
 import { isPro } from '../shared/entitlement';
-import { DEFAULT_HOTKEYS } from '../shared/storage';
+import { isHostListed, normalizeHostPattern } from '../shared/hosts';
+import { roundSpeed } from '../shared/media-math';
+import { defaultShortcuts } from '../shared/shortcuts';
+import { mountShortcutEditor } from '../ui/shortcut-editor';
 
 // Offline master key for local development only; '' in store builds (see scripts/build.mjs).
 const DEV_MASTER_KEY = __DEV_MASTER_KEY__;
@@ -72,8 +75,11 @@ function initPopup() {
   const customSpeedInput = document.getElementById('customSpeedInput');
   const resetBtn = document.getElementById('resetBtn');
 
-  // Tab 2: Custom Hotkeys Elements
-  const hotkeyCaptureBtns = document.querySelectorAll('.hotkey-capture-btn[data-action]');
+  // Tab 2: Shortcuts Elements
+  const shortcutEditorEl = document.getElementById('shortcutEditor');
+  const siteShortcutsToggle = document.getElementById('siteShortcutsToggle');
+  const siteShortcutsHost = document.getElementById('siteShortcutsHost');
+  const openOptionsBtn = document.getElementById('openOptionsBtn');
   const resetHotkeysBtn = document.getElementById('resetHotkeysBtn');
   const favoriteSpeedInput = document.getElementById('favoriteSpeedInput');
 
@@ -83,6 +89,8 @@ function initPopup() {
   const nextFrameBtn = document.getElementById('nextFrameBtn');
   const seekBack5Btn = document.getElementById('seekBack5Btn');
   const seekFwd5Btn = document.getElementById('seekFwd5Btn');
+  const seekBackLabel = document.getElementById('seekBackLabel');
+  const seekFwdLabel = document.getElementById('seekFwdLabel');
   const togglePlayBtn = document.getElementById('togglePlayBtn');
   const playText = document.getElementById('playText');
 
@@ -103,11 +111,14 @@ function initPopup() {
   let activeTabUrl = '';
   let activeTabTitle = '';
   let currentHostname = '';
-  let domainSpeeds = {};
-  let customHotkeys = { ...DEFAULT_HOTKEYS };
+  let shortcuts = defaultShortcuts();
+  let shortcutBlacklist = [];
+  let speedStep = 0.1;
+  let seekSeconds = 10;
+  let rememberSpeed = true;
   let favoriteSpeed = 2.0;
   let videoCheckpoints = {};
-  let listeningHotkeyAction = null;
+  let shortcutEditor = null;
 
   // Helpers
   function formatKeyLabel(key) {
@@ -236,7 +247,7 @@ function initPopup() {
         customSpeedInput.max = String(FREE_MAX_SPEED);
       }
       if (sliderTicks) {
-        const ticks = [...new Set([FREE_MIN_SPEED, 0.5, 1, 1.5, FREE_MAX_SPEED])]
+        const ticks = [...new Set([FREE_MIN_SPEED, 1, 2, 3, FREE_MAX_SPEED])]
           .filter((v) => v >= FREE_MIN_SPEED && v <= FREE_MAX_SPEED)
           .sort((a, b) => a - b);
         sliderTicks.innerHTML = ticks.map((v) => `<span>${formatSpeed(v)}</span>`).join('');
@@ -247,7 +258,6 @@ function initPopup() {
       }
     }
 
-    renderHotkeysUI();
     updateDomainUI();
   }
 
@@ -320,7 +330,7 @@ function initPopup() {
 
   tabButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
-      cancelHotkeyListening();
+      shortcutEditor?.cancel();
       switchTab(btn.dataset.tab, true);
     });
   });
@@ -334,12 +344,15 @@ function initPopup() {
       licenseKey: '',
       activatedAt: 0,
       defaultSpeed: 1.0,
-      domainSpeeds: {},
+      speedStep: 0.1,
+      seekSeconds: 10,
+      rememberSpeed: true,
+      shortcuts: null,
+      shortcutBlacklist: [],
       hudEnabled: HUD_ENABLED_DEFAULT,
       preservesPitch: PRESERVE_PITCH_DEFAULT,
       loopVideo: false,
       activeTab: 'speed',
-      customHotkeys: DEFAULT_HOTKEYS,
       favoriteSpeed: 2.0,
       videoCheckpoints: {}
     },
@@ -353,10 +366,6 @@ function initPopup() {
         switchTab(data.activeTab, false);
       } else {
         switchTab('speed', false);
-      }
-
-      if (data.domainSpeeds && typeof data.domainSpeeds === 'object') {
-        domainSpeeds = data.domainSpeeds;
       }
 
       if (data.defaultSpeed !== undefined) {
@@ -380,9 +389,12 @@ function initPopup() {
         });
       }
 
-      if (data.customHotkeys && typeof data.customHotkeys === 'object') {
-        customHotkeys = { ...DEFAULT_HOTKEYS, ...data.customHotkeys };
-      }
+      if (Array.isArray(data.shortcuts)) shortcuts = data.shortcuts;
+      if (Array.isArray(data.shortcutBlacklist)) shortcutBlacklist = data.shortcutBlacklist;
+      speedStep = Number(data.speedStep) || 0.1;
+      seekSeconds = Number(data.seekSeconds) || 10;
+      rememberSpeed = data.rememberSpeed !== false;
+      applySettingsUI();
 
       if (data.favoriteSpeed !== undefined) {
         favoriteSpeed = parseFloat(data.favoriteSpeed) || 2.0;
@@ -434,10 +446,7 @@ function initPopup() {
       const res = await sendTabMessageWithTimeout(tab.id, { action: 'GET_VIDEO_STATUS' }, 250);
       if (res && res.hasVideo) {
         updateStatusBadge(true, res.count);
-        if (domainSpeeds[currentHostname] !== undefined) {
-          currentSpeed = parseFloat(domainSpeeds[currentHostname]);
-          setSpeedUI(currentSpeed);
-        } else if (res.currentSpeed) {
+        if (res.currentSpeed) {
           currentSpeed = parseFloat(res.currentSpeed);
           setSpeedUI(currentSpeed);
         }
@@ -454,7 +463,29 @@ function initPopup() {
     }
   }
 
-  function updateDomainUI() {}
+  function updateDomainUI() {
+    if (siteShortcutsHost) siteShortcutsHost.textContent = currentHostname || '—';
+    if (siteShortcutsToggle) {
+      siteShortcutsToggle.disabled = !currentHostname;
+      siteShortcutsToggle.checked = !!currentHostname && isHostListed(currentHostname, shortcutBlacklist);
+    }
+  }
+
+  /** Labels that depend on user settings (step, seek seconds). */
+  function applySettingsUI() {
+    stepBtns.forEach((btn) => {
+      const mult = parseFloat(btn.dataset.stepMult);
+      if (isNaN(mult)) return;
+      const value = roundSpeed(Math.abs(mult) * speedStep);
+      btn.textContent = `${mult < 0 ? '-' : '+'}${value.toFixed(2)}x`;
+    });
+    if (seekBackLabel) seekBackLabel.textContent = `-${seekSeconds}s`;
+    if (seekFwdLabel) seekFwdLabel.textContent = `+${seekSeconds}s`;
+    if (seekBack5Btn) seekBack5Btn.title = `Back ${seekSeconds} seconds`;
+    if (seekFwd5Btn) seekFwd5Btn.title = `Forward ${seekSeconds} seconds`;
+    updateDomainUI();
+    shortcutEditor?.render();
+  }
 
   // ==========================================
   // 6. LICENSE ACTIVATION & VERIFICATION
@@ -684,41 +715,18 @@ function initPopup() {
     currentSpeed = parseFloat(clamped.toFixed(2));
     setSpeedUI(currentSpeed);
 
-    const storageUpdates = {
-      defaultSpeed: currentSpeed,
-      preservesPitch: PRESERVE_PITCH_DEFAULT,
-      hudEnabled: HUD_ENABLED_DEFAULT
-    };
-    if (currentHostname && domainSpeeds[currentHostname] !== undefined) {
-      domainSpeeds[currentHostname] = currentSpeed;
-      storageUpdates.domainSpeeds = domainSpeeds;
-    }
-    chrome.storage.local.set(storageUpdates);
+    // The content script persists the speed (rememberSpeed / domain speed) and updates the badge.
+    // Also store it here so pages without media (or not yet loaded) start at this speed.
+    if (rememberSpeed) chrome.storage.local.set({ defaultSpeed: currentSpeed });
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      chrome.tabs.sendMessage(
-        tab.id,
-        {
-          action: 'SET_SPEED',
-          speed: currentSpeed,
-          isPro: tier.hasFullAccess,
-          hudEnabled: HUD_ENABLED_DEFAULT,
-          preservesPitch: PRESERVE_PITCH_DEFAULT
-        },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            console.warn('SpeedUP: content script not ready or error', chrome.runtime.lastError);
-          }
-        }
-      );
+      const res = await sendTabMessageWithTimeout(tab.id, { action: 'SET_SPEED', speed: currentSpeed }, 400);
+      if (res && typeof res.speed === 'number' && Math.abs(res.speed - currentSpeed) > 0.001) {
+        currentSpeed = res.speed;
+        setSpeedUI(currentSpeed);
+      }
     }
-
-    try {
-      chrome.runtime.sendMessage({ action: 'UPDATE_BADGE', speed: currentSpeed }, () => {
-        if (chrome.runtime.lastError) {}
-      });
-    } catch (e) {}
   }
 
   function setSpeedUI(speedNum) {
@@ -791,9 +799,9 @@ function initPopup() {
 
   stepBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const step = parseFloat(btn.dataset.step);
-      if (!isNaN(step)) {
-        setSpeed(currentSpeed + step);
+      const mult = parseFloat(btn.dataset.stepMult);
+      if (!isNaN(mult)) {
+        setSpeed(roundSpeed(currentSpeed + mult * speedStep));
       }
     });
   });
@@ -801,73 +809,39 @@ function initPopup() {
   // ==========================================
   // 8. TAB 2: CUSTOM HOTKEYS REMAPPING
   // ==========================================
-  function renderHotkeysUI() {
-    hotkeyCaptureBtns.forEach((btn) => {
-      const action = btn.dataset.action;
-      const keyVal = customHotkeys[action] || DEFAULT_HOTKEYS[action];
-      btn.textContent = formatKeyLabel(keyVal);
-      btn.classList.remove('listening');
+  if (shortcutEditorEl) {
+    shortcutEditor = mountShortcutEditor({
+      container: shortcutEditorEl,
+      get: () => shortcuts,
+      save: (list) => {
+        shortcuts = list;
+        chrome.storage.local.set({ shortcuts });
+      },
+      context: () => ({ speedStep, seekSeconds, favoriteSpeed })
     });
   }
-
-  function cancelHotkeyListening() {
-    listeningHotkeyAction = null;
-    renderHotkeysUI();
-  }
-
-  hotkeyCaptureBtns.forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!canUse('customHotkeys')) {
-        openUpgradeModal(`Custom keyboard shortcuts remapping is a Pro feature. ${UNLOCK_TITLE}.`);
-        return;
-      }
-      const action = btn.dataset.action;
-      if (listeningHotkeyAction === action) {
-        cancelHotkeyListening();
-        return;
-      }
-      renderHotkeysUI();
-      listeningHotkeyAction = action;
-      btn.classList.add('listening');
-      btn.textContent = 'Premi...';
-    });
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (!listeningHotkeyAction) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
-
-    if (e.key === 'Escape') {
-      cancelHotkeyListening();
-      return;
-    }
-
-    const newKey = e.key === ' ' ? 'Space' : (e.key.length === 1 ? e.key.toLowerCase() : e.key);
-    customHotkeys[listeningHotkeyAction] = newKey;
-    listeningHotkeyAction = null;
-
-    chrome.storage.local.set({ customHotkeys });
-    renderHotkeysUI();
-  }, true);
 
   if (resetHotkeysBtn) {
     resetHotkeysBtn.addEventListener('click', () => {
-      if (!canUse('customHotkeys')) {
-        openUpgradeModal(`Custom keyboard shortcuts remapping is a Pro feature. ${UNLOCK_TITLE}.`);
-        return;
-      }
-      cancelHotkeyListening();
-      customHotkeys = { ...DEFAULT_HOTKEYS };
-      favoriteSpeed = 2.0;
-      if (favoriteSpeedInput) favoriteSpeedInput.value = '2.0';
-      chrome.storage.local.set({ customHotkeys, favoriteSpeed });
-      renderHotkeysUI();
+      shortcutEditor?.cancel();
+      shortcuts = defaultShortcuts();
+      chrome.storage.local.set({ shortcuts });
+      shortcutEditor?.render();
     });
+  }
+
+  if (siteShortcutsToggle) {
+    siteShortcutsToggle.addEventListener('change', () => {
+      if (!currentHostname) return;
+      const host = normalizeHostPattern(currentHostname);
+      const others = shortcutBlacklist.filter((h) => normalizeHostPattern(h) !== host);
+      shortcutBlacklist = siteShortcutsToggle.checked ? [...others, host] : others;
+      chrome.storage.local.set({ shortcutBlacklist });
+    });
+  }
+
+  if (openOptionsBtn) {
+    openOptionsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
   }
 
   if (favoriteSpeedInput) {
@@ -876,6 +850,7 @@ function initPopup() {
       favoriteSpeed = parseFloat(val.toFixed(2));
       favoriteSpeedInput.value = favoriteSpeed.toFixed(1);
       chrome.storage.local.set({ favoriteSpeed });
+      shortcutEditor?.render();
     });
   }
 
@@ -939,8 +914,8 @@ function initPopup() {
 
   if (prevFrameBtn) prevFrameBtn.addEventListener('click', () => handleFrameScrub(-1));
   if (nextFrameBtn) nextFrameBtn.addEventListener('click', () => handleFrameScrub(1));
-  if (seekBack5Btn) seekBack5Btn.addEventListener('click', () => handleQuickSkip(-5));
-  if (seekFwd5Btn) seekFwd5Btn.addEventListener('click', () => handleQuickSkip(5));
+  if (seekBack5Btn) seekBack5Btn.addEventListener('click', () => handleQuickSkip(-seekSeconds));
+  if (seekFwd5Btn) seekFwd5Btn.addEventListener('click', () => handleQuickSkip(seekSeconds));
 
   if (togglePlayBtn) {
     togglePlayBtn.addEventListener('click', async () => {

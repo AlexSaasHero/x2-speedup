@@ -1,0 +1,128 @@
+// Popup ⇄ content-script protocol. Only frames that actually contain media answer, so the popup
+// talks to the frame that holds the player (top frame or iframe alike).
+import { planLimits } from '../config/plans';
+import { isHostListed } from '../shared/hosts';
+import type { MediaRegistry } from './media-registry';
+import type { Overlay } from './overlay';
+import type { RateController } from './rate-controller';
+import type { ContentSettings } from './settings';
+
+const FRAME_STEP_SECONDS = 1 / 30;
+
+export interface MessageDeps {
+  registry: MediaRegistry;
+  controller: RateController;
+  overlay: Overlay;
+  settings(): ContentSettings;
+  host: string;
+}
+
+type Request = { action?: string; [k: string]: unknown };
+
+const proRequired = { success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' };
+
+export function installMessageHandler(deps: MessageDeps): void {
+  chrome.runtime.onMessage.addListener((request: Request, _sender, sendResponse) => {
+    if (!request?.action || !deps.registry.count()) return false;
+    const response = handle(request, deps);
+    if (response === undefined) return false;
+    sendResponse(response);
+    return false;
+  });
+}
+
+function handle(req: Request, { registry, controller, overlay, settings, host }: MessageDeps): unknown {
+  const s = settings();
+  const can = (f: keyof ReturnType<typeof planLimits>['features']) => planLimits(s.pro).features[f];
+  const main = registry.primary();
+  const flash = (label: string) => overlay.show(main instanceof HTMLVideoElement ? main : null, label);
+
+  switch (req.action) {
+    case 'SET_SPEED': {
+      const speed = controller.setSpeed(Number(req.speed));
+      return { success: true, currentSpeed: speed, speed };
+    }
+    case 'GET_SPEED':
+      return { success: true, currentSpeed: controller.currentSpeed(), speed: controller.currentSpeed(), hasVideo: true };
+
+    case 'GET_VIDEO_STATUS':
+      return {
+        success: true,
+        hasVideo: true,
+        count: registry.count(),
+        currentSpeed: controller.currentSpeed(),
+        hostname: host,
+        pageTitle: document.title,
+        pageUrl: location.href,
+        shortcutsDisabled: isHostListed(host, s.shortcutBlacklist),
+        ...(main ? controller.describe(main) : {})
+      };
+
+    case 'SKIP_TIME':
+    case 'SEEK': {
+      if (!can('skipTime')) return proRequired;
+      const secs = Number(req.seconds) || 0;
+      return { success: true, currentTime: controller.seek(secs) ?? 0 };
+    }
+
+    case 'STEP_FRAME': {
+      if (!can('frameStep')) return proRequired;
+      if (!main) return { success: false, error: 'No video found' };
+      main.pause();
+      const dir = req.direction !== undefined ? (Number(req.direction) > 0 ? 1 : -1) : Number(req.delta) >= 0 ? 1 : -1;
+      main.currentTime = Math.max(0, main.currentTime + dir * FRAME_STEP_SECONDS);
+      flash(dir > 0 ? '+1 frame' : '−1 frame');
+      return { success: true, currentTime: main.currentTime, isPlaying: false };
+    }
+
+    case 'ADD_CHECKPOINT':
+    case 'GET_CURRENT_TIME': {
+      if (req.action === 'ADD_CHECKPOINT' && !can('checkpoints')) return proRequired;
+      if (!main) return { success: false, error: 'No video found' };
+      if (req.action === 'ADD_CHECKPOINT') flash(`📍 ${formatTimestamp(main.currentTime)}`);
+      return {
+        success: true,
+        timestamp: main.currentTime,
+        currentTime: main.currentTime,
+        duration: Number.isFinite(main.duration) ? main.duration : 0,
+        pageTitle: document.title,
+        pageUrl: location.href
+      };
+    }
+
+    case 'SEEK_TO': {
+      if (!can('checkpoints')) return proRequired;
+      if (!main || typeof req.time !== 'number') return { success: false, error: 'No video found' };
+      main.currentTime = Math.max(0, req.time);
+      flash(`📍 ${formatTimestamp(main.currentTime)}`);
+      return { success: true, currentTime: main.currentTime };
+    }
+
+    case 'TOGGLE_PLAY': {
+      if (!main) return { success: false };
+      if (main.paused) main.play().catch(() => {});
+      else main.pause();
+      flash(main.paused ? '⏸' : '▶');
+      return { success: true, isPlaying: !main.paused };
+    }
+
+    case 'TOGGLE_MUTE': {
+      if (!main) return { success: false };
+      main.muted = !main.muted;
+      flash(main.muted ? '🔇' : '🔊');
+      return { success: true, isMuted: main.muted };
+    }
+
+    default:
+      return undefined;
+  }
+}
+
+function formatTimestamp(sec: number): string {
+  if (!Number.isFinite(sec) || sec < 0) return '00:00';
+  const t = Math.floor(sec);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  return h > 0 ? `${pad(h)}:${pad(m)}:${pad(t % 60)}` : `${pad(m)}:${pad(t % 60)}`;
+}
