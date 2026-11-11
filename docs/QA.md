@@ -30,3 +30,20 @@ Extra:
 - Opzioni (popup → "All settings"): step, secondi di seek, remember speed, apply to all, overlay, blacklist.
 - Due schede con video: cambiare velocità in una **non** cambia l'altra; una nuova pagina parte dall'ultima velocità usata.
 - Aggiornamento da v1.5.1.8 con licenza e tasti personalizzati: licenza ancora attiva, i vecchi `]`/`[` funzionano ancora insieme a `D`/`S`.
+
+## Fase 2 (v1.7.0) — funzioni Pro
+
+Attiva Pro con la build dev (`npm run build:dev`, master key DEV) e verifica anche in free che ogni controllo mostri il lucchetto senza errori.
+
+| Scenario | YouTube | Udemy/Coursera | Podcast (Spotify web) | Note |
+|---|---|---|---|---|
+| Skip silence accelera nelle pause e torna normale sul parlato | | | | |
+| Skip silence: nessun audio "mangiato" all'inizio delle frasi | | | | |
+| Skip silence su player cross-origin: messaggio "unavailable", audio regolare | | | | |
+| Regola canale (tab Smart → Channel) applicata al video successivo dello stesso canale | | — | — | |
+| Regola sito / video | | | | |
+| Pubblicità YouTube: 16x + muto, poi velocità e audio ripristinati (pre-roll e mid-roll) | | — | — | |
+| Hold Shift+F: 2.5x mentre premuto; cambiare finestra mentre premuto → torna normale | | | | |
+| A-B repeat: Shift+A tre volte (A, B+loop, off) | | | | |
+| "This week you saved" aumenta guardando a >1x | | | | |
+| Segnalibri: stesso video con `&t=…` o da youtu.be mostra gli stessi segnalibri | | | | |

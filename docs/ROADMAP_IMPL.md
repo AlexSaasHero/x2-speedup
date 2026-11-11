@@ -7,7 +7,7 @@
 > |---|---|
 > | 0 — Fondamenta | ✅ |
 > | 1 — Parità leader | ✅ (v1.6.0) |
-> | 2 — Pro | ⏳ |
+> | 2 — Pro | ✅ (v1.7.0) |
 > | 3 — Prodotto/crescita | ⏳ |
 > | 4 — Qualità | ⏳ (smoke E2E già attivi da Fase 0) |
 
@@ -92,23 +92,26 @@ Test: 39 unit (Vitest) + 22 E2E (Playwright, Chromium con l'estensione caricata)
 
 ⚠️ Non verificato automaticamente su siti reali (YouTube, Netflix, …): checklist manuale in `docs/QA.md`.
 
-## Fase 2 — Funzioni Pro
+## Fase 2 — Funzioni Pro — ✅ v1.7.0
 
-Gating: `can('skipSilence')` ecc. da `entitlement.ts`. UI: controllo visibile con lucchetto → click apre il modal esistente con CTA trial. Mai eccezioni.
-Moduli in `src/pro/` caricati con `import(chrome.runtime.getURL(...))` solo se Pro **e** feature attiva → richiede `web_accessible_resources` con `use_dynamic_url: true` (limita il fingerprinting).
+Gating unico: `can(feature)` (`shared/entitlement.ts`) sulle feature di `config/plans.ts` (`skipSilence`, `rules`, `youtubeAds`, `holdToSpeed`, `abRepeat`, `statsDetails`). In free ogni controllo resta visibile con 🔒: nel popup apre il modal trial, sul video mostra "🔒 … · Pro". Nessun errore. Moduli pesanti caricati solo se Pro **e** attivi: `dist/pro/skip-silence.js`, `dist/pro/youtube-ads.js` (ES module separati, `import(chrome.runtime.getURL(…))`). Schema storage **v3**.
 
-| # | Feature | Note / rischi |
-|---|---|---|
-| 2.1 | **Skip silence** | `AudioContext` + `MediaElementAudioSourceNode` → `AnalyserNode` → `destination`. Cache sorgenti in `WeakMap`. Campionamento RMS con `setInterval` a ~50ms **solo mentre il media è in play** (rAF si ferma in tab nascosta). Isteresi + margini pre/post. **Rischio critico CORS**: su media cross-origin senza CORS, `createMediaElementSource` produce zeri **e silenzia l'audio** reale, irreversibilmente per quell'elemento. Mitigazione: prima di agganciare verifico `currentSrc` (`blob:`/same-origin/`crossOrigin` impostato → ok, altrimenti non aggancio e mostro "Non disponibile su questo player"). In più, se dopo 3s di play l'RMS è esattamente 0 → disattivo e avviso. Una volta creata la sorgente non si può staccare: la feature spenta lascia il grafo in passthrough (nessun degrado). `AudioContext` creato al primo gesto utente / `resume()` su `play`. |
-| 2.2 | Regole velocità (canale > URL glob > dominio > default) | `pro/rules.ts` + `shared/rules-resolve.ts` (puro, testabile). Canale YouTube: `ytInitialPlayerResponse` non è leggibile dall'isolated world → uso `link[itemprop="name"]` dentro `[itemprop="author"]`, `ytd-channel-name a`, `meta[itemprop="channelId"]`, con fallback a nessuna regola canale. Bottone "crea regola da questa pagina" nel popup. Migra gli attuali `domainSpeeds`. |
-| 2.3 | Ads YouTube 16x + mute | Observer sugli attributi `class` di `#movie_player` (`.ad-showing`, `.ad-interrupting`). Salvo velocità/volume/muted, ripristino alla fine. Se `#movie_player` non esiste o la struttura cambia → no-op + log debug. ⚠️ Policy: il Chrome Web Store non vieta questa funzione, ma YouTube può rilevarla; la tengo opt-in, default OFF. |
-| 2.4 | Hold-to-speed | `keydown` (ignora `e.repeat`) / `keyup`, ripristino anche su `blur`, `visibilitychange`, `pagehide`. Default `Shift+F` configurabile. |
-| 2.5 | Statistiche tempo risparmiato | Accumulo in memoria nel content script `Δcontenuto − Δreale` da `timeupdate`; flush max 1/30s + su `pagehide` → messaggio al SW che aggrega per giorno in `storage.local` (`stats:YYYY-MM-DD`, ultimi 400 giorni). Sessione = tab corrente. Popup: "Questa settimana hai risparmiato 3h 12m". Visibile anche in free (è il miglior argomento di upsell); dettaglio storico Pro — ⚠️ da confermare. |
-| 2.6 | A-B repeat + segnalibri | Riusa i checkpoint esistenti; chiave = URL normalizzato (rimuove `t`, `utm_*`, `fbclid`, `gclid`, `si`, `feature`, hash; YouTube → `youtube.com/watch?v=ID`). A-B: loop su `timeupdate` + scorciatoie. |
+| # | Feature | Stato | Note |
+|---|---|---|---|
+| 2.1 | Skip silence | ✅ | `MediaElementAudioSourceNode` → `AnalyserNode` (+ collegamento diretto agli altoparlanti, audio invariato). RMS ogni 50 ms **solo mentre il media è in play**. Impostazioni: soglia (dB), attesa prima di accelerare (margine prima), velocità silenzio, tempo minimo a velocità normale dopo il suono (margine dopo). Sorgenti in cache `WeakMap`. Media cross-origin senza CORS: rifiutati **prima** di collegarli (messaggio sul video e nel popup); fallback se arrivano comunque campioni a zero per 5 s. `AudioContext` collegato solo quando è `running`, altrimenti riprova al play successivo (mai audio muto). Media mutati = mai accelerati. ⚠️ Modalità "salta" non implementata: in tempo reale non si conosce la durata del silenzio, solo accelerazione. ⚠️ Una volta collegato, l'elemento resta nel grafo Web Audio fino al reload della pagina (limite dell'API): se l'estensione viene aggiornata/disattivata mentre la pagina è aperta, quell'elemento può restare muto finché non si ricarica. |
+| 2.2 | Regole velocità | ✅ | Canale > URL (glob `*`, confrontato senza protocollo/www/parametri di tracking) > sito (vince il più specifico) > default. Canale YouTube da: link proprietario (più layout), URL dei canali, microdata solo se descrive il video corrente; altrimenti nessuna regola canale. Rivalutazione dopo navigazione SPA (0/0.6/1.5/3.5 s, niente polling). Una regola applicata non sovrascrive la velocità "ricordata". Popup (tab Smart): "Always play at X for: Channel / This video / This site" + rimuovi regola attiva. Opzioni: tabella con modifica/eliminazione/aggiunta. `domainSpeeds` migrato in regole sito. |
+| 2.3 | Pubblicità YouTube 16x + mute | ✅ | Observer sulle classi del player (`ad-showing`, `ad-interrupting`), ripristino di velocità e mute a fine ad. Solo su host YouTube, opt-in (default off). Nessun player trovato → nessuna azione (log in dev). ⚠️ Testato con unit test sulla rilevazione; il flusso completo va verificato a mano su YouTube (`docs/QA.md`): non è riproducibile in E2E perché il dominio è HSTS-preloaded. |
+| 2.4 | Hold-to-speed | ✅ | Default `Shift+F`, velocità configurabile (2.5x). Rilascio con il tasto principale (anche se Shift viene rilasciato prima), `blur`, `visibilitychange`, `pagehide`. Implementato come override temporaneo: la velocità dell'utente non cambia. |
+| 2.5 | Tempo risparmiato | ✅ | `(Δ contenuto − Δ reale)` solo durante riproduzione continua (seek/pause esclusi). Content → worker ogni 5 s mentre si guarda; il worker tiene un buffer in `storage.session` e scrive gli **aggregati giornalieri** in `storage.local` al massimo ogni 30 s (scritture serializzate). Popup: "This week you saved …" per tutti; oggi/pagina/totale con Pro (`statsDetails`). Settimana da lunedì. Conservazione 400 giorni. ⚠️ Fino a 5 s per scheda possono andare persi chiudendo la scheda, e fino a 30 s chiudendo il browser. |
+| 2.6 | A-B repeat + segnalibri | ✅ | A-B: scorciatoia `Shift+A` (A → B → off) e bottoni nel tab Precision; si azzera se cambia il video nell'elemento. Segnalibri (ex checkpoint): chiave `normalizeMediaUrl` (YouTube watch/shorts/youtu.be → id video; via `t`, `utm_*`, `fbclid`, `si`, …); chiavi esistenti migrate e unite. |
 
-Permessi Fase 2: nessuno nuovo (Web Audio non richiede permessi).
+Altre modifiche: `RateController` ora supporta override temporanei con priorità (ads > hold > silence) che non toccano la velocità dell'utente e compaiono nell'overlay (`· ad`, `· hold`, `⏩`). Nuove azioni scorciatoia `hold` e `abRepeat` aggiunte agli elenchi esistenti se il tasto è libero.
 
----
+Permessi: nessuno nuovo. `web_accessible_resources` espone solo `pro/*.js` (necessario per l'import dinamico dal content script). ⚠️ `use_dynamic_url` non è utilizzabile: l'URL dinamico non rientra in `'self'` della CSP e l'import fallisce. Ogni sito può quindi sapere che l'estensione è installata (fingerprinting): rischio basso, annotato.
+
+Test: 69 unit + 34 E2E (skip silence verificato con audio reale tono/silenzio, rifiuto cross-origin, modulo Pro mai caricato in free, hold, regole, A-B, statistiche, gating).
+
+⚠️ Dimensione: `content.js` 65 KB non minificato (target Fase 4: < 25 KB minificato).
 
 ## Fase 3 — Prodotto e crescita
 

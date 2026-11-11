@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: speech with pauses</title></head>
+  <body>
+    <audio id="a" controls preload="auto"></audio>
+    <script>
+      // ?cross=1 loads the same file from another origin (localhost vs 127.0.0.1) without CORS.
+      const cross = new URLSearchParams(location.search).has('cross');
+      const a = document.getElementById('a');
+      a.src = cross ? `${location.protocol}//localhost:${location.port}/speech.wav` : '/speech.wav';
+      // Sample the rate directly: ratechange events above 2x are hidden from page scripts by design.
+      window.rates = [];
+      setInterval(() => {
+        if (window.rates[window.rates.length - 1] !== a.playbackRate) window.rates.push(a.playbackRate);
+      }, 25);
+    </script>
+  </body>
+</html>
