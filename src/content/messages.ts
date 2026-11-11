@@ -2,10 +2,15 @@
 // talks to the frame that holds the player (top frame or iframe alike).
 import { planLimits } from '../config/plans';
 import { isHostListed } from '../shared/hosts';
+import { normalizeMediaUrl } from '../shared/url';
+import type { AbOp, AbRepeat } from './ab-repeat';
 import type { MediaRegistry } from './media-registry';
 import type { Overlay } from './overlay';
+import { loadedProModule } from './pro-api';
 import type { RateController } from './rate-controller';
+import type { RuleApplier } from './rules';
 import type { ContentSettings } from './settings';
+import type { StatsTracker } from './stats';
 
 const FRAME_STEP_SECONDS = 1 / 30;
 
@@ -15,6 +20,9 @@ export interface MessageDeps {
   overlay: Overlay;
   settings(): ContentSettings;
   host: string;
+  rules: RuleApplier;
+  ab: AbRepeat;
+  stats: StatsTracker;
 }
 
 type Request = { action?: string; [k: string]: unknown };
@@ -26,12 +34,16 @@ export function installMessageHandler(deps: MessageDeps): void {
     if (!request?.action || !deps.registry.count()) return false;
     const response = handle(request, deps);
     if (response === undefined) return false;
+    if (response instanceof Promise) {
+      response.then(sendResponse, () => sendResponse({ success: false }));
+      return true; // async response
+    }
     sendResponse(response);
     return false;
   });
 }
 
-function handle(req: Request, { registry, controller, overlay, settings, host }: MessageDeps): unknown {
+function handle(req: Request, { registry, controller, overlay, settings, host, rules, ab, stats }: MessageDeps): unknown {
   const s = settings();
   const can = (f: keyof ReturnType<typeof planLimits>['features']) => planLimits(s.pro).features[f];
   const main = registry.primary();
@@ -45,8 +57,8 @@ function handle(req: Request, { registry, controller, overlay, settings, host }:
     case 'GET_SPEED':
       return { success: true, currentSpeed: controller.currentSpeed(), speed: controller.currentSpeed(), hasVideo: true };
 
-    case 'GET_VIDEO_STATUS':
-      return {
+    case 'GET_VIDEO_STATUS': {
+      const base = {
         success: true,
         hasVideo: true,
         count: registry.count(),
@@ -54,9 +66,27 @@ function handle(req: Request, { registry, controller, overlay, settings, host }:
         hostname: host,
         pageTitle: document.title,
         pageUrl: location.href,
+        mediaKey: normalizeMediaUrl(location.href),
         shortcutsDisabled: isHostListed(host, s.shortcutBlacklist),
+        sessionSaved: stats.sessionSaved,
+        activeRule: rules.current(),
+        abLoop: ab.state(main),
         ...(main ? controller.describe(main) : {})
       };
+      const silence = loadedProModule('skip-silence');
+      return silence ? silence.then((m) => ({ ...base, skipSilence: m?.status() ?? null })) : base;
+    }
+
+    case 'GET_PAGE_CONTEXT':
+      return { success: true, ...rules.context(), mediaKey: normalizeMediaUrl(location.href), activeRule: rules.current() };
+
+    case 'AB_REPEAT': {
+      if (!can('abRepeat')) return proRequired;
+      if (!main) return { success: false, error: 'No video found' };
+      const label = ab.apply(main, (req.op as AbOp) ?? 'cycle');
+      flash(label);
+      return { success: true, label, abLoop: ab.state(main) };
+    }
 
     case 'SKIP_TIME':
     case 'SEEK': {

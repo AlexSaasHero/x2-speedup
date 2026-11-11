@@ -98,6 +98,13 @@
           </svg>
           <span>Precision</span>
         </button>
+
+        <button class="tab-btn" data-tab="pro" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span>Smart</span>
+        </button>
       </nav>
 
       <!-- ==========================================
@@ -144,6 +151,17 @@
               <button class="step-btn" data-step-mult="1">+0.10x</button>
               <button class="step-btn" data-step-mult="2.5">+0.25x</button>
             </div>
+          </section>
+
+          <!-- Time saved (headline for everyone, breakdown with Pro) -->
+          <section class="stats-strip" id="statsStrip">
+            <div class="stats-headline">⏱ This week you saved <strong id="statsWeek">0s</strong></div>
+            <div class="stats-details" id="statsDetails">
+              <span>Today <strong id="statsToday">0s</strong></span>
+              <span>This page <strong id="statsSession">0s</strong></span>
+              <span>Total <strong id="statsTotal">0s</strong></span>
+            </div>
+            <button type="button" class="stats-locked pro-lock-btn" id="statsLocked">🔒 Daily &amp; total breakdown · Pro</button>
           </section>
 
           <!-- Quick Presets (all within the free range; >4x via slider/input with Pro) -->
@@ -258,10 +276,23 @@
             </div>
           </section>
 
+          <!-- A-B repeat -->
+          <section class="precision-card ab-card">
+            <div class="precision-header">
+              <span class="label">A-B Repeat <span class="pro-pill-tag">PRO</span></span>
+              <span id="abState" class="time-pill">off</span>
+            </div>
+            <div class="jump-grid">
+              <button id="abSetA" class="scrub-btn" type="button">Set A</button>
+              <button id="abSetB" class="scrub-btn" type="button">Set B</button>
+              <button id="abClear" class="scrub-btn" type="button">Clear</button>
+            </div>
+          </section>
+
           <!-- Video Checkpoints / Bookmarks -->
           <section class="checkpoints-card">
             <div class="checkpoints-header">
-              <span class="label">Video Checkpoints <span class="pro-pill-tag">PRO</span></span>
+              <span class="label">Bookmarks <span class="pro-pill-tag">PRO</span></span>
               <span id="checkpointCountBadge" class="cp-count">0 salvati</span>
             </div>
 
@@ -280,6 +311,58 @@
               <div class="cp-empty">Nessun checkpoint salvato per questo video.</div>
             </div>
           </section>
+        </main>
+      </div>
+
+      <!-- ==========================================
+           TAB 4: SMART (PRO FEATURES)
+           ========================================== -->
+      <div id="tab-pro" class="tab-pane" style="display: none;">
+        <main class="main-content">
+          <section class="precision-card pro-feature" data-feature="skipSilence">
+            <label class="feature-row">
+              <span class="hotkey-meta">
+                <span class="hotkey-name">Skip silence <span class="pro-pill-tag">PRO</span></span>
+                <span class="hotkey-desc" id="skipSilenceStatus">Speeds through pauses automatically.</span>
+              </span>
+              <input type="checkbox" id="skipSilenceToggle" class="switch">
+            </label>
+          </section>
+
+          <section class="precision-card pro-feature" data-feature="rules">
+            <div class="hotkey-meta">
+              <span class="hotkey-name">Speed rules <span class="pro-pill-tag">PRO</span></span>
+              <span class="hotkey-desc" id="activeRuleText">No rule for this page.</span>
+            </div>
+            <div class="rule-save">
+              <span class="hotkey-desc">Always play at <strong id="ruleSpeedLabel">1.0x</strong> for:</span>
+              <div class="jump-grid rule-grid">
+                <button id="ruleChannelBtn" class="scrub-btn" type="button" disabled>Channel</button>
+                <button id="ruleUrlBtn" class="scrub-btn" type="button">This video</button>
+                <button id="ruleDomainBtn" class="scrub-btn" type="button">This site</button>
+              </div>
+              <button id="removeRuleBtn" class="logout-link" type="button" style="display:none">Remove active rule</button>
+            </div>
+          </section>
+
+          <section class="precision-card pro-feature" data-feature="youtubeAds">
+            <label class="feature-row">
+              <span class="hotkey-meta">
+                <span class="hotkey-name">YouTube ads at 16x, muted <span class="pro-pill-tag">PRO</span></span>
+                <span class="hotkey-desc">Speed and volume come back when the ad ends.</span>
+              </span>
+              <input type="checkbox" id="youtubeAdsToggle" class="switch">
+            </label>
+          </section>
+
+          <section class="precision-card pro-feature" data-feature="holdToSpeed">
+            <div class="hotkey-meta">
+              <span class="hotkey-name">Hold to speed <span class="pro-pill-tag">PRO</span></span>
+              <span class="hotkey-desc" id="holdHint">Hold Shift+F for 2.5x, release to go back.</span>
+            </div>
+          </section>
+
+          <button id="openOptionsBtn2" class="options-link-btn" type="button">Rules &amp; advanced settings →</button>
         </main>
       </div>
 

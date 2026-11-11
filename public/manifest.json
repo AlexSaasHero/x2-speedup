@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SpeedUp Video Pro",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Controllo rapido della velocità per qualsiasi video web.",
   "permissions": [
     "storage",
@@ -44,5 +44,15 @@
   "options_ui": {
     "page": "options/options.html",
     "open_in_tab": true
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "pro/*.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

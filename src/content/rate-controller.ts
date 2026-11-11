@@ -19,6 +19,17 @@ const LOAD_SETTLE_MS = 1500;
 const PLAYER_ANCESTOR_DEPTH = 8;
 const PERSIST_DEBOUNCE_MS = 300;
 
+/** Temporary speeds layered on top of the user's speed, highest priority first. */
+export type OverrideSource = 'ads' | 'hold' | 'silence';
+const OVERRIDE_PRIORITY: readonly OverrideSource[] = ['ads', 'hold', 'silence'];
+
+export interface SetSpeedOptions {
+  /** Store as the remembered speed (false for rule-driven changes). */
+  persist?: boolean;
+  /** Label to flash instead of the plain speed. */
+  label?: string;
+}
+
 export interface Feedback {
   /** Show a transient label (speed, "+10s", …) anchored to the media if possible. */
   flash(label: string, media: Media | null): void;
@@ -35,6 +46,7 @@ export class RateController {
   private readonly wired = new WeakSet<Media>();
   private readonly handled = new WeakSet<Event>();
   private readonly loopedByUs = new WeakSet<Media>();
+  private readonly overrides = new WeakMap<Media, Partial<Record<OverrideSource, number>>>();
   private lastGesture: { t: number; path: EventTarget[] } | null = null;
   private speedBeforeReset: number | null = null;
   private persistTimer = 0;
@@ -42,8 +54,7 @@ export class RateController {
   constructor(
     private readonly registry: MediaRegistry,
     private readonly settings: () => ContentSettings,
-    private readonly feedback: Feedback,
-    private readonly host: string
+    private readonly feedback: Feedback
   ) {}
 
   /** Must run synchronously at document_start so our capture listener precedes page scripts. */
@@ -56,10 +67,10 @@ export class RateController {
     window.addEventListener('keydown', gesture, true);
   }
 
-  init(): void {
+  /** `ruleSpeed`: speed from a matching rule, which wins over the remembered speed. */
+  init(ruleSpeed: number | null = null): void {
     const s = this.settings();
-    const domain = s.domainSpeeds[this.host];
-    const start = domain !== undefined ? domain : s.rememberSpeed ? s.defaultSpeed : 1;
+    const start = ruleSpeed ?? (s.rememberSpeed ? s.defaultSpeed : 1);
     this.frameSpeed = clampSpeed(start, s.pro);
     this.ready = true;
     this.registry.all().forEach((m) => this.apply(m));
@@ -87,12 +98,37 @@ export class RateController {
     this.desired.delete(m);
   }
 
-  speedOf(m: Media | null): number {
+  /** The user's speed for `m` (ignores temporary overrides). */
+  baseSpeedOf(m: Media | null): number {
     return (m && this.desired.get(m)) ?? this.frameSpeed;
   }
 
+  /** The rate actually enforced on `m` (override if any, else the user's speed). */
+  speedOf(m: Media | null): number {
+    if (m) {
+      const o = this.overrides.get(m);
+      if (o) for (const src of OVERRIDE_PRIORITY) if (o[src] !== undefined) return o[src]!;
+    }
+    return this.baseSpeedOf(m);
+  }
+
+  activeOverride(m: Media | null): OverrideSource | null {
+    const o = m && this.overrides.get(m);
+    return (o && OVERRIDE_PRIORITY.find((src) => o[src] !== undefined)) || null;
+  }
+
   currentSpeed(): number {
-    return this.speedOf(this.registry.primary());
+    return this.baseSpeedOf(this.registry.primary());
+  }
+
+  /** Set or clear (`null`) a temporary speed. Not persisted, not clamped to the user's step. */
+  setOverride(m: Media, source: OverrideSource, speed: number | null): void {
+    const o = { ...(this.overrides.get(m) ?? {}) };
+    if (speed === null) delete o[source];
+    else o[source] = clampSpeed(speed, this.settings().pro);
+    this.overrides.set(m, o);
+    this.apply(m);
+    this.feedback.speedChanged(m);
   }
 
   targets(): Media[] {
@@ -103,7 +139,7 @@ export class RateController {
 
   // ---- user-facing operations ---------------------------------------------------------------
 
-  setSpeed(requested: number, scope: Media[] = this.targets()): number {
+  setSpeed(requested: number, scope: Media[] = this.targets(), opts: SetSpeedOptions = {}): number {
     const s = this.settings();
     const next = clampSpeed(requested, s.pro);
     this.frameSpeed = next;
@@ -111,10 +147,13 @@ export class RateController {
       this.desired.set(m, next);
       this.apply(m);
     }
-    this.persist(next);
+    if (opts.persist !== false) this.persist(next);
     const anchor = scope[0] ?? this.registry.primary();
     const limited = !s.pro && roundSpeed(requested) > FREE_MAX_SPEED;
-    this.feedback.flash(limited ? `Free max ${formatSpeed(FREE_MAX_SPEED)} · Pro 16x` : formatSpeed(next), anchor);
+    this.feedback.flash(
+      limited ? `Free max ${formatSpeed(FREE_MAX_SPEED)} · Pro 16x` : opts.label ?? formatSpeed(next),
+      anchor
+    );
     this.feedback.speedChanged(anchor);
     this.updateBadge(next);
     return next;
@@ -235,12 +274,7 @@ export class RateController {
     const s = this.settings();
     clearTimeout(this.persistTimer);
     this.persistTimer = window.setTimeout(() => {
-      const update: Record<string, unknown> = {};
-      if (s.rememberSpeed) update.defaultSpeed = speed;
-      if (s.domainSpeeds[this.host] !== undefined) {
-        update.domainSpeeds = { ...s.domainSpeeds, [this.host]: speed };
-      }
-      if (Object.keys(update).length) chrome.storage.local.set(update).catch(() => {});
+      if (s.rememberSpeed) chrome.storage.local.set({ defaultSpeed: speed }).catch(() => {});
     }, PERSIST_DEBOUNCE_MS);
   }
 

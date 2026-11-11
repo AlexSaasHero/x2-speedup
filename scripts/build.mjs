@@ -46,6 +46,18 @@ const options = {
   }
 };
 
+// Pro modules: separate ES modules, loaded on demand by the content script with
+// import(chrome.runtime.getURL('pro/<name>.js')) so free users never parse them.
+/** @type {esbuild.BuildOptions} */
+const proOptions = {
+  ...options,
+  entryPoints: {
+    'pro/skip-silence': 'src/pro/skip-silence.ts',
+    'pro/youtube-ads': 'src/pro/youtube-ads.ts'
+  },
+  format: 'esm'
+};
+
 async function copyStatic() {
   await cp(path.join(root, 'public'), outdir, { recursive: true });
 }
@@ -66,13 +78,13 @@ await mkdir(outdir, { recursive: true });
 await copyStatic();
 
 if (isWatch) {
-  const ctx = await esbuild.context(options);
-  await ctx.watch();
+  for (const o of [options, proOptions]) await (await esbuild.context(o)).watch();
   console.log('watching src/ … (public/ is copied once; restart after editing static files)');
 } else {
-  const result = await esbuild.build(options);
-  if (result.warnings.length) {
-    console.error(`build finished with ${result.warnings.length} warning(s)`);
+  const results = await Promise.all([esbuild.build(options), esbuild.build(proOptions)]);
+  const warnings = results.reduce((n, r) => n + r.warnings.length, 0);
+  if (warnings) {
+    console.error(`build finished with ${warnings} warning(s)`);
     process.exit(1);
   }
   console.log(`build ok (${isDev ? 'dev' : 'production'}) -> dist/`);

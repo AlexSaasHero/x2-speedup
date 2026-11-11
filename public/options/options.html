@@ -64,6 +64,61 @@
       <div id="shortcutEditor" class="hotkey-remap-list"></div>
     </section>
 
+    <section class="card pro" id="proSection">
+      <div class="card-head">
+        <h2>Pro features</h2>
+        <span id="proBadge" class="pill"></span>
+      </div>
+      <p class="muted" id="proNote"></p>
+
+      <h3>Skip silence</h3>
+      <label class="check"><input type="checkbox" id="ssEnabled"> Speed up automatically while the audio is silent</label>
+      <div class="grid">
+        <label>Silence threshold
+          <span class="field"><input type="number" id="ssThreshold" min="-70" max="-10" step="1"><span>dB</span></span>
+          <small>Lower = only true silence counts. Try −50 for quiet speakers.</small>
+        </label>
+        <label>Speed during silence
+          <span class="field"><input type="number" id="ssSpeed" min="1.25" max="16" step="0.25"><span>x</span></span>
+        </label>
+        <label>Wait before speeding up
+          <span class="field"><input type="number" id="ssMinSilence" min="50" max="3000" step="50"><span>ms</span></span>
+          <small>Margin before: short pauses between words are left alone.</small>
+        </label>
+        <label>Keep normal speed after sound
+          <span class="field"><input type="number" id="ssMinSpeech" min="0" max="3000" step="50"><span>ms</span></span>
+          <small>Margin after: avoids flicker on choppy audio.</small>
+        </label>
+      </div>
+      <p class="muted">Works on players that serve audio from the same site (YouTube, most course platforms). On players that stream cross-origin audio without permission it turns itself off and tells you, instead of speeding everything up.</p>
+
+      <h3>Hold to speed</h3>
+      <div class="grid">
+        <label>Speed while the key is held
+          <span class="field"><input type="number" id="holdSpeed" min="0.1" max="16" step="0.25"><span>x</span></span>
+          <small>Assign the key in Keyboard shortcuts → Hold to speed.</small>
+        </label>
+      </div>
+
+      <h3>YouTube ads</h3>
+      <label class="check"><input type="checkbox" id="youtubeAds"> Play YouTube ads at 16x and muted, then restore speed and sound</label>
+
+      <h3>Speed rules</h3>
+      <p class="muted">Priority: channel → URL pattern → site → your default. URL patterns use <code>*</code> and are matched without <code>https://</code> and <code>www.</code> (e.g. <code>udemy.com/course/*</code>). Channel = @handle, channel ID (UC…) or exact name.</p>
+      <table class="rules">
+        <thead><tr><th>Type</th><th>Pattern</th><th>Speed</th><th></th></tr></thead>
+        <tbody id="rulesBody"></tbody>
+        <tfoot>
+          <tr>
+            <td><select id="newRuleType"><option value="channel">Channel</option><option value="url">URL</option><option value="domain" selected>Site</option></select></td>
+            <td><input type="text" id="newRulePattern" placeholder="youtube.com"></td>
+            <td><input type="number" id="newRuleSpeed" min="0.1" max="16" step="0.1" value="1.5"></td>
+            <td><button type="button" class="btn" id="addRule">Add</button></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
     <section class="card">
       <h2>Disable shortcuts on these sites</h2>
       <p class="muted">One domain per line. Subdomains are included (e.g. <code>google.com</code> also covers <code>docs.google.com</code>).</p>

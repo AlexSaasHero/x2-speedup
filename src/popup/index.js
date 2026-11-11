@@ -13,7 +13,9 @@ import { isPro } from '../shared/entitlement';
 import { isHostListed, normalizeHostPattern } from '../shared/hosts';
 import { roundSpeed } from '../shared/media-math';
 import { defaultShortcuts } from '../shared/shortcuts';
+import { normalizeMediaUrl } from '../shared/url';
 import { mountShortcutEditor } from '../ui/shortcut-editor';
+import { mountSmart } from './smart';
 
 // Offline master key for local development only; '' in store builds (see scripts/build.mjs).
 const DEV_MASTER_KEY = __DEV_MASTER_KEY__;
@@ -64,7 +66,8 @@ function initPopup() {
   const tabPanes = {
     speed: document.getElementById('tab-speed'),
     shortcuts: document.getElementById('tab-shortcuts'),
-    precision: document.getElementById('tab-precision')
+    precision: document.getElementById('tab-precision'),
+    pro: document.getElementById('tab-pro')
   };
 
   // Tab 1: Speed Hub Elements
@@ -142,16 +145,9 @@ function initPopup() {
   }
 
   function getUrlCheckpointKey(rawUrl) {
-    if (!rawUrl) return 'default';
-    try {
-      const u = new URL(rawUrl);
-      u.searchParams.delete('t');
-      const query = u.searchParams.toString();
-      return `${u.origin}${u.pathname}${query ? '?' + query : ''}`;
-    } catch (e) {
-      return rawUrl.split('#')[0];
-    }
+    return rawUrl ? normalizeMediaUrl(rawUrl) : 'default';
   }
+
 
   // Non-blocking tab message helper with 250ms timeout
   function sendTabMessageWithTimeout(tabId, message, timeoutMs = 250) {
@@ -173,6 +169,17 @@ function initPopup() {
       }
     });
   }
+
+  let holdSpeed = 2.5;
+  const smart = mountSmart({
+    isPro: () => isPermanentPro,
+    openUpgrade: (title) => openUpgradeModal(title),
+    currentSpeed: () => currentSpeed,
+    sendToTab: async (message) => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      return tab?.id ? sendTabMessageWithTimeout(tab.id, message, 400) : null;
+    }
+  });
 
   // ==========================================
   // 2. TIER & MODAL CONTROLLER (FREEMIUM / PRO)
@@ -259,6 +266,7 @@ function initPopup() {
     }
 
     updateDomainUI();
+    smart.render();
   }
 
   function openUpgradeModal(customTitle = null) {
@@ -347,6 +355,7 @@ function initPopup() {
       speedStep: 0.1,
       seekSeconds: 10,
       rememberSpeed: true,
+      holdSpeed: 2.5,
       shortcuts: null,
       shortcutBlacklist: [],
       hudEnabled: HUD_ENABLED_DEFAULT,
@@ -394,6 +403,7 @@ function initPopup() {
       speedStep = Number(data.speedStep) || 0.1;
       seekSeconds = Number(data.seekSeconds) || 10;
       rememberSpeed = data.rememberSpeed !== false;
+      holdSpeed = Number(data.holdSpeed) || 2.5;
       applySettingsUI();
 
       if (data.favoriteSpeed !== undefined) {
@@ -450,6 +460,7 @@ function initPopup() {
           currentSpeed = parseFloat(res.currentSpeed);
           setSpeedUI(currentSpeed);
         }
+        smart.onStatus(res);
         isPlaying = res.isPlaying ?? true;
         updatePlaybackUI();
         if (precisionTimeBadge && res.currentTime !== undefined) {
@@ -734,6 +745,7 @@ function initPopup() {
       ? `${speedNum.toFixed(1)}x`
       : `${speedNum.toFixed(2)}x`;
     if (speedVal) speedVal.textContent = formatted;
+    smart.onSpeed(speedNum);
     if (slider) slider.value = speedNum.toFixed(2);
     if (customSpeedInput) customSpeedInput.value = speedNum.toFixed(2);
 
@@ -817,7 +829,7 @@ function initPopup() {
         shortcuts = list;
         chrome.storage.local.set({ shortcuts });
       },
-      context: () => ({ speedStep, seekSeconds, favoriteSpeed })
+      context: () => ({ speedStep, seekSeconds, favoriteSpeed, holdSpeed })
     });
   }
 
@@ -843,6 +855,20 @@ function initPopup() {
   if (openOptionsBtn) {
     openOptionsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
   }
+  document.getElementById('openOptionsBtn2')?.addEventListener('click', () => chrome.runtime.openOptionsPage());
+
+  // A-B repeat (Pro)
+  const abState = document.getElementById('abState');
+  const abAction = async (op) => {
+    if (!smart.gate('abRepeat')) return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return;
+    const res = await sendTabMessageWithTimeout(tab.id, { action: 'AB_REPEAT', op }, 400);
+    if (abState) abState.textContent = res?.abLoop ? (res.abLoop.b !== undefined ? 'looping' : 'A set') : res?.success ? 'off' : 'no video';
+  };
+  document.getElementById('abSetA')?.addEventListener('click', () => abAction('a'));
+  document.getElementById('abSetB')?.addEventListener('click', () => abAction('b'));
+  document.getElementById('abClear')?.addEventListener('click', () => abAction('clear'));
 
   if (favoriteSpeedInput) {
     favoriteSpeedInput.addEventListener('change', (e) => {

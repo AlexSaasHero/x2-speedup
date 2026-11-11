@@ -16,10 +16,13 @@ export const ACTION_LABELS: Record<ShortcutAction, { name: string; desc: (ctx: E
   preferred: { name: 'Preferred speed', desc: (c) => `Toggle ${c.favoriteSpeed}x` },
   rewind: { name: 'Rewind', desc: (c) => `−${c.seekSeconds}s` },
   advance: { name: 'Advance', desc: (c) => `+${c.seekSeconds}s` },
-  toggleOverlay: { name: 'Show/hide overlay', desc: () => 'On-video speed badge' }
+  toggleOverlay: { name: 'Show/hide overlay', desc: () => 'On-video speed badge' },
+  hold: { name: 'Hold to speed', desc: (c) => `${c.holdSpeed}x while held · Pro` },
+  abRepeat: { name: 'A-B repeat', desc: () => 'Set A, set B, clear · Pro' }
 };
 
 export interface EditorContext {
+  holdSpeed: number;
   speedStep: number;
   seekSeconds: number;
   favoriteSpeed: number;
