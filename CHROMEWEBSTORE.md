@@ -1,3 +1,5 @@
+> ⚠️ **Superato** da [docs/STORE_LISTING.md](docs/STORE_LISTING.md) (testi EN/IT aggiornati alla v1.8, tab privacy) e dalla tabella "Permessi finali" in [docs/ROADMAP_IMPL.md](docs/ROADMAP_IMPL.md). Questo file resta per lo storico delle versioni ≤ 1.4.2. Nota: qui il prezzo indicato è $3.99, sulla landing $1.99 — da allineare.
+
 # CHROMEWEBSTORE.md — SpeedUp Video Pro
 
 > Single source of truth for Chrome Developer Dashboard metadata, store listing copy, permissions justifications, privacy policy, and release history.

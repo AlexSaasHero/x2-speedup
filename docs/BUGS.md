@@ -17,6 +17,8 @@ Trovati durante l'esplorazione. Corretti solo se bloccano la fase corrente; altr
 | 11 | Bassa | `content.js:506` | Scorciatoie ignorate con qualsiasi Ctrl/Meta, ma Alt/Shift non gestiti come modificatori. | ✅ Fase 1 |
 | 12 | Bassa | `content.js:563-565` | Iframe senza video non rispondono, ma un top frame senza video con video solo in iframe cross-origin risponde "no video" al popup. | ✅ Fase 1 |
 | 13 | Bassa | `popup.js:669, 684` | `tier.isTrial` non esiste mai → `tier_state` sempre `pro`/`expired`. | ✅ Fase 0 (rimosso con telemetria) |
-| 14 | Bassa | `CHROMEWEBSTORE.md` | Dichiara il permesso `scripting` (non presente), versione 1.4.2 e prezzo $3.99 (landing: $1.99). | 4 |
+| 14 | Bassa | `CHROMEWEBSTORE.md` | Dichiara il permesso `scripting` (non presente), versione 1.4.2 e prezzo $3.99 (landing: $1.99). | ✅ Fase 4 (sostituito da `docs/STORE_LISTING.md`; ⚠️ prezzo da decidere) |
 | 15 | Bassa | root repo | 15 zip di release committati in git. | ✅ Fase 0 |
 | 16 | Media | `src/pro/skip-silence.ts` (v1.7.0) | Se l'`AudioContext` era ancora sospeso al momento del `play`, skip silence non si collegava più fino al play successivo (trovato da un E2E intermittente). | ✅ Fase 3 |
+| 17 | Media | Netflix (tutte le versioni) | Impostare `video.currentTime` manda il player Netflix in errore (M7375): seek ±N, fotogramma, A-B e salto ai segnalibri lo facevano. | ✅ Fase 4 (disattivati su netflix.com con messaggio) |
+| 18 | Bassa | `src/content/media-registry.ts` (v1.6–1.8.0) | La ricerca di shadow root percorreva in JS ogni nodo aggiunto a ogni mutazione: costo alto su pagine con molto DOM dinamico. | ✅ Fase 4 |

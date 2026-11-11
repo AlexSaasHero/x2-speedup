@@ -9,7 +9,7 @@
 > | 1 — Parità leader | ✅ (v1.6.0) |
 > | 2 — Pro | ✅ (v1.7.0) |
 > | 3 — Prodotto/crescita | ✅ (v1.8.0) |
-> | 4 — Qualità | ⏳ (smoke E2E già attivi da Fase 0) |
+> | 4 — Qualità | ✅ (v1.8.1) |
 
 Legenda stato: ✅ fatto · ⚠️ parziale (+motivo) · ❌ non fatto (+motivo) · ⏳ da fare
 
@@ -128,17 +128,18 @@ Permessi: aggiunto `alarms` (controllo licenza giornaliero senza tenere vivo il 
 
 Test: 100 unit + 41 E2E (1 saltato su macOS). Il controllo "solo pagine dell'estensione possono attivare la licenza" è verificato solo in revisione del codice (non simulabile in E2E). Bug trovato con gli E2E e corretto: skip silence non si ricollegava se l'`AudioContext` partiva sospeso (ora riprova su `statechange` e `timeupdate`).
 
-## Fase 4 — Qualità
+## Fase 4 — Qualità — ✅ v1.8.1
 
-| # | Cosa | Note |
-|---|---|---|
-| 4.1 | Vitest | gating free/Pro, risoluzione regole, parsing scorciatoie, tempo risparmiato, licenza/grace, normalizzazione URL, migrazioni storage. |
-| 4.2 | Playwright | Chromium con `--load-extension=dist` (persistent context), fixture locali: video base, shadow DOM, iframe same-origin, sostituzione `<video>`, fullscreen, input/contenteditable focus, ratechange forzato dal "player". |
-| 4.3 | `docs/QA.md` | Checklist YouTube, Netflix, Prime Video, Udemy, Coursera, Twitch, Vimeo, Spotify web. |
-| 4.4 | Performance | Nessun polling continuo (skip-silence campiona solo in play), observer incrementali, moduli Pro lazy, content script base target < 25KB minificato. |
-| 4.5 | `README.md`, `docs/STORE_LISTING.md` (EN+IT) | Aggiorno anche `CHROMEWEBSTORE.md` (oggi dichiara `scripting` che non è nel manifest e prezzi $3.99 non allineati alla landing $1.99). |
+| # | Cosa | Stato | Note |
+|---|---|---|---|
+| 4.1 | Test unitari (Vitest) | ✅ | 104 test in 14 file: gating free/Pro (`plans`, `entitlement`), priorità regole (`rules`), parsing/matching scorciatoie (`shortcuts`), tempo risparmiato (`stats`), licenza e grace period (`license`), migrazioni schema v1→v4, sync/chunking/import/VSC, URL, host, math di velocità/seek, estrazione canale YouTube e rilevamento ads (happy-dom), normalizzatore impostazioni del content script, quirk dei siti, lingue, recensione, versioni, manifest Firefox. `npm run test:coverage`: 92,9% istruzioni, 92,0% branch sui moduli di logica pura (`src/shared`, `src/config`, normalizzatore e quirk del content script). |
+| 4.2 | E2E (Playwright) | ✅ | 44 test (43 eseguiti + 1 solo Linux/Windows) con l'estensione buildata caricata in Chromium e fixture locali: shadow DOM (anche aggiunto dopo e annidato), iframe, sostituzione dell'elemento, fullscreen, focus in input/textarea/contenteditable/shadow input, blacklist, player che resetta la velocità, cambio dal menu nativo, player "ostile" (anti-loop), audio, overlay, hold, regole, A-B, statistiche, skip silence con audio reale e rifiuto cross-origin, licenza con server simulati, onboarding, opzioni, import VSC, sync, prestazioni. Il media di test è un WAV generato (Chromium open-source non decodifica H.264). ⚠️ Il test della UI in italiano gira solo su Linux/Windows (CI). |
+| 4.3 | `docs/QA.md` | ✅ | Checklist per YouTube, Netflix, Prime Video, Udemy, Coursera, Twitch, Vimeo, Spotify web + licenza, installazione/aggiornamento, sync, lingue, Edge/Firefox, prestazioni. ❌ **Non eseguita**: richiede account e browser reali. |
+| 4.4 | Prestazioni | ✅ / ⚠️ | Nessun polling continuo: i timer sono tutti one-shot (debounce, auto-hide, flush statistiche solo con dati pendenti, retry regole dopo navigazione); l'unico intervallo (skip silence, 50 ms) gira solo mentre un media Pro collegato è in riproduzione. Observer delle pubblicità disconnessi quando la funzione è spenta. **Content script dormiente** finché nella pagina/iframe non compare un `<video>`/`<audio>`: niente lettura storage, niente listener tastiera/mouse (importante perché gira in ogni frame, anche negli iframe pubblicitari). Hot path del MutationObserver solo con `querySelectorAll` nativo; la ricerca di shadow root annidati avviene al caricamento, a `load`, alla navigazione SPA e al passaggio del mouse (misurato: la ricerca per-nodo ad ogni mutazione costava fino a ~3× su una pagina con 20.000 nodi). Il content script non include più tutta la migrazione dello schema (lettura leggera + attesa della migrazione del worker). Moduli Pro lazy: skip silence, pubblicità YouTube, regole/canale. Codice iniettato nelle pagine minificato (non offuscato); pagine dell'estensione leggibili. **Dimensioni** `content.js`: 68 KB → 31,5 KB minificato (11,6 KB gzip). ⚠️ Obiettivo < 25 KB non raggiunto: il resto è funzionalità di base (overlay, controller, messaggi); scendere ancora vorrebbe dire caricare in ritardo l'overlay o il gestore del popup, con un primo feedback più lento. ⚠️ Il test di prestazioni è comparativo (con/senza estensione) con soglia larga perché i tempi su questa macchina variano fino a 2× tra un run e l'altro. |
+| 4.5 | README, STORE_LISTING | ✅ / ⚠️ | `README.md` nuovo (funzioni Free/Pro, sviluppo, struttura). `docs/STORE_LISTING.md` EN + IT con "100% locale, zero tracciamento", tab privacy del Chrome Web Store e giustificazioni dei permessi in inglese. ⚠️ Prezzi non indicati: `CHROMEWEBSTORE.md` dice $3.99 lifetime, la landing $1.99 dopo la trial → da allineare (decisione tua). ⚠️ La landing carica Google Analytics e Microsoft Clarity mentre `privacy.html` dice "We do NOT use any analytics": da allineare prima della review (landing non modificata, fuori perimetro). |
+| — | CI | ✅ | `.github/workflows/ci.yml`: typecheck, unit + coverage, build Chrome e Firefox, E2E con xvfb (incluso il test della UI in italiano), artefatti di build. Attivo al primo push (non fatto). |
 
----
+Altro corretto in Fase 4: su Netflix seek/fotogramma/A-B/salto ai segnalibri sono disattivati con un messaggio, perché impostare `currentTime` manda in errore il player (BUGS #17).
 
 ## Permessi finali (v1.8.0) — giustificazione per la review dello store
 
