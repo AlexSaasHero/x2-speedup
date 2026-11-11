@@ -59,8 +59,8 @@ describe('migrate', () => {
   });
 
   it('keeps a valid shortcuts list (even empty) and drops invalid entries', () => {
-    expect(migrate({ shortcuts: [] }).set.shortcuts).toEqual([]);
-    const { set } = migrate({ shortcuts: [binding('rewind', 'j'), { action: 'nope', key: 'k' }, { action: 'faster' }] });
+    expect(migrate({ schemaVersion: SCHEMA_VERSION, shortcuts: [] }).set.shortcuts).toEqual([]);
+    const { set } = migrate({ schemaVersion: SCHEMA_VERSION, shortcuts: [binding('rewind', 'j'), { action: 'nope', key: 'k' }, { action: 'faster' }] });
     expect(set.shortcuts).toEqual([binding('rewind', 'j')]);
   });
 
@@ -79,10 +79,42 @@ describe('migrate', () => {
     expect(set.overlayPositions).toEqual({ 'a.com': { x: 0.5, y: 0.2 } });
   });
 
-  it('drops non-numeric domain speeds and parses string speeds', () => {
-    const { set } = migrate({ domainSpeeds: { 'a.com': '1.5', 'b.com': 'x', 'c.com': 2 }, defaultSpeed: '1.75' });
-    expect(set.domainSpeeds).toEqual({ 'a.com': 1.5, 'c.com': 2 });
+  it('v2 → v3: domain speeds become domain rules (invalid ones dropped)', () => {
+    const { set, remove } = migrate({ domainSpeeds: { 'www.a.com': '1.5', 'b.com': 'x', 'c.com': 2 }, defaultSpeed: '1.75' });
+    expect(set.rules!.map(({ type, pattern, speed }) => ({ type, pattern, speed }))).toEqual([
+      { type: 'domain', pattern: 'a.com', speed: 1.5 },
+      { type: 'domain', pattern: 'c.com', speed: 2 }
+    ]);
+    expect(remove).toContain('domainSpeeds');
     expect(set.defaultSpeed).toBe(1.75);
+  });
+
+  it('v2 → v3: existing shortcut lists get the new Pro actions unless the key is taken', () => {
+    const v2 = [binding('faster', 'd'), binding('slower', 'a', { shift: true })];
+    const { set } = migrate({ schemaVersion: 2, shortcuts: v2 });
+    expect(set.shortcuts).toEqual([...v2, binding('hold', 'f', { shift: true })]);
+    // Already at v3: an intentionally removed binding is not re-added.
+    expect(migrate({ schemaVersion: 3, shortcuts: v2 }).set.shortcuts).toEqual(v2);
+  });
+
+  it('v2 → v3: bookmark keys are normalised and merged', () => {
+    const cp = (id: string, time: number) => ({ id, time, formattedTime: '', label: '', pageTitle: '', url: '', createdAt: 0 });
+    const { set } = migrate({
+      videoCheckpoints: {
+        'https://www.youtube.com/watch?v=abc&t=30s': [cp('1', 30)],
+        'https://youtu.be/abc': [cp('2', 10), cp('1', 30)]
+      }
+    });
+    expect(Object.keys(set.videoCheckpoints!)).toEqual(['youtube.com/watch?v=abc']);
+    expect(set.videoCheckpoints!['youtube.com/watch?v=abc'].map((c) => c.id)).toEqual(['2', '1']);
+  });
+
+  it('v3 Pro settings are bounded with safe defaults (skip silence off, ads off)', () => {
+    const { set } = migrate({ skipSilence: { enabled: true, thresholdDb: -200, silenceSpeed: 99 }, holdSpeed: 'x', youtubeAds: 'yes' });
+    expect(set.skipSilence).toEqual({ enabled: true, thresholdDb: -70, minSilenceMs: 350, silenceSpeed: 16, minSpeechMs: 250 });
+    expect(set.holdSpeed).toBe(2.5);
+    expect(set.youtubeAds).toBe(false);
+    expect(migrate({}).set.skipSilence!.enabled).toBe(false);
   });
 
   it('is idempotent', () => {
@@ -91,7 +123,7 @@ describe('migrate', () => {
     expect(second.set).toEqual(first);
     expect(second.remove).toEqual([]);
     expect(first.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(2);
+    expect(SCHEMA_VERSION).toBe(3);
   });
 
   it('only lists legacy keys that are present', () => {

@@ -8,7 +8,17 @@ export type ShortcutAction =
   | 'preferred'
   | 'rewind'
   | 'advance'
-  | 'toggleOverlay';
+  | 'toggleOverlay'
+  /** Pro: hold the key for a temporary speed, release to go back. */
+  | 'hold'
+  /** Pro: 1st press sets A, 2nd sets B and loops, 3rd clears. */
+  | 'abRepeat';
+
+/** Actions that need a Pro feature (see config/plans.ts). */
+export const PRO_ACTIONS: Partial<Record<ShortcutAction, 'holdToSpeed' | 'abRepeat'>> = {
+  hold: 'holdToSpeed',
+  abRepeat: 'abRepeat'
+};
 
 export const SHORTCUT_ACTIONS: readonly ShortcutAction[] = [
   'slower',
@@ -17,7 +27,9 @@ export const SHORTCUT_ACTIONS: readonly ShortcutAction[] = [
   'preferred',
   'rewind',
   'advance',
-  'toggleOverlay'
+  'toggleOverlay',
+  'hold',
+  'abRepeat'
 ];
 
 export interface Shortcut {
@@ -97,8 +109,24 @@ export function defaultShortcuts(): Shortcut[] {
     binding('preferred', 'g'),
     binding('rewind', 'z'),
     binding('advance', 'x'),
-    binding('toggleOverlay', 'v')
+    binding('toggleOverlay', 'v'),
+    binding('hold', 'f', { shift: true }),
+    binding('abRepeat', 'a', { shift: true })
   ];
+}
+
+/**
+ * Give actions introduced after `existing` was saved their default binding,
+ * unless that key combination is already taken.
+ */
+export function addDefaultsForNewActions(existing: readonly Shortcut[], newActions: readonly ShortcutAction[]): Shortcut[] {
+  const out = [...existing];
+  for (const d of defaultShortcuts()) {
+    if (!newActions.includes(d.action)) continue;
+    if (out.some((s) => s.action === d.action || sameCombo(s, d))) continue;
+    out.push(d);
+  }
+  return out;
 }
 
 export function isModifierOnly(e: Pick<KeyLike, 'key'>): boolean {

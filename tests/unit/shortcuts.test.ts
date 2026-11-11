@@ -26,7 +26,8 @@ const key = (k: string, code = codeForKey(k), mods: Partial<KeyLike> = {}): KeyL
 describe('shortcuts', () => {
   it('defaults are VSC compatible', () => {
     const map = Object.fromEntries(defaultShortcuts().map((s) => [s.action, s.key]));
-    expect(map).toEqual({ slower: 's', faster: 'd', reset: 'r', preferred: 'g', rewind: 'z', advance: 'x', toggleOverlay: 'v' });
+    expect(map).toEqual({ slower: 's', faster: 'd', reset: 'r', preferred: 'g', rewind: 'z', advance: 'x', toggleOverlay: 'v', hold: 'f', abRepeat: 'a' });
+    expect(defaultShortcuts().find((s) => s.action === 'hold')?.shift).toBe(true);
   });
 
   it('normalises keys', () => {

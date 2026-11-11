@@ -43,6 +43,15 @@ describe('entitlement', () => {
     expect(isPro({ licenseKey: ' abcd ' })).toBe(true);
   });
 
+  it('every Phase 2 feature is Pro-only', () => {
+    for (const f of ['skipSilence', 'rules', 'youtubeAds', 'holdToSpeed', 'abRepeat', 'statsDetails'] as const) {
+      expect(can(f, {})).toBe(false);
+      expect(can(f, { isPro: true })).toBe(true);
+    }
+    expect(can('customHotkeys', {})).toBe(true);
+    expect(can('skipTime', {})).toBe(true);
+  });
+
   it('gates features through the plan table', () => {
     expect(can('frameStep', {})).toBe(PLANS.free.features.frameStep);
     expect(can('frameStep', { isPro: true })).toBe(true);

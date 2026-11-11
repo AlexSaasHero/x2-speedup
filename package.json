@@ -1,7 +1,7 @@
 {
   "name": "speedup-video-pro",
   "private": true,
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "SpeedUp Video Pro — Chrome MV3 extension (version of record lives in public/manifest.json)",
   "type": "module",
   "scripts": {
@@ -20,6 +20,7 @@
     "@types/chrome": "^0.0.293",
     "@types/node": "^20.17.10",
     "esbuild": "^0.24.2",
+    "happy-dom": "^15.11.7",
     "typescript": "^5.7.3",
     "vitest": "^2.1.9"
   }

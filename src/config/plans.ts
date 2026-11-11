@@ -8,7 +8,15 @@ export type Feature =
   | 'customHotkeys'
   | 'skipTime'
   | 'frameStep'
-  | 'checkpoints';
+  /** Per-video bookmarks (popup "checkpoints"). */
+  | 'checkpoints'
+  | 'skipSilence'
+  | 'rules'
+  | 'youtubeAds'
+  | 'holdToSpeed'
+  | 'abRepeat'
+  /** Today / week / total / page breakdown. The weekly headline is shown to everyone. */
+  | 'statsDetails';
 
 export interface PlanLimits {
   minSpeed: number;
@@ -28,7 +36,13 @@ export const PLANS: Record<PlanId, PlanLimits> = {
       customHotkeys: true,
       skipTime: true,
       frameStep: false,
-      checkpoints: false
+      checkpoints: false,
+      skipSilence: false,
+      rules: false,
+      youtubeAds: false,
+      holdToSpeed: false,
+      abRepeat: false,
+      statsDetails: false
     }
   },
   pro: {
@@ -38,7 +52,13 @@ export const PLANS: Record<PlanId, PlanLimits> = {
       customHotkeys: true,
       skipTime: true,
       frameStep: true,
-      checkpoints: true
+      checkpoints: true,
+      skipSilence: true,
+      rules: true,
+      youtubeAds: true,
+      holdToSpeed: true,
+      abRepeat: true,
+      statsDetails: true
     }
   }
 };
