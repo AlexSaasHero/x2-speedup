@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: mutation storm</title></head>
+  <body>
+    <div id="feed"></div>
+    <script>
+      // SPA-like churn: 100 batches × 50 nested cards (≈ 20,000 nodes), one batch per task.
+      window.longTasks = [];
+      new PerformanceObserver((list) => list.getEntries().forEach((e) => window.longTasks.push(e.duration)))
+        .observe({ type: 'longtask', buffered: true });
+      window.runStorm = () => new Promise((resolve) => {
+        const feed = document.getElementById('feed');
+        let i = 0;
+        const t0 = performance.now();
+        const step = () => {
+          const frag = document.createDocumentFragment();
+          for (let j = 0; j < 50; j++) {
+            const card = document.createElement('div');
+            card.innerHTML = '<span>item</span><p><b>x</b><i>y</i></p>';
+            frag.appendChild(card);
+          }
+          feed.appendChild(frag);
+          if (i % 20 === 0) feed.firstChild && feed.removeChild(feed.firstChild);
+          if (++i < 100) setTimeout(step, 0);
+          else resolve(performance.now() - t0);
+        };
+        setTimeout(step, 0);
+      });
+      window.addVideo = () => {
+        const v = document.createElement('video');
+        v.id = 'v'; v.muted = true; v.src = '/media.wav';
+        document.getElementById('feed').appendChild(v);
+      };
+    </script>
+  </body>
+</html>

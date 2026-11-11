@@ -11,6 +11,19 @@
         }
       });
       window.shadowVideo = () => document.getElementById('host').shadowRoot.getElementById('sv');
+      // A shadow host nested inside a plain wrapper, added after load (infinite-scroll style).
+      customElements.define('nested-player', class extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: 'open' }).innerHTML = '<video id="nv" src="/media.wav" muted width="320" height="180"></video>';
+        }
+      });
+      window.addNested = () => {
+        const wrap = document.createElement('section');
+        wrap.innerHTML = '<div><nested-player id="nested"></nested-player></div>';
+        document.body.appendChild(wrap);
+      };
+      window.nestedVideo = () => document.getElementById('nested').shadowRoot.getElementById('nv');
     </script>
   </body>
 </html>

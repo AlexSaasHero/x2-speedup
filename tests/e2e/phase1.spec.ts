@@ -10,7 +10,7 @@ async function openFixture(page: Page, origin: string, name: string) {
 async function readyBasic(page: Page, origin: string, sw: any) {
   await openFixture(page, origin, 'basic.html');
   await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo ?? false)).toBe(true);
-  await page.locator('#v').evaluate((v: HTMLVideoElement) => new Promise((r) => (v.readyState >= 1 ? r(0) : v.addEventListener('loadedmetadata', r, { once: true }))));
+  await expect.poll(() => page.locator('#v').evaluate((v: HTMLVideoElement) => v.readyState), { timeout: 15_000 }).toBeGreaterThan(0);
 }
 
 test.describe('shortcuts', () => {
