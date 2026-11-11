@@ -1,35 +1,29 @@
-import { FREE_MAX_SPEED, formatSpeed } from '../../src/config/plans';
-import { expect, test, waitForMigration } from './harness';
+import { readFileSync } from 'node:fs';
+import { FREE_MAX_SPEED, PRO_MAX_SPEED, formatSpeed } from '../../src/config/plans';
+import { expect, rateOf, sendToTabs, test } from './harness';
 
-test('install migrates storage to the current schema without telemetry', async ({ sw }) => {
-  const data = await waitForMigration(sw);
-  expect(data.schemaVersion).toBe(1);
-  expect(data.isPro).toBe(false);
-  expect(data.licenseKey).toBe('');
-  for (const legacy of ['is_pro', 'license_key', 'isLicensed', 'preservePitch', 'telemetry_client_id']) {
-    expect(data).not.toHaveProperty(legacy);
-  }
+test('manifest declares only the minimal permissions', () => {
+  const manifest = JSON.parse(readFileSync('dist/manifest.json', 'utf8'));
+  expect(manifest.permissions).toEqual(['storage', 'activeTab']);
+  expect(manifest.host_permissions).toEqual(['https://x2-speedup.vercel.app/*', 'https://api.lemonsqueezy.com/*']);
+  expect(manifest.content_scripts[0].css).toBeUndefined();
 });
 
-test('content script applies stored speed and clamps it to the free limit', async ({ context, sw, origin }) => {
-  await waitForMigration(sw);
+test('popup SET_SPEED is clamped to the free limit, Pro unlocks 16x', async ({ context, sw, origin }) => {
   const page = await context.newPage();
   await page.goto(`${origin}/basic.html`);
-  const rate = () => page.locator('#v').evaluate((v: HTMLVideoElement) => v.playbackRate);
+  await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo)).toBe(true);
 
-  await sw.evaluate(() => chrome.storage.local.set({ defaultSpeed: 1.5 }));
-  await expect.poll(rate).toBe(1.5);
-
-  await sw.evaluate(() => chrome.storage.local.set({ defaultSpeed: 1.75 + 10 }));
-  await expect.poll(rate).toBe(FREE_MAX_SPEED);
+  const res = await sendToTabs(sw, { action: 'SET_SPEED', speed: 10 });
+  expect(res.speed).toBe(FREE_MAX_SPEED);
+  await expect.poll(() => rateOf(page)).toBe(FREE_MAX_SPEED);
 
   await sw.evaluate(() => chrome.storage.local.set({ isPro: true }));
-  await sw.evaluate(() => chrome.storage.local.set({ defaultSpeed: 3 }));
-  await expect.poll(rate).toBe(3);
+  await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 99 }).then((r) => r?.speed)).toBe(PRO_MAX_SPEED);
+  await expect.poll(() => rateOf(page)).toBe(PRO_MAX_SPEED);
 });
 
-test('popup renders free tier from plans config with no errors and no telemetry', async ({ context, sw, extensionId }) => {
-  await waitForMigration(sw);
+test('popup renders free tier from plans config with no errors and no network', async ({ context, sw, extensionId }) => {
   const errors: string[] = [];
   const requests: string[] = [];
   const page = await context.newPage();
@@ -40,6 +34,7 @@ test('popup renders free tier from plans config with no errors and no telemetry'
   await page.goto(`chrome-extension://${extensionId}/popup/popup.html`);
   await expect(page.locator('#tierBadgeText')).toHaveText(`Free Tier (Max ${formatSpeed(FREE_MAX_SPEED)})`);
   await expect(page.locator('#speedSlider')).toHaveAttribute('max', String(FREE_MAX_SPEED));
+  await expect(page.locator('#shortcutEditor .hotkey-remap-row')).toHaveCount(7);
 
   await sw.evaluate(() => chrome.storage.local.set({ isPro: true }));
   await page.reload();
@@ -47,4 +42,26 @@ test('popup renders free tier from plans config with no errors and no telemetry'
 
   expect(errors).toEqual([]);
   expect(requests.filter((u) => !u.startsWith('chrome-extension://'))).toEqual([]);
+});
+
+test('options page loads and saves settings', async ({ context, sw, extensionId }) => {
+  const errors: string[] = [];
+  const page = await context.newPage();
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(`chrome-extension://${extensionId}/options/options.html`);
+  await expect(page.locator('#seekSeconds')).toHaveValue('10');
+  await page.fill('#seekSeconds', '30');
+  await page.locator('#seekSeconds').dispatchEvent('change');
+  await page.fill('#shortcutBlacklist', 'https://www.Example.com/x\nfoo.org');
+  await page.locator('#shortcutBlacklist').dispatchEvent('change');
+  await expect
+    .poll(() => sw.evaluate(() => chrome.storage.local.get(['seekSeconds', 'shortcutBlacklist'])))
+    .toEqual({ seekSeconds: 30, shortcutBlacklist: ['example.com', 'foo.org'] });
+
+  // Rebind "Faster" to Shift+F via the editor.
+  await page.locator('[data-action="faster"] [data-add="faster"]').click();
+  await page.keyboard.press('Shift+F');
+  const shortcuts = await sw.evaluate(() => chrome.storage.local.get('shortcuts').then((r) => r.shortcuts));
+  expect(shortcuts.some((s: any) => s.action === 'faster' && s.key === 'f' && s.shift)).toBe(true);
+  expect(errors).toEqual([]);
 });

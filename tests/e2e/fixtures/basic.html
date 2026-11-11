@@ -1,8 +1,23 @@
 <!doctype html>
 <html>
-  <head><meta charset="utf-8"><title>Fixture: basic video</title></head>
+  <head><meta charset="utf-8"><title>Fixture: basic video</title>
+    <style>body{margin:0;padding:20px} #player{position:relative;width:480px}</style></head>
   <body>
-    <div id="player"><video id="v" src="/video.mp4" muted controls width="480"></video></div>
+    <div id="player"><video id="v" src="/media.wav" muted width="480" height="270" preload="auto"></video></div>
+    <button id="fs" onclick="document.getElementById('player').requestFullscreen()">fullscreen</button>
     <input id="text" type="text" placeholder="typing target">
+    <textarea id="area"></textarea>
+    <div id="editable" contenteditable="true">editable</div>
+    <shadow-input id="shadowHost"></shadow-input>
+    <script>
+      customElements.define('shadow-input', class extends HTMLElement {
+        constructor() { super(); this.attachShadow({ mode: 'open' }).innerHTML = '<input id="inner">'; }
+      });
+      // Record keys that reach the page so tests can assert we did (not) swallow them.
+      window.pageKeys = [];
+      document.addEventListener('keydown', (e) => window.pageKeys.push(e.key));
+      window.ratechanges = 0;
+      document.getElementById('v').addEventListener('ratechange', () => window.ratechanges++);
+    </script>
   </body>
 </html>

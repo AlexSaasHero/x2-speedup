@@ -1,23 +1,60 @@
 /// <reference types="node" />
 // Shared Playwright harness: loads dist/ as an unpacked extension and serves fixtures locally.
-import { chromium, test as base, type BrowserContext, type Worker } from '@playwright/test';
+import { chromium, test as base, type BrowserContext, type Page, type Worker } from '@playwright/test';
 import { createReadStream, existsSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { migrate } from '../../src/shared/migrations';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const dist = path.join(root, 'dist');
 const fixtures = path.join(root, 'tests/e2e/fixtures');
-const sampleVideo = path.join(root, 'landing-page/bigbuckbunny.mp4');
+
+/** 60 s of 8 kHz mono 8-bit silence as WAV: decodable by every Chromium build (no H.264 needed). */
+function makeWav(seconds = 60, rate = 8000): Buffer {
+  const data = rate * seconds;
+  const b = Buffer.alloc(44 + data, 128);
+  b.write('RIFF', 0);
+  b.writeUInt32LE(36 + data, 4);
+  b.write('WAVEfmt ', 8);
+  b.writeUInt32LE(16, 16);
+  b.writeUInt16LE(1, 20); // PCM
+  b.writeUInt16LE(1, 22); // mono
+  b.writeUInt32LE(rate, 24);
+  b.writeUInt32LE(rate, 28);
+  b.writeUInt16LE(1, 32);
+  b.writeUInt16LE(8, 34);
+  b.write('data', 36);
+  b.writeUInt32LE(data, 40);
+  return b;
+}
+const MEDIA = makeWav();
 
 function startServer(): Promise<{ server: Server; origin: string }> {
   const server = createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
-    const file = url.pathname === '/video.mp4' ? sampleVideo : path.join(fixtures, path.normalize(url.pathname));
-    if (!file.startsWith(fixtures) && file !== sampleVideo) return void res.writeHead(403).end();
+    if (url.pathname === '/media.wav') {
+      // Range support is what makes the media seekable.
+      const m = /bytes=(\d*)-(\d*)/.exec(req.headers.range ?? '');
+      if (!m) {
+        res.writeHead(200, { 'content-type': 'audio/wav', 'content-length': MEDIA.length, 'accept-ranges': 'bytes' });
+        return void res.end(MEDIA);
+      }
+      const start = m[1] ? Number(m[1]) : 0;
+      const end = m[2] ? Math.min(Number(m[2]), MEDIA.length - 1) : MEDIA.length - 1;
+      res.writeHead(206, {
+        'content-type': 'audio/wav',
+        'content-length': end - start + 1,
+        'content-range': `bytes ${start}-${end}/${MEDIA.length}`,
+        'accept-ranges': 'bytes'
+      });
+      return void res.end(MEDIA.subarray(start, end + 1));
+    }
+    const file = path.join(fixtures, path.normalize(url.pathname));
+    if (!file.startsWith(fixtures)) return void res.writeHead(403).end();
     if (!existsSync(file)) return void res.writeHead(404).end();
-    res.writeHead(200, { 'content-type': file.endsWith('.mp4') ? 'video/mp4' : 'text/html; charset=utf-8' });
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     createReadStream(file).pipe(res);
   });
   return new Promise((resolve) =>
@@ -28,41 +65,63 @@ function startServer(): Promise<{ server: Server; origin: string }> {
   );
 }
 
-type Fixtures = { context: BrowserContext; sw: Worker; extensionId: string; origin: string };
+type WorkerFixtures = { extContext: BrowserContext; sw: Worker; extensionId: string; origin: string };
+type TestFixtures = { resetState: void };
 
 const expect = base.expect;
 
-export const test = base.extend<Fixtures>({
+export const test = base.extend<TestFixtures, WorkerFixtures>({
   // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const { server, origin } = await startServer();
-    await use(origin);
-    server.close();
-  },
+  origin: [
+    async ({}, use) => {
+      const { server, origin } = await startServer();
+      await use(origin);
+      server.close();
+    },
+    { scope: 'worker' }
+  ],
   // eslint-disable-next-line no-empty-pattern
-  context: async ({}, use) => {
-    if (!existsSync(path.join(dist, 'manifest.json'))) throw new Error('Run `npm run build` first');
-    const context = await chromium.launchPersistentContext('', {
-      channel: 'chromium',
-      args: [`--disable-extensions-except=${dist}`, `--load-extension=${dist}`]
-    });
-    // No real network in tests: block the remote welcome page / license endpoints.
-    await context.route(/x2-speedup\.vercel\.app|lemonsqueezy\.com/, (route) => route.abort());
-    await use(context);
-    await context.close();
-  },
-  sw: async ({ context }, use) => {
+  // One browser with the extension per worker; tests get it as `context`.
+  extContext: [
+    async ({}, use) => {
+      if (!existsSync(path.join(dist, 'manifest.json'))) throw new Error('Run `npm run build` first');
+      const context = await chromium.launchPersistentContext('', {
+        channel: 'chromium',
+        args: [`--disable-extensions-except=${dist}`, `--load-extension=${dist}`, '--autoplay-policy=no-user-gesture-required']
+      });
+      // No real network in tests: block the remote welcome page / license endpoints.
+      await context.route(/x2-speedup\.vercel\.app|lemonsqueezy\.com/, (route) => route.abort());
+      await use(context);
+      await context.close();
+    },
+    { scope: 'worker' }
+  ],
+  sw: [async ({ extContext: context }, use) => {
     const isOurs = (w: Worker) => /^chrome-extension:\/\/[^/]+\/background\/background\.js$/.test(w.url());
     const sw =
       context.serviceWorkers().find(isOurs) ??
       (await context.waitForEvent('serviceworker', { predicate: isOurs }));
     // The worker can be visible before extension bindings are ready.
     await expect.poll(() => sw.evaluate(() => typeof chrome !== 'undefined' && !!chrome.storage)).toBe(true);
+    await waitForMigration(sw);
     await use(sw);
-  },
-  extensionId: async ({ sw }, use) => {
+  }, { scope: 'worker' }],
+  extensionId: [async ({ sw }, use) => {
     await use(new URL(sw.url()).host);
-  }
+  }, { scope: 'worker' }],
+  /** Every test starts from a fresh-install storage state and no open pages. */
+  context: async ({ extContext }, use) => {
+    await use(extContext);
+  },
+  resetState: [
+    async ({ extContext: context, sw }, use) => {
+      const defaults = migrate({}).set;
+      await sw.evaluate((d) => chrome.storage.local.clear().then(() => chrome.storage.local.set(d)), defaults);
+      await use();
+      for (const p of context.pages()) await p.close().catch(() => {});
+    },
+    { auto: true }
+  ]
 });
 
 export { expect };
@@ -75,4 +134,20 @@ export async function waitForMigration(sw: Worker): Promise<Record<string, unkno
     await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error('migration did not run');
+}
+
+/** Send a popup-style message to every tab; resolves with the first answer (frames without media stay silent). */
+export async function sendToTabs(sw: Worker, message: Record<string, unknown>): Promise<any> {
+  return sw.evaluate(async (msg) => {
+    const tabs = await chrome.tabs.query({});
+    const answers = await Promise.all(
+      tabs.map((t) => (t.id ? chrome.tabs.sendMessage(t.id, msg).catch(() => null) : null))
+    );
+    return answers.find((a) => a) ?? null;
+  }, message);
+}
+
+/** Wait until the content script has found media and is ready in the page's top frame. */
+export async function rateOf(page: Page, selector = '#v'): Promise<number> {
+  return page.locator(selector).evaluate((m: HTMLMediaElement) => m.playbackRate);
 }

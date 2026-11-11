@@ -6,7 +6,7 @@
 > | Fase | Stato |
 > |---|---|
 > | 0 — Fondamenta | ✅ |
-> | 1 — Parità leader | ⏳ |
+> | 1 — Parità leader | ✅ (v1.6.0) |
 > | 2 — Pro | ⏳ |
 > | 3 — Prodotto/crescita | ⏳ |
 > | 4 — Qualità | ⏳ (smoke E2E già attivi da Fase 0) |
@@ -44,7 +44,7 @@ Senza questa fase le regole "config unico", "isPro() unico", "test verdi", "lazy
 |---|---|---|
 | 0.1 | Commit baseline v1.5.1.8; zip di release spostati in `release/` (ignorata da git; restano nella storia). | ✅ |
 | 0.2 | Toolchain: `package.json`, TypeScript, esbuild (`scripts/build.mjs`), script `build`, `build:dev`, `watch`, `zip`, `typecheck`, `test`, `test:e2e`, `check`. Output IIFE leggibile (non minificato) in `dist/`. | ✅ |
-| 0.3 | Layout `src/` (codice) + `public/` (manifest, HTML, CSS, icone, copiati in `dist/`). | ⚠️ parziale: `src/content/index.js` e `src/popup/index.js` sono ancora JS monolitici (spostati 1:1 e ricollegati ai moduli condivisi). Lo split in moduli TS del content script avviene in Fase 1, dove viene comunque riscritto; il popup viene diviso man mano che le Fasi 1–3 lo toccano. |
+| 0.3 | Layout `src/` (codice) + `public/` (manifest, HTML, CSS, icone, copiati in `dist/`). | ✅ content script riscritto in moduli TS in Fase 1. ⚠️ `src/popup/index.js` resta JS (ricollegato ai moduli condivisi): viene diviso man mano che le Fasi 2–3 lo toccano. |
 | 0.4 | `src/config/plans.ts`: limiti e feature per piano, `clampSpeed`, `formatSpeed`. Valori **invariati** rispetto alla baseline (free 0.25–2x): il passaggio a 4x è il primo commit di Fase 1. | ✅ |
 | 0.5 | `src/shared/entitlement.ts`: `isPro()` / `can(feature)` unici, usati da content e popup. Comportamento baseline preservato (BUGS #1, fix in Fase 3). | ✅ |
 | 0.6 | `src/shared/storage.ts` (schema v1, default) + `src/shared/migrations.ts` (pura, idempotente) eseguita dal SW su install/update; rimuove `is_pro`, `license_key`, `isLicensed`, `preservePitch`, `telemetry_client_id` (anche da `storage.sync`). Migrazione hotkey rinviata alla Fase 1 (quando cambiano i default). | ✅ |
@@ -73,20 +73,24 @@ tests/unit/**  tests/e2e/**  tests/fixtures/*.html
 
 ---
 
-## Fase 1 — Parità con i leader (free)
+## Fase 1 — Parità con i leader (free) — ✅ v1.6.0
 
-| # | Feature | File | Note tecniche |
+Content script riscritto in `src/content/`: `index.ts` (bootstrap), `media-registry.ts`, `rate-controller.ts`, `shortcuts.ts`, `editable.ts`, `overlay.ts`, `messages.ts`, `spa.ts`, `settings.ts`, `pointer.ts`. Logica pura in `src/shared/` (`shortcuts.ts`, `media-math.ts`, `hosts.ts`), editor scorciatoie condiviso in `src/ui/shortcut-editor.ts`, nuova pagina `options/`. Schema storage **v2**.
+
+| # | Feature | Stato | Note |
 |---|---|---|---|
-| 1.1 | Range 0.1–16x, step configurabile (default 0.1), input numerico | `plans.ts`, `rate-controller.ts`, popup, options | Free 0.1–4x, Pro 0.1–16x. Clamp unico in `plans.ts`. Slider free con max 4, preset 3x/4x non più Pro. |
-| 1.2 | Scorciatoie VSC-compatibili (`S` `D` `R` `Z` `X` `V`) + modificatori, personalizzabili | `shortcuts.ts`, `shared/shortcuts-parse.ts`, options | Binding = `{key, code, shift, alt, ctrl, meta}`; match su `e.code` per layout non-US. Filtro editabili: `composedPath()` per attraversare shadow DOM, `isContentEditable`, `role="textbox"`, iframe di Google Docs (`.docs-texteventtarget-iframe`), Monaco/CodeMirror (`.monaco-editor`, `.cm-editor`), Notion. Blacklist per dominio (default vuota) + toggle "disattiva su questo sito" nel popup. Rimuovo i tasti hardcoded `d`/`s`/`]`/`[` che oggi scattano anche se l'utente li ha rimappati. Migrazione: utenti esistenti con `]`/`[`/`g` personalizzati mantengono i loro tasti. |
-| 1.3 | Overlay velocità | `overlay/*` | Host element con `attachShadow({mode:'closed'})`, CSS dentro lo shadow root (niente più `content.css` globale). Agganciato a `document.fullscreenElement` quando presente (`fullscreenchange`), altrimenti posizionato con `getBoundingClientRect` del video in un container `position:fixed` (non modifico più `position` del parent del sito — oggi lo faccio ed è invasivo). Host `pointer-events:none`, solo il badge `auto`. Drag con Pointer Events, posizione relativa (%) salvata per dominio. Auto-hide 2s. `V` mostra/nasconde. |
-| 1.4 | Persistenza velocità | `rate-controller.ts`, `spa.ts` | Listener `ratechange`, `loadedmetadata`, `play`, `emptied`, `loadstart`. Guard: flag `applying` + contatore per finestra (max N re-apply/secondo → poi stop e log debug) contro loop. **Cambi utente via controlli nativi**: se un `ratechange` avviene entro ~500ms da un `pointerdown`/`keydown` sul player (e non è nostro), lo accetto come nuova velocità target invece di sovrascriverlo. Oggi faccio `stopImmediatePropagation` sempre → i menu velocità di YouTube/Vimeo sono rotti. SPA: `yt-navigate-finish` + Navigation API (`navigatesuccess`, Chrome 102+) dove disponibile, fallback `popstate` + osservazione del `<title>` (niente polling, niente patch di `history.pushState` nel MAIN world). |
-| 1.5 | Rilevamento media robusto | `media-registry.ts` | `<video>` + `<audio>`. MutationObserver che esamina **solo i nodi aggiunti** (oggi a ogni mutazione faccio `querySelectorAll('*')` su tutto il documento: costo enorme su YouTube). Shadow root aperti: scan dei nodi aggiunti + listener capture `play`/`loadedmetadata` su `window` (gli eventi media non bubblano ma la capture li vede anche da shadow DOM aperti — già usato oggi). Iframe same-origin: già coperti da `all_frames`; aggiungo `match_about_blank`/`match_origin_as_fallback`. Target: media in riproduzione → sotto il mouse → più grande visibile. Opzione "applica a tutti". |
-| 1.6 | Seek ±N (default 10s) | `rate-controller.ts`, options | Clamp `[0, duration]`; se `duration === Infinity` (live) clamp a `seekable.end(last)`. |
+| 1.1 | Range 0.1–16x, step configurabile, input numerico | ✅ | Free 0.1–4x, Pro 0.1–16x (`plans.ts`). Step default 0.1 (opzioni), usato da scorciatoie e bottoni fini del popup. Preset 3x/4x ora free. Oltre 4x in free l'overlay mostra "Free max 4.0x · Pro 16x". |
+| 1.2 | Scorciatoie VSC + modificatori + blacklist | ✅ | Default `S` `D` `R` `G` `Z` `X` `V`; più tasti per azione; Shift/Alt/Ctrl/⌘; fallback su `e.code` per Alt su macOS e layout non latini. Ignorate in input/textarea/select/contenteditable/`role=textbox`, shadow DOM aperti, Monaco/CodeMirror/Ace/ProseMirror/Slate/Quill/Notion/Google Docs, `designMode`. Solo i tasti gestiti vengono bloccati. Blacklist per dominio (popup: "Disable shortcuts on <sito>"; opzioni: lista). Migrazione: chi aveva `]`/`[` li mantiene in aggiunta ai nuovi default; un tasto personalizzato vince sul nuovo default in conflitto. Scorciatoie ora **free** (prima Pro). |
+| 1.3 | Overlay | ✅ | Shadow DOM chiuso, host `position:fixed` con `pointer-events:none` (solo la pillola è cliccabile), z-index massimo, non modifica più il DOM/CSS del player. Trascinabile, posizione salvata per dominio (frazioni del video), auto-hide configurabile (default 2s), compare al passaggio del mouse sul video, si sposta dentro `document.fullscreenElement`. `V` lo nasconde per la sessione. ⚠️ Se il sito mette in fullscreen il `<video>` stesso (non il contenitore) l'overlay non può comparire sopra: limite del top layer del browser. |
+| 1.4 | Persistenza velocità | ✅ | Riapplica su `loadstart`, `loadedmetadata`, `play`, `emptied` e su `ratechange` non nostri. Anti-loop: `ReapplyBudget` (max 8 riapplicazioni/s, poi pausa di 3s). Cambi dal **menu nativo** del player accettati se preceduti (≤1s) da un gesto dentro il player e non subito dopo un caricamento. SPA: `yt-navigate-finish`, Navigation API, `popstate`, `pageshow`. La velocità non si propaga più live alle altre schede (BUGS #9); "Remember speed" la usa per le pagine nuove. |
+| 1.5 | Rilevamento media | ✅ | `<video>` e `<audio>`, shadow root aperti (anche aggiunti dopo), iframe (`all_frames`, `match_about_blank`, `match_origin_as_fallback`). Observer incrementale (solo nodi aggiunti). Target: sotto il mouse → in riproduzione → video più grande; opzione "Apply to all". Solo i frame con media rispondono al popup (BUGS #12). ⚠️ Non rilevabili: shadow root chiusi e `new Audio()` mai inseriti nel DOM (richiederebbe uno script nel MAIN world). |
+| 1.6 | Seek ±N | ✅ | Default 10s (opzioni), clamp a `[0, duration]`; live (`duration = Infinity`) clamp alla finestra `seekable`. Free (prima Pro). |
 
-Permessi Fase 1: nessuno nuovo. Rimuovo `tabs` (vedi §Permessi).
+Permessi: rimosso `tabs`; `host_permissions` ristretto ai 2 domini della licenza; `content.css` globale rimosso. Aggiunto `options_ui` (non è un permesso).
 
----
+Test: 39 unit (Vitest) + 22 E2E (Playwright, Chromium con l'estensione caricata). Gli E2E usano un WAV generato in memoria perché Chromium open-source non decodifica H.264.
+
+⚠️ Non verificato automaticamente su siti reali (YouTube, Netflix, …): checklist manuale in `docs/QA.md`.
 
 ## Fase 2 — Funzioni Pro
 

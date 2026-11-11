@@ -1,0 +1,12 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: player that fights playbackRate</title></head>
+  <body>
+    <video id="v" src="/media.wav" muted width="320" height="180"></video>
+    <script>
+      // Hostile player: forces 1x on every ratechange, forever.
+      window.forced = 0;
+      const v = document.getElementById('v');
+      v.addEventListener('ratechange', () => { if (v.playbackRate !== 1) { window.forced++; v.playbackRate = 1; } });
+    </script>
+  </body>
+</html>

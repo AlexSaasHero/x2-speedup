@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: element replacement</title></head>
+  <body>
+    <div id="player"><video id="v" src="/media.wav" muted width="320" height="180"></video></div>
+    <script>
+      window.replaceVideo = () => {
+        const v = document.createElement('video');
+        v.id = 'v2'; v.muted = true; v.src = '/media.wav'; v.width = 320; v.height = 180;
+        document.getElementById('player').replaceChildren(v);
+      };
+    </script>
+  </body>
+</html>
