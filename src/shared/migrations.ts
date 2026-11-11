@@ -1,6 +1,8 @@
 // Pure storage migrations. The background worker runs migrate() on install/update and
 // writes the result; keeping this pure makes it unit-testable without chrome.* APIs.
-import { DEFAULT_HOTKEYS, SCHEMA_VERSION, defaultState, type StoredState } from './storage';
+import { normalizeHostPattern } from './hosts';
+import { migrateLegacyHotkeys, validateShortcut, type Shortcut } from './shortcuts';
+import { SCHEMA_VERSION, SETTING_BOUNDS, defaultState, type OverlayPosition, type StoredState } from './storage';
 
 /** Keys written by versions ≤ 1.5.1.8 that are no longer used. */
 export const LEGACY_KEYS = [
@@ -8,7 +10,9 @@ export const LEGACY_KEYS = [
   'license_key',
   'isLicensed',
   'preservePitch',
-  'telemetry_client_id'
+  'telemetry_client_id',
+  // v1 → v2: replaced by `shortcuts`
+  'customHotkeys'
 ] as const;
 
 export interface MigrationResult {
@@ -23,6 +27,22 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
 
 const nonEmptyString = (v: unknown): string | null =>
   typeof v === 'string' && v.trim().length > 0 ? v : null;
+
+function bounded(v: unknown, b: { min: number; max: number; fallback: number }): number {
+  const n = typeof v === 'number' ? v : parseFloat(String(v));
+  return Number.isFinite(n) ? Math.min(Math.max(n, b.min), b.max) : b.fallback;
+}
+
+const fraction = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
+
+function migrateShortcuts(raw: Raw): Shortcut[] {
+  if (Array.isArray(raw.shortcuts)) {
+    const list = raw.shortcuts.map(validateShortcut).filter((s): s is Shortcut => s !== null);
+    // An explicitly empty list is a valid user choice (all shortcuts removed).
+    if (list.length || raw.shortcuts.length === 0) return list;
+  }
+  return migrateLegacyHotkeys(isObject(raw.customHotkeys) ? raw.customHotkeys : undefined);
+}
 
 /**
  * Normalise whatever is in storage into the current schema.
@@ -54,14 +74,6 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
   set.loopVideo = typeof raw.loopVideo === 'boolean' ? raw.loopVideo : defaults.loopVideo;
   set.activeTab = typeof raw.activeTab === 'string' && raw.activeTab ? raw.activeTab : defaults.activeTab;
 
-  set.customHotkeys = { ...DEFAULT_HOTKEYS };
-  if (isObject(raw.customHotkeys)) {
-    for (const k of Object.keys(DEFAULT_HOTKEYS) as (keyof typeof DEFAULT_HOTKEYS)[]) {
-      const v = raw.customHotkeys[k];
-      if (typeof v === 'string' && v) set.customHotkeys[k] = v;
-    }
-  }
-
   set.domainSpeeds = {};
   if (isObject(raw.domainSpeeds)) {
     for (const [host, v] of Object.entries(raw.domainSpeeds)) {
@@ -73,6 +85,25 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
   set.videoCheckpoints = isObject(raw.videoCheckpoints)
     ? (raw.videoCheckpoints as StoredState['videoCheckpoints'])
     : {};
+
+  // v1 → v2: settings for shortcuts, seek, overlay.
+  set.speedStep = bounded(raw.speedStep, SETTING_BOUNDS.speedStep);
+  set.seekSeconds = bounded(raw.seekSeconds, SETTING_BOUNDS.seekSeconds);
+  set.overlayAutoHideMs = bounded(raw.overlayAutoHideMs, SETTING_BOUNDS.overlayAutoHideMs);
+  set.rememberSpeed = typeof raw.rememberSpeed === 'boolean' ? raw.rememberSpeed : defaults.rememberSpeed;
+  set.applyToAll = typeof raw.applyToAll === 'boolean' ? raw.applyToAll : defaults.applyToAll;
+  set.shortcuts = migrateShortcuts(raw);
+  set.shortcutBlacklist = Array.isArray(raw.shortcutBlacklist)
+    ? [...new Set(raw.shortcutBlacklist.filter((h): h is string => typeof h === 'string').map(normalizeHostPattern).filter(Boolean))]
+    : [];
+  set.overlayPositions = {};
+  if (isObject(raw.overlayPositions)) {
+    for (const [host, pos] of Object.entries(raw.overlayPositions)) {
+      if (isObject(pos) && fraction(pos.x) && fraction(pos.y)) {
+        set.overlayPositions[host] = { x: pos.x, y: pos.y } as OverlayPosition;
+      }
+    }
+  }
 
   set.schemaVersion = SCHEMA_VERSION;
 

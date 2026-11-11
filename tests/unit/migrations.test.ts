@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LEGACY_KEYS, migrate } from '../../src/shared/migrations';
-import { DEFAULT_HOTKEYS, SCHEMA_VERSION, STORAGE_KEYS, defaultState } from '../../src/shared/storage';
+import { binding, defaultShortcuts } from '../../src/shared/shortcuts';
+import { SCHEMA_VERSION, STORAGE_KEYS, defaultState } from '../../src/shared/storage';
 
 const NOW = 1_700_000_000_000;
 
@@ -40,9 +41,42 @@ describe('migrate', () => {
     expect(migrate({ preservesPitch: true, preservePitch: false }).set.preservesPitch).toBe(true);
   });
 
-  it('keeps user hotkeys and fills missing ones', () => {
-    const { set } = migrate({ customHotkeys: { speedUp: 'd', speedDown: 7 } });
-    expect(set.customHotkeys).toEqual({ ...DEFAULT_HOTKEYS, speedUp: 'd' });
+  it('v1 → v2: users with the old default hotkeys keep ] and [ on top of the VSC defaults', () => {
+    const { set, remove } = migrate({ customHotkeys: { speedUp: ']', speedDown: '[', resetSpeed: 'r', favoriteSpeed: 'g' } });
+    expect(set.shortcuts).toEqual([...defaultShortcuts(), binding('faster', ']'), binding('slower', '[')]);
+    expect(remove).toContain('customHotkeys');
+  });
+
+  it('v1 → v2: a custom key wins over a new default bound to another action', () => {
+    const { set } = migrate({ customHotkeys: { speedUp: 'z', speedDown: 7 } });
+    const actionsForZ = set.shortcuts!.filter((s) => s.key === 'z').map((s) => s.action);
+    expect(actionsForZ).toEqual(['faster']);
+    expect(set.shortcuts!.some((s) => s.action === 'slower' && s.key === '[')).toBe(true);
+  });
+
+  it('fresh install gets exactly the VSC defaults', () => {
+    expect(migrate({}).set.shortcuts).toEqual(defaultShortcuts());
+  });
+
+  it('keeps a valid shortcuts list (even empty) and drops invalid entries', () => {
+    expect(migrate({ shortcuts: [] }).set.shortcuts).toEqual([]);
+    const { set } = migrate({ shortcuts: [binding('rewind', 'j'), { action: 'nope', key: 'k' }, { action: 'faster' }] });
+    expect(set.shortcuts).toEqual([binding('rewind', 'j')]);
+  });
+
+  it('bounds numeric settings and cleans lists', () => {
+    const { set } = migrate({
+      speedStep: 5,
+      seekSeconds: 'x',
+      overlayAutoHideMs: 100,
+      shortcutBlacklist: ['https://www.YouTube.com/watch', 3, 'youtube.com', ''],
+      overlayPositions: { 'a.com': { x: 0.5, y: 0.2 }, 'b.com': { x: 2, y: 0 }, 'c.com': 'bad' }
+    });
+    expect(set.speedStep).toBe(1);
+    expect(set.seekSeconds).toBe(10);
+    expect(set.overlayAutoHideMs).toBe(500);
+    expect(set.shortcutBlacklist).toEqual(['youtube.com']);
+    expect(set.overlayPositions).toEqual({ 'a.com': { x: 0.5, y: 0.2 } });
   });
 
   it('drops non-numeric domain speeds and parses string speeds', () => {
@@ -57,6 +91,7 @@ describe('migrate', () => {
     expect(second.set).toEqual(first);
     expect(second.remove).toEqual([]);
     expect(first.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(SCHEMA_VERSION).toBe(2);
   });
 
   it('only lists legacy keys that are present', () => {

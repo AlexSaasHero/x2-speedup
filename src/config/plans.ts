@@ -22,11 +22,11 @@ export const ABSOLUTE_MAX_SPEED = 16;
 
 export const PLANS: Record<PlanId, PlanLimits> = {
   free: {
-    minSpeed: 0.25,
-    maxSpeed: 2,
+    minSpeed: ABSOLUTE_MIN_SPEED,
+    maxSpeed: 4,
     features: {
-      customHotkeys: false,
-      skipTime: false,
+      customHotkeys: true,
+      skipTime: true,
       frameStep: false,
       checkpoints: false
     }

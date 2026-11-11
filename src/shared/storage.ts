@@ -1,13 +1,14 @@
 // Storage schema (chrome.storage.local). Bump SCHEMA_VERSION and add a step in
 // src/shared/migrations.ts whenever a key is renamed, removed or changes shape.
 
-export const SCHEMA_VERSION = 1;
+import { defaultShortcuts, type Shortcut } from './shortcuts';
 
-export interface HotkeyMap {
-  speedUp: string;
-  speedDown: string;
-  resetSpeed: string;
-  favoriteSpeed: string;
+export const SCHEMA_VERSION = 2;
+
+/** Overlay top-left corner as a fraction (0–1) of the video's width/height. */
+export interface OverlayPosition {
+  x: number;
+  y: number;
 }
 
 export interface Checkpoint {
@@ -32,17 +33,29 @@ export interface StoredState {
   loopVideo: boolean;
   activeTab: string;
   favoriteSpeed: number;
-  customHotkeys: HotkeyMap;
   domainSpeeds: Record<string, number>;
   videoCheckpoints: Record<string, Checkpoint[]>;
+  // v2
+  /** Increment used by the slower/faster shortcuts and popup fine buttons. */
+  speedStep: number;
+  /** Seconds jumped by rewind/advance. */
+  seekSeconds: number;
+  /** Start new pages at the last speed used (otherwise 1x). */
+  rememberSpeed: boolean;
+  /** Speed changes affect every media element in the frame, not just the active one. */
+  applyToAll: boolean;
+  overlayAutoHideMs: number;
+  overlayPositions: Record<string, OverlayPosition>;
+  shortcuts: Shortcut[];
+  /** Domains where keyboard shortcuts are disabled (site keeps its own keys). */
+  shortcutBlacklist: string[];
 }
 
-export const DEFAULT_HOTKEYS: Readonly<HotkeyMap> = Object.freeze({
-  speedUp: ']',
-  speedDown: '[',
-  resetSpeed: 'r',
-  favoriteSpeed: 'g'
-});
+export const SETTING_BOUNDS = {
+  speedStep: { min: 0.01, max: 1, fallback: 0.1 },
+  seekSeconds: { min: 1, max: 600, fallback: 10 },
+  overlayAutoHideMs: { min: 500, max: 10000, fallback: 2000 }
+} as const;
 
 /** Defaults for every key except installDate (set at install time). */
 export function defaultState(): Omit<StoredState, 'installDate'> {
@@ -57,9 +70,16 @@ export function defaultState(): Omit<StoredState, 'installDate'> {
     loopVideo: false,
     activeTab: 'speed',
     favoriteSpeed: 2,
-    customHotkeys: { ...DEFAULT_HOTKEYS },
     domainSpeeds: {},
-    videoCheckpoints: {}
+    videoCheckpoints: {},
+    speedStep: SETTING_BOUNDS.speedStep.fallback,
+    seekSeconds: SETTING_BOUNDS.seekSeconds.fallback,
+    rememberSpeed: true,
+    applyToAll: false,
+    overlayAutoHideMs: SETTING_BOUNDS.overlayAutoHideMs.fallback,
+    overlayPositions: {},
+    shortcuts: defaultShortcuts(),
+    shortcutBlacklist: []
   };
 }
 
