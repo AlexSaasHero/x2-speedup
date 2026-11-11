@@ -9,6 +9,8 @@ import { FREE_MAX_SPEED, clampSpeed, formatSpeed } from '../config/plans';
 import { ReapplyBudget, rangesFrom, roundSpeed, sameSpeed, seekTarget } from '../shared/media-math';
 import { t } from '../shared/i18n';
 import { debug } from './log';
+import { findShortcut, isModifierOnly } from '../shared/shortcuts';
+import { isEditableEvent } from './editable';
 import { quirksFor } from './quirks';
 import { isMedia, isVideo, type Media, type MediaRegistry } from './media-registry';
 import type { ContentSettings } from './settings';
@@ -49,7 +51,7 @@ export class RateController {
   private readonly handled = new WeakSet<Event>();
   private readonly loopedByUs = new WeakSet<Media>();
   private readonly overrides = new WeakMap<Media, Partial<Record<OverrideSource, number>>>();
-  private lastGesture: { t: number; path: EventTarget[] } | null = null;
+  private lastGesture: { t: number; path: EventTarget[]; keyboard: boolean } | null = null;
   private speedBeforeReset: number | null = null;
   private persistTimer = 0;
 
@@ -63,7 +65,12 @@ export class RateController {
   installEarlyListeners(): void {
     window.addEventListener('ratechange', (e) => this.onRateChange(e), true);
     const gesture = (e: Event) => {
-      this.lastGesture = { t: performance.now(), path: e.composedPath() };
+      if (e.type === 'keydown') {
+        const k = e as KeyboardEvent;
+        // Typing, bare modifiers and our own shortcuts are not "the user used the player".
+        if (isModifierOnly(k) || isEditableEvent(k) || (this.ready && findShortcut(this.settings().shortcuts, k))) return;
+      }
+      this.lastGesture = { t: performance.now(), path: e.composedPath(), keyboard: e.type === 'keydown' };
     };
     window.addEventListener('pointerdown', gesture, true);
     window.addEventListener('keydown', gesture, true);
@@ -273,7 +280,9 @@ export class RateController {
     const now = performance.now();
     if (!g || now - g.t > USER_GESTURE_WINDOW_MS) return false;
     if (now - (this.loadedAt.get(m) ?? 0) < LOAD_SETTLE_MS) return false;
-    return gestureInsidePlayer(g.path, m);
+    // Player keyboard shortcuts (e.g. YouTube's Shift+. / Shift+,) work with focus anywhere on
+    // the page; clicks only count inside the player (its own speed menu).
+    return g.keyboard || gestureInsidePlayer(g.path, m);
   }
 
   private persist(speed: number): void {

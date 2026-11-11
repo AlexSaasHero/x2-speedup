@@ -131,6 +131,22 @@ test.describe('persistence', () => {
     await expect.poll(() => sw.evaluate(() => chrome.storage.local.get('defaultSpeed').then((r) => r.defaultSpeed))).toBe(1.25);
   });
 
+  test("accepts a change from the site's own keyboard shortcut with focus anywhere", async ({ context, sw, origin }) => {
+    const page = await context.newPage();
+    await readyBasic(page, origin, sw);
+    await sendToTabs(sw, { action: 'SET_SPEED', speed: 1.75 });
+    await page.waitForTimeout(1600);
+    // Simulate a player that maps '>' to "faster" on document keydown (like YouTube).
+    await page.evaluate(() =>
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '>') (document.getElementById('v') as HTMLVideoElement).playbackRate = 2;
+      })
+    );
+    await page.keyboard.press('Shift+Period');
+    await page.waitForTimeout(300);
+    expect(await rateOf(page)).toBe(2);
+  });
+
   test('backs off from a player that fights forever (no infinite loop)', async ({ context, sw, origin }) => {
     const page = await context.newPage();
     await openFixture(page, origin, 'fight.html');
