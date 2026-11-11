@@ -9,12 +9,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Official Playwright image matching @playwright/test 1.49.1: Node, Chromium and all system
+    # dependencies preinstalled (no fragile apt step at run time).
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
       - run: npm ci
       - name: Typecheck
         run: npm run typecheck
@@ -24,8 +25,6 @@ jobs:
         run: |
           npm run build
           npm run build -- --target=firefox
-      - name: Install Chromium for Playwright
-        run: npx playwright install --with-deps chromium
       - name: E2E (extension loaded in Chromium)
         # Runs the Italian-UI test too (skipped on macOS).
         run: xvfb-run --auto-servernum npm run test:e2e
