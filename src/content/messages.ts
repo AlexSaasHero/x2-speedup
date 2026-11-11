@@ -8,8 +8,9 @@ import type { AbOp, AbRepeat } from './ab-repeat';
 import type { MediaRegistry } from './media-registry';
 import type { Overlay } from './overlay';
 import { loadedProModule } from './pro-api';
+import { quirksFor } from './quirks';
 import type { RateController } from './rate-controller';
-import type { RuleApplier } from './rules';
+import type { PageContext, Rule } from '../shared/rules';
 import type { ContentSettings } from './settings';
 import type { StatsTracker } from './stats';
 
@@ -21,12 +22,21 @@ export interface MessageDeps {
   overlay: Overlay;
   settings(): ContentSettings;
   host: string;
-  rules: RuleApplier;
+  /** Null until the Pro rules module is loaded (free users never load it). */
+  rules(): RulesLike | null;
   ab: AbRepeat;
   stats: StatsTracker;
 }
 
 type Request = { action?: string; [k: string]: unknown };
+
+/** What the content script needs from the lazily loaded rules module. */
+export interface RulesLike {
+  initialSpeed(): number | null;
+  schedule(force?: boolean): void;
+  current(): Rule | null;
+  context(): PageContext;
+}
 
 const proRequired = { success: false, isProRequired: true, error: 'Pro feature requires active trial or lifetime license' };
 
@@ -49,6 +59,8 @@ function handle(req: Request, { registry, controller, overlay, settings, host, r
   const can = (f: keyof ReturnType<typeof planLimits>['features']) => planLimits(s.pro).features[f];
   const main = registry.primary();
   const flash = (label: string) => overlay.show(main instanceof HTMLVideoElement ? main : null, label);
+  const noSeek = quirksFor(host).noDirectSeek;
+  const seekBlocked = { success: false, error: 'seek-unsupported' };
 
   switch (req.action) {
     case 'SET_SPEED': {
@@ -70,7 +82,7 @@ function handle(req: Request, { registry, controller, overlay, settings, host, r
         mediaKey: normalizeMediaUrl(location.href),
         shortcutsDisabled: isHostListed(host, s.shortcutBlacklist),
         sessionSaved: stats.sessionSaved,
-        activeRule: rules.current(),
+        activeRule: rules()?.current() ?? null,
         abLoop: ab.state(main),
         ...(main ? controller.describe(main) : {})
       };
@@ -78,12 +90,19 @@ function handle(req: Request, { registry, controller, overlay, settings, host, r
       return silence ? silence.then((m) => ({ ...base, skipSilence: m?.status() ?? null })) : base;
     }
 
-    case 'GET_PAGE_CONTEXT':
-      return { success: true, ...rules.context(), mediaKey: normalizeMediaUrl(location.href), activeRule: rules.current() };
+    case 'GET_PAGE_CONTEXT': {
+      const r = rules();
+      const ctx = r?.context() ?? { host, url: location.href, channel: null };
+      return { success: true, ...ctx, mediaKey: normalizeMediaUrl(location.href), activeRule: r?.current() ?? null };
+    }
 
     case 'AB_REPEAT': {
       if (!can('abRepeat')) return proRequired;
       if (!main) return { success: false, error: 'No video found' };
+      if (noSeek) {
+        flash(t('overlay_seek_unsupported'));
+        return seekBlocked;
+      }
       const label = ab.apply(main, (req.op as AbOp) ?? 'cycle');
       flash(label);
       return { success: true, label, abLoop: ab.state(main) };
@@ -99,6 +118,10 @@ function handle(req: Request, { registry, controller, overlay, settings, host, r
     case 'STEP_FRAME': {
       if (!can('frameStep')) return proRequired;
       if (!main) return { success: false, error: 'No video found' };
+      if (noSeek) {
+        flash(t('overlay_seek_unsupported'));
+        return seekBlocked;
+      }
       main.pause();
       const dir = req.direction !== undefined ? (Number(req.direction) > 0 ? 1 : -1) : Number(req.delta) >= 0 ? 1 : -1;
       main.currentTime = Math.max(0, main.currentTime + dir * FRAME_STEP_SECONDS);
@@ -124,6 +147,10 @@ function handle(req: Request, { registry, controller, overlay, settings, host, r
     case 'SEEK_TO': {
       if (!can('checkpoints')) return proRequired;
       if (!main || typeof req.time !== 'number') return { success: false, error: 'No video found' };
+      if (noSeek) {
+        flash(t('overlay_seek_unsupported'));
+        return seekBlocked;
+      }
       main.currentTime = Math.max(0, req.time);
       flash(`📍 ${formatTimestamp(main.currentTime)}`);
       return { success: true, currentTime: main.currentTime };

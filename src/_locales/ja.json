@@ -247,5 +247,6 @@
   "changelog_16_shortcuts": "Video Speed Controller 互換のショートカット（S, D, R, Z, X, V, G）。",
   "changelog_16_overlay": "ドラッグできる新しいオーバーレイ、全画面でも表示。",
   "changelog_16_persist": "広告、画質変更、プレイリスト後も速度を維持。プレーヤー標準のメニューも尊重します。",
-  "changelog_16_privacy": "アナリティクスを削除: 100% ローカル、トラッキングなし。"
+  "changelog_16_privacy": "アナリティクスを削除: 100% ローカル、トラッキングなし。",
+  "overlay_seek_unsupported": "このサイトではシークに対応していません"
 }

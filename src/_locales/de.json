@@ -247,5 +247,6 @@
   "changelog_16_shortcuts": "Mit Video Speed Controller kompatible Kürzel (S, D, R, Z, X, V, G).",
   "changelog_16_overlay": "Neues verschiebbares Overlay auf dem Video, auch im Vollbild.",
   "changelog_16_persist": "Die Geschwindigkeit bleibt nach Werbung, Qualitätswechsel und Playlists erhalten; native Player-Menüs werden respektiert.",
-  "changelog_16_privacy": "Analytics entfernt: 100 % lokal, kein Tracking."
+  "changelog_16_privacy": "Analytics entfernt: 100 % lokal, kein Tracking.",
+  "overlay_seek_unsupported": "Springen wird auf dieser Website nicht unterstützt"
 }

@@ -1,18 +1,24 @@
 // SpeedUp Video Pro — content script entry (runs at document_start in every frame).
+//
+// Cost model: this script is injected into every frame of every page (ad iframes included), so
+// it stays dormant until a <video>/<audio> actually appears: before that it only keeps a
+// MutationObserver and one capture listener — no storage reads, no keyboard/pointer listeners.
+// Pro-only page tools (speed rules + YouTube channel lookup) are lazy-loaded ES modules.
 import { formatSpeed, planLimits, type Feature } from '../config/plans';
 import { PRO_ACTIONS, type ShortcutAction } from '../shared/shortcuts';
 import { t } from '../shared/i18n';
 import { AbRepeat } from './ab-repeat';
 import { debug } from './log';
 import { MediaRegistry, isVideo, type Media } from './media-registry';
+import type { RulesLike } from './messages';
 import { installMessageHandler } from './messages';
 import { Overlay } from './overlay';
 import { trackPointer } from './pointer';
 import { loadProModule, loadedProModule, type ProApi, type ProModuleName } from './pro-api';
 import { RateController } from './rate-controller';
-import { RuleApplier } from './rules';
 import { loadSettings, watchSettings, type ContentSettings } from './settings';
 import { installShortcuts } from './shortcuts';
+import { quirksFor } from './quirks';
 import { onSpaNavigation } from './spa';
 import { StatsTracker } from './stats';
 import { isYouTubeHost } from './youtube';
@@ -56,6 +62,8 @@ const registry = new MediaRegistry(
     controller.attach(m);
     stats.attach(m);
     mediaListeners.forEach((cb) => cb(m));
+    // First media element in this frame: wake up.
+    void boot();
   },
   (m) => {
     controller.detach(m);
@@ -71,7 +79,21 @@ const controller = new RateController(registry, getSettings, {
 // Synchronous, before any page script: intercept ratechange in the capture phase.
 controller.installEarlyListeners();
 
-const rules = new RuleApplier(getSettings, controller, registry, host);
+let rules: RulesLike | null = null;
+let rulesLoading: Promise<RulesLike | null> | null = null;
+
+/** Speed rules are Pro-only: load their module (rules + YouTube channel lookup) on demand. */
+function ensureRules(): Promise<RulesLike | null> {
+  if (rules || !can('rules')) return Promise.resolve(rules);
+  rulesLoading ??= (import(/* runtime URL, not bundled */ chrome.runtime.getURL('pro/rules.js')) as Promise<typeof import('../pro/rules')>)
+    .then((mod) => (rules = new mod.RuleApplier(getSettings, controller, registry, host)))
+    .catch((err) => {
+      debug('could not load rules', err);
+      rulesLoading = null;
+      return null;
+    });
+  return rulesLoading;
+}
 
 const proApi: ProApi = {
   host,
@@ -128,7 +150,7 @@ function runShortcut(action: ShortcutAction): void {
       break;
     case 'abRepeat': {
       const m = registry.primary();
-      if (m) overlay.show(asVideo(m), ab.apply(m, 'cycle'));
+      if (m) overlay.show(asVideo(m), quirksFor(host).noDirectSeek ? t('overlay_seek_unsupported') : ab.apply(m, 'cycle'));
       break;
     }
     case 'hold':
@@ -146,38 +168,46 @@ function holdToSpeed(active: boolean): void {
   overlay.show(anchor, active ? `${formatSpeed(getSettings().holdSpeed)} · ${t('overlay_hold')}` : undefined);
 }
 
-loadSettings()
-  .then((loaded) => {
-    settings = loaded;
-    registry.start();
-    controller.init(rules.initialSpeed());
+let booting: Promise<void> | null = null;
 
-    installShortcuts({ settings: getSettings, host, hasMedia: () => registry.count() > 0, run: runShortcut, hold: holdToSpeed });
-    installMessageHandler({ registry, controller, overlay, settings: getSettings, host, rules, ab, stats });
+function boot(): Promise<void> {
+  booting ??= loadSettings()
+    .then(async (loaded) => {
+      settings = loaded;
+      const r = await ensureRules();
+      controller.init(r?.initialSpeed() ?? null);
 
-    // Show the overlay while the pointer is over a video (auto-hides after the configured delay).
-    trackPointer(() => {
-      const v = registry.videoUnderPointer();
-      if (v) overlay.show(v);
-    });
+      installShortcuts({ settings: getSettings, host, hasMedia: () => registry.count() > 0, run: runShortcut, hold: holdToSpeed });
+      installMessageHandler({ registry, controller, overlay, settings: getSettings, host, rules: () => rules, ab, stats });
 
-    watchSettings((next, changed) => {
-      settings = next;
-      if (changed.has('hudEnabled') && !next.hudEnabled) overlay.hide();
-      controller.refresh();
-      if (changed.has('rules') || changed.has('license')) rules.schedule(true);
+      // Show the overlay while the pointer is over a video (auto-hides after the configured delay).
+      trackPointer(() => {
+        const v = registry.videoUnderPointer();
+        if (v) overlay.show(v);
+      });
+
+      watchSettings((next, changed) => {
+        settings = next;
+        if (changed.has('hudEnabled') && !next.hudEnabled) overlay.hide();
+        controller.refresh();
+        if (changed.has('rules') || changed.has('license')) void ensureRules().then((x) => x?.schedule(true));
+        syncProModules();
+      });
+
+      const onNavigate = () => {
+        registry.rescan();
+        controller.refresh();
+        rules?.schedule();
+      };
+      onSpaNavigation(onNavigate);
+      // Channel info on YouTube appears after first render: look again shortly after load.
+      rules?.schedule();
       syncProModules();
-    });
+    })
+    .catch((err) => debug('init failed', err));
+  return booting;
+}
 
-    const onNavigate = () => {
-      registry.rescan();
-      controller.refresh();
-      rules.schedule();
-    };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onNavigate, { once: true });
-    onSpaNavigation(onNavigate);
-    // Channel info on YouTube appears after first render: look again shortly after load.
-    rules.schedule();
-    syncProModules();
-  })
-  .catch((err) => debug('init failed', err));
+// Synchronous at document_start: watch for media (cheap until one shows up).
+registry.start();
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => registry.rescan(), { once: true });

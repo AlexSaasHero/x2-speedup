@@ -247,5 +247,6 @@
   "changelog_16_shortcuts": "Scorciatoie compatibili con Video Speed Controller (S, D, R, Z, X, V, G).",
   "changelog_16_overlay": "Nuovo overlay trascinabile sul video, funziona anche a schermo intero.",
   "changelog_16_persist": "La velocità resta dopo pubblicità, cambi di qualità e playlist; i menu nativi del player sono rispettati.",
-  "changelog_16_privacy": "Analytics rimossi: 100% locale, zero tracciamento."
+  "changelog_16_privacy": "Analytics rimossi: 100% locale, zero tracciamento.",
+  "overlay_seek_unsupported": "Il salto non è supportato su questo sito"
 }

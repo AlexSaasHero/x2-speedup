@@ -247,5 +247,6 @@
   "changelog_16_shortcuts": "Atalhos compatíveis com o Video Speed Controller (S, D, R, Z, X, V, G).",
   "changelog_16_overlay": "Novo overlay arrastável no vídeo, também em tela cheia.",
   "changelog_16_persist": "A velocidade se mantém após anúncios, mudanças de qualidade e playlists; os menus nativos do player são respeitados.",
-  "changelog_16_privacy": "Analytics removido: 100% local, zero rastreamento."
+  "changelog_16_privacy": "Analytics removido: 100% local, zero rastreamento.",
+  "overlay_seek_unsupported": "Saltos não são compatíveis com este site"
 }

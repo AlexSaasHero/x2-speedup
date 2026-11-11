@@ -9,6 +9,7 @@ import { FREE_MAX_SPEED, clampSpeed, formatSpeed } from '../config/plans';
 import { ReapplyBudget, rangesFrom, roundSpeed, sameSpeed, seekTarget } from '../shared/media-math';
 import { t } from '../shared/i18n';
 import { debug } from './log';
+import { quirksFor } from './quirks';
 import { isMedia, isVideo, type Media, type MediaRegistry } from './media-registry';
 import type { ContentSettings } from './settings';
 
@@ -183,6 +184,10 @@ export class RateController {
   seek(deltaSeconds: number): number | null {
     const m = this.registry.primary();
     if (!m) return null;
+    if (quirksFor(location.hostname).noDirectSeek) {
+      this.feedback.flash(t('overlay_seek_unsupported'), m);
+      return null;
+    }
     m.currentTime = seekTarget(m.currentTime, deltaSeconds, m.duration, rangesFrom(m.seekable));
     this.feedback.flash(`${deltaSeconds > 0 ? '+' : '−'}${Math.abs(deltaSeconds)}s`, m);
     return m.currentTime;

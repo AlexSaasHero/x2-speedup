@@ -25,7 +25,6 @@ const outdir = path.join(root, target === 'firefox' ? 'dist-firefox' : 'dist');
 // and a single format keeps the background script free of `"type": "module"` constraints.
 const entryPoints = {
   'background/background': 'src/background/index.ts',
-  'content/content': 'src/content/index.ts',
   'popup/popup': 'src/popup/index.js',
   'options/options': 'src/options/index.ts',
   'onboarding/onboarding': 'src/onboarding/index.ts'
@@ -53,14 +52,24 @@ const options = {
   }
 };
 
+// Code injected into web pages runs in every frame of every site, so it is minified (not
+// obfuscated — allowed by store policies) to cut parse time. Extension pages stay readable.
+/** @type {esbuild.BuildOptions} */
+const contentOptions = {
+  ...options,
+  entryPoints: { 'content/content': 'src/content/index.ts' },
+  minify: !isDev
+};
+
 // Pro modules: separate ES modules, loaded on demand by the content script with
 // import(chrome.runtime.getURL('pro/<name>.js')) so free users never parse them.
 /** @type {esbuild.BuildOptions} */
 const proOptions = {
-  ...options,
+  ...contentOptions,
   entryPoints: {
     'pro/skip-silence': 'src/pro/skip-silence.ts',
-    'pro/youtube-ads': 'src/pro/youtube-ads.ts'
+    'pro/youtube-ads': 'src/pro/youtube-ads.ts',
+    'pro/rules': 'src/pro/rules.ts'
   },
   format: 'esm'
 };
@@ -92,10 +101,10 @@ await mkdir(outdir, { recursive: true });
 await copyStatic();
 
 if (isWatch) {
-  for (const o of [options, proOptions]) await (await esbuild.context(o)).watch();
+  for (const o of [options, contentOptions, proOptions]) await (await esbuild.context(o)).watch();
   console.log('watching src/ … (public/ and locales are copied once; restart after editing them)');
 } else {
-  const results = await Promise.all([esbuild.build(options), esbuild.build(proOptions)]);
+  const results = await Promise.all([options, contentOptions, proOptions].map((o) => esbuild.build(o)));
   const warnings = results.reduce((n, r) => n + r.warnings.length, 0);
   if (warnings) {
     console.error(`build finished with ${warnings} warning(s)`);

@@ -247,5 +247,6 @@
   "changelog_16_shortcuts": "Atajos compatibles con Video Speed Controller (S, D, R, Z, X, V, G).",
   "changelog_16_overlay": "Nueva superposición arrastrable sobre el vídeo, también en pantalla completa.",
   "changelog_16_persist": "La velocidad se mantiene tras anuncios, cambios de calidad y listas; se respetan los menús nativos del reproductor.",
-  "changelog_16_privacy": "Analítica eliminada: 100 % local, sin rastreo."
+  "changelog_16_privacy": "Analítica eliminada: 100 % local, sin rastreo.",
+  "overlay_seek_unsupported": "Saltar no es compatible con este sitio"
 }

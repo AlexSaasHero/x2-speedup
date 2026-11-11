@@ -1,5 +1,10 @@
 // Discovers <video>/<audio> elements in the document and in open shadow roots.
-// Incremental: after the initial scan only added subtrees are inspected (no full-document rescans).
+//
+// Cost model (this runs in every frame of every page):
+// - Mutations: only native querySelectorAll on added subtrees, plus a property read to see if an
+//   added node is itself a shadow host. No per-node JS walks on the hot path.
+// - Full walks for nested open shadow roots: at start, DOMContentLoaded, load and SPA navigation,
+//   and lazily for the shadow host under the pointer (before the user presses a shortcut).
 import { pointerInside } from './pointer';
 
 export type Media = HTMLMediaElement;
@@ -25,6 +30,25 @@ export class MediaRegistry {
     this.started = true;
     this.observe(document);
     this.rescan();
+    window.addEventListener('load', () => this.rescan(), { once: true });
+    // Shadow hosts nested inside added subtrees are found when hovered (composed event).
+    let last = 0;
+    document.addEventListener(
+      'pointerover',
+      (e) => {
+        const now = performance.now();
+        if (now - last < 250) return;
+        last = now;
+        for (const n of e.composedPath()) {
+          const sr = (n as Element).shadowRoot;
+          if (sr && !this.observedRoots.has(sr)) {
+            this.observe(sr);
+            this.scan(sr);
+          }
+        }
+      },
+      { capture: true, passive: true }
+    );
   }
 
   stop(): void {
@@ -104,8 +128,14 @@ export class MediaRegistry {
     for (const r of records) {
       for (const n of r.addedNodes) {
         if (n.nodeType !== Node.ELEMENT_NODE) continue;
-        if (isMedia(n)) this.ensure(n);
-        if ((n as Element).firstElementChild || (n as Element).shadowRoot) this.scan(n);
+        const el = n as Element;
+        if (isMedia(el)) this.ensure(el);
+        if (el.firstElementChild) el.querySelectorAll('video, audio').forEach((m) => this.ensure(m as Media));
+        const sr = el.shadowRoot;
+        if (sr && !this.observedRoots.has(sr)) {
+          this.observe(sr);
+          this.scan(sr);
+        }
       }
       if (r.removedNodes.length) removed = true;
     }
