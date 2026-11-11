@@ -1,6 +1,7 @@
 // Pure storage migrations. The background worker runs migrate() on install/update and
 // writes the result; keeping this pure makes it unit-testable without chrome.* APIs.
 import { normalizeHostPattern } from './hosts';
+import { noLicense, validateLicense } from './license';
 import { newRuleId, validateRule, type Rule } from './rules';
 import { addDefaultsForNewActions, migrateLegacyHotkeys, validateShortcut, type Shortcut } from './shortcuts';
 import { normalizeMediaUrl } from './url';
@@ -16,7 +17,11 @@ export const LEGACY_KEYS = [
   // v1 → v2: replaced by `shortcuts`
   'customHotkeys',
   // v2 → v3: replaced by `rules`
-  'domainSpeeds'
+  'domainSpeeds',
+  // v3 → v4: replaced by `license`
+  'isPro',
+  'licenseKey',
+  'activatedAt'
 ] as const;
 
 export interface MigrationResult {
@@ -82,6 +87,11 @@ function migrateCheckpoints(raw: unknown): StoredState['videoCheckpoints'] {
   return out;
 }
 
+function randomId(): string {
+  const c = (globalThis as { crypto?: Crypto }).crypto;
+  return c?.randomUUID ? c.randomUUID() : `d${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+}
+
 /**
  * Normalise whatever is in storage into the current schema.
  * Idempotent: running it on already-migrated data yields `set` with no changes of value.
@@ -91,9 +101,16 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
   const set: Partial<StoredState> = {};
   const fromVersion = typeof raw.schemaVersion === 'number' ? raw.schemaVersion : 0;
 
-  // v0 → v1: unify duplicated license / pitch keys.
-  set.isPro = raw.isPro === true || raw.is_pro === true;
-  set.licenseKey = nonEmptyString(raw.licenseKey) ?? nonEmptyString(raw.license_key) ?? '';
+  // v0 → v1 → v4: license. Legacy keys become a "migrated" license that the worker re-validates
+  // at the next check (forced by lastCheckedAt = 0); until then the user keeps Pro.
+  if (isObject(raw.license)) {
+    set.license = validateLicense(raw.license);
+  } else {
+    const key = nonEmptyString(raw.licenseKey) ?? nonEmptyString(raw.license_key);
+    set.license = key
+      ? { ...noLicense(), key: key.trim(), status: 'active', source: 'migrated', lastValidAt: now, lastCheckedAt: 0 }
+      : noLicense();
+  }
   set.preservesPitch =
     typeof raw.preservesPitch === 'boolean'
       ? raw.preservesPitch
@@ -102,7 +119,6 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
         : defaults.preservesPitch;
 
   set.installDate = typeof raw.installDate === 'number' ? raw.installDate : now;
-  set.activatedAt = typeof raw.activatedAt === 'number' ? raw.activatedAt : defaults.activatedAt;
 
   const speed = typeof raw.defaultSpeed === 'number' ? raw.defaultSpeed : parseFloat(String(raw.defaultSpeed));
   set.defaultSpeed = Number.isFinite(speed) ? speed : defaults.defaultSpeed;
@@ -146,6 +162,15 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
   };
   set.holdSpeed = bounded(raw.holdSpeed, SETTING_BOUNDS.holdSpeed);
   set.youtubeAds = raw.youtubeAds === true;
+
+  // v3 → v4: sync, device id, review prompt.
+  set.syncEnabled = typeof raw.syncEnabled === 'boolean' ? raw.syncEnabled : defaults.syncEnabled;
+  set.deviceId = typeof raw.deviceId === 'string' && raw.deviceId ? raw.deviceId : randomId();
+  const rp = isObject(raw.reviewPrompt) ? raw.reviewPrompt : {};
+  set.reviewPrompt = {
+    state: rp.state === 'done' ? 'done' : 'waiting',
+    snoozedUntil: typeof rp.snoozedUntil === 'number' && Number.isFinite(rp.snoozedUntil) ? rp.snoozedUntil : 0
+  };
 
   set.schemaVersion = SCHEMA_VERSION;
 

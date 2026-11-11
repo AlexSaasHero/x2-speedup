@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { FREE_MAX_SPEED, FREE_MIN_SPEED, PLANS, PRO_MAX_SPEED, clampSpeed, formatSpeed } from '../../src/config/plans';
 import { affectsEntitlement, can, isPro } from '../../src/shared/entitlement';
 
+const PRO = { license: { key: 'K', status: 'active', source: 'x2', lastValidAt: Date.now(), lastCheckedAt: Date.now(), expiresAt: null } };
+
 describe('plans', () => {
   it('pro range contains free range', () => {
     expect(PLANS.pro.minSpeed).toBeLessThanOrEqual(FREE_MIN_SPEED);
@@ -34,19 +36,17 @@ describe('plans', () => {
 });
 
 describe('entitlement', () => {
-  it('isPro from flag or (baseline) key length', () => {
+  it('isPro only from a server-validated license (no more "any 4-char key")', () => {
     expect(isPro(undefined)).toBe(false);
     expect(isPro({})).toBe(false);
-    expect(isPro({ isPro: true })).toBe(true);
-    expect(isPro({ isPro: 'yes' })).toBe(false);
-    expect(isPro({ licenseKey: 'abc' })).toBe(false);
-    expect(isPro({ licenseKey: ' abcd ' })).toBe(true);
+    expect(isPro({ license: { key: 'abcd', status: 'invalid' } })).toBe(false);
+    expect(isPro(PRO)).toBe(true);
   });
 
   it('every Phase 2 feature is Pro-only', () => {
     for (const f of ['skipSilence', 'rules', 'youtubeAds', 'holdToSpeed', 'abRepeat', 'statsDetails'] as const) {
       expect(can(f, {})).toBe(false);
-      expect(can(f, { isPro: true })).toBe(true);
+      expect(can(f, PRO)).toBe(true);
     }
     expect(can('customHotkeys', {})).toBe(true);
     expect(can('skipTime', {})).toBe(true);
@@ -54,11 +54,12 @@ describe('entitlement', () => {
 
   it('gates features through the plan table', () => {
     expect(can('frameStep', {})).toBe(PLANS.free.features.frameStep);
-    expect(can('frameStep', { isPro: true })).toBe(true);
+    expect(can('frameStep', PRO)).toBe(true);
   });
 
   it('detects entitlement-relevant storage changes', () => {
-    expect(affectsEntitlement({ licenseKey: {} })).toBe(true);
+    expect(affectsEntitlement({ license: {} })).toBe(true);
+    expect(affectsEntitlement({ licenseKey: {} })).toBe(false);
     expect(affectsEntitlement({ defaultSpeed: {} })).toBe(false);
   });
 });

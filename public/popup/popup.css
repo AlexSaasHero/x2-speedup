@@ -1369,3 +1369,10 @@ body:not(.is-licensed) .pro-feature .hotkey-name::after { content: ' 🔒'; }
 .rule-save { margin-top: 8px; }
 .rule-grid { grid-template-columns: repeat(3, 1fr) !important; margin-top: 6px; }
 .rule-grid .scrub-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---- Phase 3: review request ---- */
+.review-banner { margin: 10px 0 2px; padding: 10px 12px; border-radius: var(--radius-md); background: linear-gradient(135deg, rgba(124,58,237,.25), rgba(6,182,212,.18)); border: 1px solid rgba(124,58,237,.45); font-size: 12px; }
+.review-banner[hidden] { display: none; }
+.review-actions { display: flex; gap: 8px; margin-top: 7px; }
+.review-rate { flex: 1; padding: 6px; border-radius: 8px; border: none; background: var(--accent-purple); color: #fff; font-weight: 700; cursor: pointer; }
+.review-later { padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: transparent; color: var(--text-secondary); cursor: pointer; }

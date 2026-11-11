@@ -4,6 +4,7 @@
 //   receives pointer events, so the player underneath stays fully clickable.
 // - Mounted on <html>, or inside document.fullscreenElement while a player is fullscreen.
 // - Never changes the page's own elements (the old HUD rewrote the player's `position`).
+import { t } from '../shared/i18n';
 import type { OverlayPosition } from '../shared/storage';
 
 export interface OverlayDeps {
@@ -129,12 +130,12 @@ export class Overlay {
     pill.setAttribute('role', 'status');
     const minus = document.createElement('button');
     minus.textContent = '−';
-    minus.title = 'Slower';
+    minus.title = t('action_slower');
     const label = document.createElement('span');
     label.className = 'label';
     const plus = document.createElement('button');
     plus.textContent = '+';
-    plus.title = 'Faster';
+    plus.title = t('action_faster');
     pill.append(minus, label, plus);
     root.append(style, pill);
 

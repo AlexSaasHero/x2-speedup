@@ -1,6 +1,7 @@
 // Popup "Smart" tab (Pro features) and the time-saved strip.
 import { formatSpeed, planLimits, type Feature } from '../config/plans';
-import { describeRule, upsertRule, type ChannelInfo, type Rule } from '../shared/rules';
+import { upsertRule, type ChannelInfo, type Rule } from '../shared/rules';
+import { t } from '../shared/i18n';
 import { formatShortcut, type Shortcut } from '../shared/shortcuts';
 import { STATS_BUFFER_KEY, STATS_KEY, applyBuffer, formatDuration, summarize, validateStats } from '../shared/stats';
 import type { SkipSilenceSettings } from '../shared/storage';
@@ -12,14 +13,13 @@ export interface SmartDeps {
   currentSpeed(): number;
 }
 
-const UPSELL: Record<string, string> = {
-  skipSilence: 'Skip silence speeds through pauses automatically. Pro (7-Day Free Trial).',
-  rules: 'Speed rules per channel, video or site are a Pro feature (7-Day Free Trial).',
-  youtubeAds: 'YouTube ads at 16x and muted is a Pro feature (7-Day Free Trial).',
-  holdToSpeed: 'Hold-to-speed is a Pro feature (7-Day Free Trial).',
-  statsDetails: 'See time saved today, this week and in total with Pro (7-Day Free Trial).',
-  abRepeat: 'A-B repeat is a Pro feature (7-Day Free Trial).'
-};
+const upsell = (f: Feature) => t(`upsell_${f}`);
+
+/** "Channel Veritasium → 2x" in the UI language. */
+export function describeRuleLocalized(r: Rule): string {
+  const what = t(`rule_type_${r.type}`);
+  return `${what} ${r.label ?? r.pattern} → ${formatSpeed(r.speed)}`;
+}
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T | null;
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.userAgent);
@@ -33,7 +33,7 @@ export function mountSmart(deps: SmartDeps) {
   const can = (f: Feature) => planLimits(deps.isPro()).features[f];
   const gate = (f: Feature) => {
     if (can(f)) return true;
-    deps.openUpgrade(UPSELL[f] ?? 'Pro feature (7-Day Free Trial).');
+    deps.openUpgrade(upsell(f));
     return false;
   };
 
@@ -92,24 +92,24 @@ export function mountSmart(deps: SmartDeps) {
     const active = page?.activeRule ?? null;
     if (text) {
       text.textContent = !page
-        ? 'Open a page with a video to create a rule.'
+        ? t('rules_open_page')
         : active
-          ? `Active: ${describeRule(active)}`
+          ? t('rules_active', [describeRuleLocalized(active)])
           : can('rules')
-            ? 'No rule for this page.'
-            : `${rules.length ? `${rules.length} saved rule(s) — ` : ''}Rules apply automatically with Pro.`;
+            ? t('rules_none')
+            : t('rules_free', [rules.length]);
     }
     if (remove) remove.style.display = active ? 'inline-block' : 'none';
     const c = page?.channel;
     if (channelBtn) {
       channelBtn.disabled = !c;
-      channelBtn.textContent = c ? `Channel: ${(c.name ?? c.handle ?? c.id ?? '').slice(0, 18)}` : 'Channel';
-      channelBtn.title = c ? 'Every video of this channel' : 'Channel rules work on YouTube video pages';
+      channelBtn.textContent = c ? t('rule_channel_named', [(c.name ?? c.handle ?? c.id ?? '').slice(0, 18)]) : t('rule_channel');
+      channelBtn.title = c ? t('rule_channel_title') : t('rule_channel_unavailable');
     }
     if (urlBtn) urlBtn.disabled = !page;
     if (domainBtn) {
       domainBtn.disabled = !page;
-      domainBtn.textContent = page ? `Site: ${page.host.replace(/^www\./, '').slice(0, 18)}` : 'This site';
+      domainBtn.textContent = page ? t('rule_site_named', [page.host.replace(/^www\./, '').slice(0, 18)]) : t('rule_site');
     }
     onSpeed(deps.currentSpeed());
   }
@@ -127,15 +127,15 @@ export function mountSmart(deps: SmartDeps) {
     const sk = res?.skipSilence;
     if (st && sk) {
       st.textContent = sk.unavailable
-        ? 'Not available on this player (cross-origin audio).'
+        ? t('skip_silence_unavailable')
         : sk.fast
-          ? 'Skipping a pause right now ⏩'
+          ? t('skip_silence_fast')
           : sk.listening
-            ? 'Listening for pauses…'
-            : 'Speeds through pauses automatically.';
+            ? t('skip_silence_listening')
+            : t('skip_silence_desc');
     }
     const ab = $('abState');
-    if (ab) ab.textContent = res?.abLoop ? (res.abLoop.b !== undefined ? 'looping' : 'A set') : 'off';
+    if (ab) ab.textContent = res?.abLoop ? (res.abLoop.b !== undefined ? t('ab_looping') : t('ab_a_set')) : t('ab_off');
     void refreshPage();
   }
 
@@ -157,7 +157,7 @@ export function mountSmart(deps: SmartDeps) {
   function renderHold(holdSpeed: number, shortcuts: Shortcut[]) {
     const hint = $('holdHint');
     const b = shortcuts.find((s) => s.action === 'hold');
-    if (hint) hint.textContent = b ? `Hold ${formatShortcut(b, IS_MAC)} for ${formatSpeed(holdSpeed)}, release to go back.` : `No key assigned (Shortcuts tab). Speed: ${formatSpeed(holdSpeed)}.`;
+    if (hint) hint.textContent = b ? t('hold_hint', [formatShortcut(b, IS_MAC), formatSpeed(holdSpeed)]) : t('hold_hint_none', [formatSpeed(holdSpeed)]);
   }
 
   chrome.storage.local.get(['skipSilence', 'youtubeAds', 'rules', 'holdSpeed', 'shortcuts', STATS_KEY]).then((d) => {

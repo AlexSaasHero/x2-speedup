@@ -7,6 +7,7 @@
 // (a pointer/key gesture inside the player shortly before the ratechange) we adopt that speed.
 import { FREE_MAX_SPEED, clampSpeed, formatSpeed } from '../config/plans';
 import { ReapplyBudget, rangesFrom, roundSpeed, sameSpeed, seekTarget } from '../shared/media-math';
+import { t } from '../shared/i18n';
 import { debug } from './log';
 import { isMedia, isVideo, type Media, type MediaRegistry } from './media-registry';
 import type { ContentSettings } from './settings';
@@ -151,7 +152,7 @@ export class RateController {
     const anchor = scope[0] ?? this.registry.primary();
     const limited = !s.pro && roundSpeed(requested) > FREE_MAX_SPEED;
     this.feedback.flash(
-      limited ? `Free max ${formatSpeed(FREE_MAX_SPEED)} · Pro 16x` : opts.label ?? formatSpeed(next),
+      limited ? t('overlay_free_max', [formatSpeed(FREE_MAX_SPEED)]) : opts.label ?? formatSpeed(next),
       anchor
     );
     this.feedback.speedChanged(anchor);

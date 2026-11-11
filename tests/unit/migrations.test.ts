@@ -9,7 +9,8 @@ describe('migrate', () => {
   it('fills every key on a fresh install', () => {
     const { set, remove } = migrate({}, NOW);
     expect(remove).toEqual([]);
-    expect(set).toEqual({ ...defaultState(), installDate: NOW });
+    expect(set.deviceId).toMatch(/.{8,}/);
+    expect(set).toEqual({ ...defaultState(), installDate: NOW, deviceId: set.deviceId });
     expect(Object.keys(set).sort()).toEqual([...STORAGE_KEYS].sort());
   });
 
@@ -26,14 +27,15 @@ describe('migrate', () => {
       },
       NOW
     );
-    expect(set.isPro).toBe(true);
-    expect(set.licenseKey).toBe('PRO-1234');
+    // Migrated keys stay Pro until the worker re-validates them (lastCheckedAt = 0 forces it).
+    expect(set.license).toMatchObject({ key: 'PRO-1234', status: 'active', source: 'migrated', lastCheckedAt: 0, lastValidAt: NOW });
     expect(set.installDate).toBe(123);
-    expect(remove.sort()).toEqual(['isLicensed', 'is_pro', 'license_key', 'telemetry_client_id'].sort());
+    expect(remove.sort()).toEqual(['isLicensed', 'isPro', 'is_pro', 'licenseKey', 'license_key', 'telemetry_client_id'].sort());
   });
 
   it('prefers licenseKey over license_key when both are set', () => {
-    expect(migrate({ licenseKey: 'NEW', license_key: 'OLD' }).set.licenseKey).toBe('NEW');
+    expect(migrate({ licenseKey: 'NEW', license_key: 'OLD' }).set.license!.key).toBe('NEW');
+    expect(migrate({ isPro: true }).set.license!.status).toBe('none');
   });
 
   it('keeps preservesPitch, falling back to legacy preservePitch', () => {
@@ -123,11 +125,22 @@ describe('migrate', () => {
     expect(second.set).toEqual(first);
     expect(second.remove).toEqual([]);
     expect(first.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(3);
+    expect(SCHEMA_VERSION).toBe(4);
   });
 
   it('only lists legacy keys that are present', () => {
     expect(LEGACY_KEYS).toContain('telemetry_client_id');
     expect(migrate({ preservePitch: true }).remove).toEqual(['preservePitch']);
+  });
+});
+
+describe('v3 → v4', () => {
+  it('keeps an existing license object and device id', () => {
+    const license = { key: 'K', status: 'expired', lastCheckedAt: 5, lastValidAt: 4, source: 'x2', expiresAt: null };
+    const { set } = migrate({ schemaVersion: 4, license, deviceId: 'dev-1', reviewPrompt: { state: 'done', snoozedUntil: 3 } });
+    expect(set.license).toEqual(license);
+    expect(set.deviceId).toBe('dev-1');
+    expect(set.reviewPrompt).toEqual({ state: 'done', snoozedUntil: 3 });
+    expect(set.syncEnabled).toBe(true);
   });
 });

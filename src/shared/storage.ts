@@ -1,10 +1,11 @@
 // Storage schema (chrome.storage.local). Bump SCHEMA_VERSION and add a step in
 // src/shared/migrations.ts whenever a key is renamed, removed or changes shape.
 
+import { noLicense, type LicenseState } from './license';
 import type { Rule } from './rules';
 import { defaultShortcuts, type Shortcut } from './shortcuts';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /** Overlay top-left corner as a fraction (0–1) of the video's width/height. */
 export interface OverlayPosition {
@@ -37,9 +38,8 @@ export interface Checkpoint {
 export interface StoredState {
   schemaVersion: number;
   installDate: number;
-  isPro: boolean;
-  licenseKey: string;
-  activatedAt: number;
+  /** v4: server-validated license (replaces isPro / licenseKey / activatedAt). */
+  license: LicenseState;
   defaultSpeed: number;
   hudEnabled: boolean;
   preservesPitch: boolean;
@@ -69,6 +69,18 @@ export interface StoredState {
   holdSpeed: number;
   /** YouTube ads at 16x + muted, then restore. Opt-in. */
   youtubeAds: boolean;
+  // v4
+  /** Mirror settings to chrome.storage.sync (other devices signed into the same browser profile). */
+  syncEnabled: boolean;
+  /** Random id of this installation (tells our own sync writes apart from other devices'). */
+  deviceId: string;
+  reviewPrompt: ReviewPromptState;
+}
+
+export interface ReviewPromptState {
+  /** waiting → (30 min saved) shown → done; "Not now" keeps it waiting until snoozedUntil. */
+  state: 'waiting' | 'done';
+  snoozedUntil: number;
 }
 
 export const SETTING_BOUNDS = {
@@ -86,9 +98,7 @@ export const SETTING_BOUNDS = {
 export function defaultState(): Omit<StoredState, 'installDate'> {
   return {
     schemaVersion: SCHEMA_VERSION,
-    isPro: false,
-    licenseKey: '',
-    activatedAt: 0,
+    license: noLicense(),
     defaultSpeed: 1,
     hudEnabled: true,
     preservesPitch: true,
@@ -113,7 +123,10 @@ export function defaultState(): Omit<StoredState, 'installDate'> {
       minSpeechMs: SETTING_BOUNDS.minSpeechMs.fallback
     },
     holdSpeed: SETTING_BOUNDS.holdSpeed.fallback,
-    youtubeAds: false
+    youtubeAds: false,
+    syncEnabled: true,
+    deviceId: '',
+    reviewPrompt: { state: 'waiting', snoozedUntil: 0 }
   };
 }
 

@@ -1,6 +1,11 @@
 // SpeedUp Video Pro - Background Service Worker (Manifest V3)
 // Stateless: everything persistent lives in chrome.storage.
 import { migrate } from '../shared/migrations';
+import { isFeatureUpdate } from '../shared/version';
+import { LICENSE_ALARM, activate, checkIfDue, deactivate, scheduleLicenseChecks } from './license';
+import { installSync, schedulePush, syncOnStartup } from './sync';
+
+installSync();
 import {
   STATS_BUFFER_KEY,
   STATS_KEY,
@@ -13,12 +18,15 @@ import {
   type StatsBuffer
 } from '../shared/stats';
 
-const WELCOME_URL = 'https://x2-speedup.vercel.app/#welcome';
+const ONBOARDING_PAGE = 'onboarding/onboarding.html';
 
 chrome.runtime.onInstalled.addListener(async (details) => {
-  // Fresh install: open welcome page (replaced by local onboarding in Phase 3).
+  // Fresh install: local onboarding (shortcut demo + trial). Update: "What's new" only for
+  // major/minor releases, never for patches.
   if (details.reason === 'install') {
-    chrome.tabs.create({ url: WELCOME_URL });
+    chrome.tabs.create({ url: chrome.runtime.getURL(ONBOARDING_PAGE) });
+  } else if (details.reason === 'update' && isFeatureUpdate(details.previousVersion, chrome.runtime.getManifest().version)) {
+    chrome.tabs.create({ url: chrome.runtime.getURL(`${ONBOARDING_PAGE}#whats-new`), active: false });
   }
 
   // Normalise storage to the current schema on install and on every update.
@@ -29,10 +37,26 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
   // Older popups mirrored license flags into storage.sync under legacy names.
   try {
-    await chrome.storage.sync.remove(['is_pro', 'license_key', 'isLicensed']);
+    await chrome.storage.sync.remove(['is_pro', 'isPro', 'license_key', 'licenseKey', 'isLicensed', 'activatedAt']);
   } catch {
     // storage.sync may be unavailable (e.g. sync disabled by policy) — nothing to clean up then.
   }
+
+  scheduleLicenseChecks();
+  // Migrated licenses are re-validated right away (they were never checked by a server).
+  void checkIfDue();
+  // Fresh install with settings from another device: adopt them (see sync.ts).
+  schedulePush();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  scheduleLicenseChecks();
+  void checkIfDue();
+  syncOnStartup();
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === LICENSE_ALARM) void checkIfDue();
 });
 
 // Time-saved aggregation. Content scripts send small deltas every few seconds while playing.
@@ -61,6 +85,20 @@ const isDelta = (d: unknown): d is DayStats =>
   !!d && typeof d === 'object' && Number.isFinite((d as DayStats).saved) && Number.isFinite((d as DayStats).watched);
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // License operations are only accepted from extension pages (popup, options, onboarding).
+  const fromExtensionPage = !sender.tab || sender.url?.startsWith(chrome.runtime.getURL(''));
+  if (message?.action === 'LICENSE_ACTIVATE' && fromExtensionPage && typeof message.key === 'string') {
+    activate(message.key).then(sendResponse, () => sendResponse({ ok: false, verdict: 'unreachable' }));
+    return true;
+  }
+  if (message?.action === 'LICENSE_DEACTIVATE' && fromExtensionPage) {
+    deactivate().then(() => sendResponse({ ok: true }));
+    return true;
+  }
+  if (message?.action === 'LICENSE_REFRESH' && fromExtensionPage) {
+    checkIfDue(true).then(() => sendResponse({ ok: true }));
+    return true;
+  }
   if (message?.action === 'UPDATE_BADGE') {
     const speed = parseFloat(message.speed);
     if (!isNaN(speed)) {

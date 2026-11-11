@@ -1,4 +1,5 @@
 // A-B repeat for the active media element.
+import { t } from '../shared/i18n';
 import type { Media } from './media-registry';
 
 interface Loop {
@@ -15,23 +16,23 @@ export class AbRepeat {
   /** Returns a short label describing the new state. */
   apply(m: Media, op: AbOp): string {
     const loop = this.loops.get(m);
-    const t = m.currentTime;
+    const now = m.currentTime;
     const resolved: Exclude<AbOp, 'cycle'> = op === 'cycle' ? (!loop ? 'a' : loop.b === undefined ? 'b' : 'clear') : op;
     if (resolved === 'clear') {
       this.loops.delete(m);
-      return 'A-B off';
+      return t('ab_overlay_off');
     }
     if (resolved === 'a') {
-      this.loops.set(m, { a: t, b: loop?.b !== undefined && loop.b > t ? loop.b : undefined });
+      this.loops.set(m, { a: now, b: loop?.b !== undefined && loop.b > now ? loop.b : undefined });
       this.wire(m);
-      return `A ${fmt(t)}`;
+      return t('ab_overlay_a', [fmt(now)]);
     }
     const a = loop?.a ?? 0;
-    if (t <= a + 0.2) return `B must be after A (${fmt(a)})`;
-    this.loops.set(m, { a, b: t });
+    if (now <= a + 0.2) return t('ab_overlay_b_before_a', [fmt(a)]);
+    this.loops.set(m, { a, b: now });
     this.wire(m);
     m.currentTime = a;
-    return `A-B ${fmt(a)}–${fmt(t)}`;
+    return t('ab_overlay_loop', [fmt(a), fmt(now)]);
   }
 
   state(m: Media | null): Loop | null {

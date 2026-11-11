@@ -2,6 +2,7 @@
 // talks to the frame that holds the player (top frame or iframe alike).
 import { planLimits } from '../config/plans';
 import { isHostListed } from '../shared/hosts';
+import { t } from '../shared/i18n';
 import { normalizeMediaUrl } from '../shared/url';
 import type { AbOp, AbRepeat } from './ab-repeat';
 import type { MediaRegistry } from './media-registry';
@@ -101,7 +102,7 @@ function handle(req: Request, { registry, controller, overlay, settings, host, r
       main.pause();
       const dir = req.direction !== undefined ? (Number(req.direction) > 0 ? 1 : -1) : Number(req.delta) >= 0 ? 1 : -1;
       main.currentTime = Math.max(0, main.currentTime + dir * FRAME_STEP_SECONDS);
-      flash(dir > 0 ? '+1 frame' : '−1 frame');
+      flash(t(dir > 0 ? 'overlay_frame_next' : 'overlay_frame_prev'));
       return { success: true, currentTime: main.currentTime, isPlaying: false };
     }
 

@@ -1,6 +1,7 @@
 // SpeedUp Video Pro — content script entry (runs at document_start in every frame).
 import { formatSpeed, planLimits, type Feature } from '../config/plans';
 import { PRO_ACTIONS, type ShortcutAction } from '../shared/shortcuts';
+import { t } from '../shared/i18n';
 import { AbRepeat } from './ab-repeat';
 import { debug } from './log';
 import { MediaRegistry, isVideo, type Media } from './media-registry';
@@ -25,14 +26,18 @@ const getSettings = (): ContentSettings => {
 const can = (f: Feature) => !!settings && planLimits(settings.pro).features[f];
 
 const asVideo = (m: Media | null) => (isVideo(m) ? m : null);
-const OVERRIDE_BADGE: Record<string, string> = { ads: ' · ad', hold: ' · hold', silence: ' ⏩' };
+const OVERRIDE_BADGE: Record<string, () => string> = {
+  ads: () => ` · ${t('overlay_ad')}`,
+  hold: () => ` · ${t('overlay_hold')}`,
+  silence: () => ' ⏩'
+};
 
 const overlay = new Overlay({
   enabled: () => !!settings?.hudEnabled,
   autoHideMs: () => settings?.overlayAutoHideMs ?? 2000,
   speedText: (anchor) => {
     const o = controller.activeOverride(anchor);
-    return formatSpeed(controller.speedOf(anchor)) + (o ? OVERRIDE_BADGE[o] : '');
+    return formatSpeed(controller.speedOf(anchor)) + (o ? OVERRIDE_BADGE[o]() : '');
   },
   position: () => settings?.overlayPositions[host] ?? null,
   savePosition: (p) => {
@@ -92,13 +97,13 @@ function syncProModules(): void {
 }
 
 function lockedFlash(feature: string): void {
-  overlay.show(asVideo(registry.primary()), `🔒 ${feature} · Pro`);
+  overlay.show(asVideo(registry.primary()), t('overlay_locked', [feature]));
 }
 
 function runShortcut(action: ShortcutAction): void {
   const s = getSettings();
   const needs = PRO_ACTIONS[action];
-  if (needs && !can(needs)) return lockedFlash(action === 'hold' ? 'Hold to speed' : 'A-B repeat');
+  if (needs && !can(needs)) return lockedFlash(t(`action_${action}`));
   switch (action) {
     case 'slower':
       controller.step(-1);
@@ -132,13 +137,13 @@ function runShortcut(action: ShortcutAction): void {
 }
 
 function holdToSpeed(active: boolean): void {
-  if (active && !can('holdToSpeed')) return lockedFlash('Hold to speed');
+  if (active && !can('holdToSpeed')) return lockedFlash(t('action_hold'));
   const targets = controller.targets();
   for (const m of active ? targets : registry.all()) {
     controller.setOverride(m, 'hold', active ? getSettings().holdSpeed : null);
   }
   const anchor = asVideo(targets[0] ?? registry.primary());
-  overlay.show(anchor, active ? `${formatSpeed(getSettings().holdSpeed)} · hold` : undefined);
+  overlay.show(anchor, active ? `${formatSpeed(getSettings().holdSpeed)} · ${t('overlay_hold')}` : undefined);
 }
 
 loadSettings()
@@ -160,7 +165,7 @@ loadSettings()
       settings = next;
       if (changed.has('hudEnabled') && !next.hudEnabled) overlay.hide();
       controller.refresh();
-      if (changed.has('rules') || changed.has('isPro') || changed.has('licenseKey')) rules.schedule(true);
+      if (changed.has('rules') || changed.has('license')) rules.schedule(true);
       syncProModules();
     });
 

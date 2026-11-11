@@ -16,5 +16,5 @@
     "noEmit": true,
     "resolveJsonModule": true
   },
-  "include": ["src", "tests", "scripts/*.d.ts", "vitest.config.ts"]
+  "include": ["src", "tests", "scripts/*.d.mts", "vitest.config.ts"]
 }

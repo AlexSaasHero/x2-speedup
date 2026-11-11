@@ -8,18 +8,31 @@ import {
   type Shortcut,
   type ShortcutAction
 } from '../shared/shortcuts';
+import { t } from '../shared/i18n';
 
-export const ACTION_LABELS: Record<ShortcutAction, { name: string; desc: (ctx: EditorContext) => string }> = {
-  slower: { name: 'Slower', desc: (c) => `−${c.speedStep}x` },
-  faster: { name: 'Faster', desc: (c) => `+${c.speedStep}x` },
-  reset: { name: 'Reset', desc: () => '1.0x, press again to go back' },
-  preferred: { name: 'Preferred speed', desc: (c) => `Toggle ${c.favoriteSpeed}x` },
-  rewind: { name: 'Rewind', desc: (c) => `−${c.seekSeconds}s` },
-  advance: { name: 'Advance', desc: (c) => `+${c.seekSeconds}s` },
-  toggleOverlay: { name: 'Show/hide overlay', desc: () => 'On-video speed badge' },
-  hold: { name: 'Hold to speed', desc: (c) => `${c.holdSpeed}x while held · Pro` },
-  abRepeat: { name: 'A-B repeat', desc: () => 'Set A, set B, clear · Pro' }
-};
+/** Description line under each action, in the UI language. */
+export function actionDescription(action: ShortcutAction, c: EditorContext): string {
+  switch (action) {
+    case 'slower':
+      return `−${c.speedStep}x`;
+    case 'faster':
+      return `+${c.speedStep}x`;
+    case 'reset':
+      return t('action_reset_desc');
+    case 'preferred':
+      return t('action_preferred_desc', [c.favoriteSpeed]);
+    case 'rewind':
+      return `−${c.seekSeconds}s`;
+    case 'advance':
+      return `+${c.seekSeconds}s`;
+    case 'toggleOverlay':
+      return t('action_toggleOverlay_desc');
+    case 'hold':
+      return t('action_hold_desc', [c.holdSpeed]);
+    case 'abRepeat':
+      return t('action_abRepeat_desc');
+  }
+}
 
 export interface EditorContext {
   holdSpeed: number;
@@ -86,7 +99,7 @@ export function mountShortcutEditor(opts: ShortcutEditorOptions): { render(): vo
     const target = fresh ?? button;
     listening.button = target;
     target.classList.add('listening');
-    target.textContent = 'Press keys…';
+    target.textContent = t('key_press');
   }
 
   function render() {
@@ -102,10 +115,10 @@ export function mountShortcutEditor(opts: ShortcutEditorOptions): { render(): vo
       meta.className = 'hotkey-meta';
       const name = document.createElement('span');
       name.className = 'hotkey-name';
-      name.textContent = ACTION_LABELS[action].name;
+      name.textContent = t(`action_${action}`);
       const desc = document.createElement('span');
       desc.className = 'hotkey-desc';
-      desc.textContent = ACTION_LABELS[action].desc(ctx);
+      desc.textContent = actionDescription(action, ctx);
       meta.append(name, desc);
 
       const chips = document.createElement('div');
@@ -114,16 +127,17 @@ export function mountShortcutEditor(opts: ShortcutEditorOptions): { render(): vo
         if (s.action !== action) return;
         const wrap = document.createElement('span');
         wrap.className = 'hk-chip';
-        const b = chip(formatShortcut(s, IS_MAC), 'Click to change', (btn) => startListening(action, btn, s));
+        const b = chip(formatShortcut(s, IS_MAC), t('key_change'), (btn) => startListening(action, btn, s));
         b.dataset.binding = String(i);
-        const rm = chip('×', 'Remove', () => {
+        const rm = chip('×', t('key_remove'), () => {
           opts.save(opts.get().filter((x) => x !== s));
           render();
         }, 'hk-remove');
+        rm.title = t('key_remove');
         wrap.append(b, rm);
         chips.append(wrap);
       });
-      const add = chip('+', 'Add a key', (btn) => startListening(action, btn), 'hk-add');
+      const add = chip('+', t('key_add'), (btn) => startListening(action, btn), 'hk-add');
       add.dataset.add = action;
       chips.append(add);
 

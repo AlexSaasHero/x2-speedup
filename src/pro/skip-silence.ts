@@ -12,6 +12,7 @@
 //   feature is off the graph is a plain pass-through.
 import type { Media } from '../content/media-registry';
 import type { ProApi, ProModule } from '../content/pro-api';
+import { t } from '../shared/i18n';
 
 const SAMPLE_MS = 50;
 /** Unmuted playback with perfectly zero samples for this long ⇒ tainted (cross-origin) audio. */
@@ -55,12 +56,18 @@ export function create(api: ProApi): ProModule {
     unavailable.add(m);
     unavailableCount++;
     api.debug('skip-silence unavailable:', why);
-    api.flash('Skip silence unavailable on this player', m);
+    api.flash(t('skip_silence_unavailable_overlay'), m);
   }
 
   async function runningContext(): Promise<AudioContext | null> {
     try {
-      ctx ??= new AudioContext();
+      if (!ctx) {
+        ctx = new AudioContext();
+        // If the context starts suspended (autoplay policy, slow start), connect as soon as it runs.
+        ctx.addEventListener('statechange', () => {
+          if (ctx?.state === 'running') api.media().forEach((m) => !m.paused && void connect(m));
+        });
+      }
       if (ctx.state !== 'running') await ctx.resume();
     } catch (err) {
       api.debug('AudioContext error', err);
@@ -68,14 +75,19 @@ export function create(api: ProApi): ProModule {
     return ctx?.state === 'running' ? ctx : null;
   }
 
+  const connecting = new WeakSet<Media>();
+
   async function connect(m: Media): Promise<void> {
-    if (!enabled || tracks.has(m) || unavailable.has(m) || !m.currentSrc) return;
+    if (!enabled || tracks.has(m) || unavailable.has(m) || connecting.has(m) || !m.currentSrc) return;
     if (!isSafeSource(m.currentSrc, location.origin, m.crossOrigin)) {
       markUnavailable(m, `cross-origin source without CORS: ${m.currentSrc}`);
       return;
     }
-    const c = await runningContext();
-    if (!c || tracks.has(m)) return; // not allowed to start audio yet: retried on the next play
+    connecting.add(m);
+    const c = await runningContext().finally(() => connecting.delete(m));
+    // Not running yet: never connect (the element would go silent). Retried on statechange and
+    // on the next timeupdate.
+    if (!c || tracks.has(m)) return;
     try {
       const source = c.createMediaElementSource(m);
       const analyser = c.createAnalyser();
@@ -183,6 +195,9 @@ export function create(api: ProApi): ProModule {
     m.addEventListener('play', onPlay);
     m.addEventListener('playing', onPlay);
     m.addEventListener('loadedmetadata', () => !m.paused && onPlay());
+    // Cheap retry while playing if an earlier attempt could not connect (connect() returns
+    // immediately once connected, unavailable or already in progress).
+    m.addEventListener('timeupdate', () => enabled && !tracks.has(m) && !unavailable.has(m) && void connect(m));
     m.addEventListener('emptied', () => {
       const t = tracks.get(m);
       if (t) {

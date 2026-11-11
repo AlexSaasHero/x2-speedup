@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SpeedUp Video Pro — Settings</title>
+  <title data-i18n="opt_title">SpeedUp Video Pro — Settings</title>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
@@ -12,117 +12,137 @@
       <img src="../icons/icon48.png" alt="" width="32" height="32">
       <div>
         <h1>SpeedUp Video Pro</h1>
-        <p class="muted">Settings are stored locally in your browser. Nothing is tracked.</p>
+        <p class="muted" data-i18n="privacy_line"></p>
       </div>
       <span id="savedHint" class="saved" aria-live="polite"></span>
     </header>
 
     <section class="card">
-      <h2>Speed</h2>
+      <h2 data-i18n="opt_speed"></h2>
       <div class="grid">
-        <label>Speed step
+        <label><span data-i18n="opt_speed_step"></span>
           <span class="field"><input type="number" id="speedStep" min="0.01" max="1" step="0.05"><span>x</span></span>
-          <small>Used by Slower/Faster shortcuts and the popup fine buttons.</small>
+          <small data-i18n="opt_speed_step_hint"></small>
         </label>
-        <label>Preferred speed
+        <label><span data-i18n="action_preferred"></span>
           <span class="field"><input type="number" id="favoriteSpeed" min="0.1" max="16" step="0.1"><span>x</span></span>
-          <small id="favoriteHint">Toggled by the Preferred speed shortcut.</small>
+          <small id="favoriteHint"></small>
         </label>
       </div>
-      <label class="check"><input type="checkbox" id="rememberSpeed"> Remember the last speed for new pages (otherwise start at 1.0x)</label>
-      <label class="check"><input type="checkbox" id="applyToAll"> Apply speed changes to every video/audio on the page (default: only the active one)</label>
-      <label class="check"><input type="checkbox" id="preservesPitch"> Preserve audio pitch at high speed</label>
+      <label class="check"><input type="checkbox" id="rememberSpeed"> <span data-i18n="opt_remember"></span></label>
+      <label class="check"><input type="checkbox" id="applyToAll"> <span data-i18n="opt_apply_all"></span></label>
+      <label class="check"><input type="checkbox" id="preservesPitch"> <span data-i18n="opt_pitch"></span></label>
     </section>
 
     <section class="card">
-      <h2>Seeking</h2>
+      <h2 data-i18n="opt_seeking"></h2>
       <div class="grid">
-        <label>Rewind / Advance by
+        <label><span data-i18n="opt_seek_by"></span>
           <span class="field"><input type="number" id="seekSeconds" min="1" max="600" step="1"><span>s</span></span>
         </label>
       </div>
     </section>
 
     <section class="card">
-      <h2>On-video overlay</h2>
-      <label class="check"><input type="checkbox" id="hudEnabled"> Show the speed overlay on videos</label>
+      <h2 data-i18n="opt_overlay"></h2>
+      <label class="check"><input type="checkbox" id="hudEnabled"> <span data-i18n="opt_overlay_show"></span></label>
       <div class="grid">
-        <label>Hide after
+        <label><span data-i18n="opt_overlay_hide"></span>
           <span class="field"><input type="number" id="overlayAutoHideSec" min="0.5" max="10" step="0.5"><span>s</span></span>
         </label>
       </div>
-      <p class="muted">Drag the overlay on any video to move it; the position is saved per site.
-        <button type="button" id="resetPositions" class="link">Reset saved positions (<span id="positionsCount">0</span>)</button></p>
+      <p class="muted"><span data-i18n="opt_overlay_drag"></span>
+        <button type="button" id="resetPositions" class="link"><span data-i18n="opt_overlay_reset"></span> (<span id="positionsCount">0</span>)</button></p>
     </section>
 
     <section class="card">
       <div class="card-head">
-        <h2>Keyboard shortcuts</h2>
-        <button type="button" id="resetShortcuts" class="btn">Restore defaults</button>
+        <h2 data-i18n="shortcuts_title"></h2>
+        <button type="button" id="resetShortcuts" class="btn" data-i18n="shortcuts_restore"></button>
       </div>
-      <p class="muted">Shortcuts never fire while you type in a text field or editor. Defaults match Video Speed Controller.</p>
+      <p class="muted" data-i18n="opt_shortcuts_hint"></p>
       <div id="shortcutEditor" class="hotkey-remap-list"></div>
     </section>
 
     <section class="card pro" id="proSection">
       <div class="card-head">
-        <h2>Pro features</h2>
+        <h2 data-i18n="opt_pro"></h2>
         <span id="proBadge" class="pill"></span>
       </div>
       <p class="muted" id="proNote"></p>
 
-      <h3>Skip silence</h3>
-      <label class="check"><input type="checkbox" id="ssEnabled"> Speed up automatically while the audio is silent</label>
+      <h3 data-i18n="skip_silence"></h3>
+      <label class="check"><input type="checkbox" id="ssEnabled"> <span data-i18n="opt_ss_enable"></span></label>
       <div class="grid">
-        <label>Silence threshold
+        <label><span data-i18n="opt_ss_threshold"></span>
           <span class="field"><input type="number" id="ssThreshold" min="-70" max="-10" step="1"><span>dB</span></span>
-          <small>Lower = only true silence counts. Try −50 for quiet speakers.</small>
+          <small data-i18n="opt_ss_threshold_hint"></small>
         </label>
-        <label>Speed during silence
+        <label><span data-i18n="opt_ss_speed"></span>
           <span class="field"><input type="number" id="ssSpeed" min="1.25" max="16" step="0.25"><span>x</span></span>
         </label>
-        <label>Wait before speeding up
+        <label><span data-i18n="opt_ss_before"></span>
           <span class="field"><input type="number" id="ssMinSilence" min="50" max="3000" step="50"><span>ms</span></span>
-          <small>Margin before: short pauses between words are left alone.</small>
+          <small data-i18n="opt_ss_before_hint"></small>
         </label>
-        <label>Keep normal speed after sound
+        <label><span data-i18n="opt_ss_after"></span>
           <span class="field"><input type="number" id="ssMinSpeech" min="0" max="3000" step="50"><span>ms</span></span>
-          <small>Margin after: avoids flicker on choppy audio.</small>
+          <small data-i18n="opt_ss_after_hint"></small>
         </label>
       </div>
-      <p class="muted">Works on players that serve audio from the same site (YouTube, most course platforms). On players that stream cross-origin audio without permission it turns itself off and tells you, instead of speeding everything up.</p>
+      <p class="muted" data-i18n="opt_ss_note"></p>
 
-      <h3>Hold to speed</h3>
+      <h3 data-i18n="action_hold"></h3>
       <div class="grid">
-        <label>Speed while the key is held
+        <label><span data-i18n="opt_hold_speed"></span>
           <span class="field"><input type="number" id="holdSpeed" min="0.1" max="16" step="0.25"><span>x</span></span>
-          <small>Assign the key in Keyboard shortcuts → Hold to speed.</small>
+          <small data-i18n="opt_hold_hint"></small>
         </label>
       </div>
 
-      <h3>YouTube ads</h3>
-      <label class="check"><input type="checkbox" id="youtubeAds"> Play YouTube ads at 16x and muted, then restore speed and sound</label>
+      <h3 data-i18n="opt_yt_ads"></h3>
+      <label class="check"><input type="checkbox" id="youtubeAds"> <span data-i18n="opt_yt_ads_enable"></span></label>
 
-      <h3>Speed rules</h3>
-      <p class="muted">Priority: channel → URL pattern → site → your default. URL patterns use <code>*</code> and are matched without <code>https://</code> and <code>www.</code> (e.g. <code>udemy.com/course/*</code>). Channel = @handle, channel ID (UC…) or exact name.</p>
+      <h3 data-i18n="rules_title"></h3>
+      <p class="muted" data-i18n="opt_rules_hint"></p>
       <table class="rules">
-        <thead><tr><th>Type</th><th>Pattern</th><th>Speed</th><th></th></tr></thead>
+        <thead><tr><th data-i18n="opt_rules_type"></th><th data-i18n="opt_rules_pattern"></th><th data-i18n="opt_rules_speed"></th><th></th></tr></thead>
         <tbody id="rulesBody"></tbody>
         <tfoot>
           <tr>
-            <td><select id="newRuleType"><option value="channel">Channel</option><option value="url">URL</option><option value="domain" selected>Site</option></select></td>
+            <td><select id="newRuleType">
+              <option value="channel" data-i18n="rule_type_channel"></option>
+              <option value="url" data-i18n="rule_type_url"></option>
+              <option value="domain" data-i18n="rule_type_domain" selected></option>
+            </select></td>
             <td><input type="text" id="newRulePattern" placeholder="youtube.com"></td>
             <td><input type="number" id="newRuleSpeed" min="0.1" max="16" step="0.1" value="1.5"></td>
-            <td><button type="button" class="btn" id="addRule">Add</button></td>
+            <td><button type="button" class="btn" id="addRule" data-i18n="opt_add"></button></td>
           </tr>
         </tfoot>
       </table>
     </section>
 
     <section class="card">
-      <h2>Disable shortcuts on these sites</h2>
-      <p class="muted">One domain per line. Subdomains are included (e.g. <code>google.com</code> also covers <code>docs.google.com</code>).</p>
+      <h2 data-i18n="opt_blacklist"></h2>
+      <p class="muted" data-i18n="opt_blacklist_hint"></p>
       <textarea id="shortcutBlacklist" rows="5" spellcheck="false" placeholder="docs.google.com"></textarea>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="opt_backup"></h2>
+      <label class="check"><input type="checkbox" id="syncEnabled"> <span data-i18n="opt_sync_enable"></span></label>
+      <p class="muted"><span data-i18n="opt_sync_hint"></span> <span id="syncStatus"></span></p>
+      <div class="actions">
+        <button type="button" class="btn" id="exportBtn" data-i18n="opt_export"></button>
+        <label class="btn file"><span data-i18n="opt_import_file"></span><input type="file" id="importFile" accept="application/json,.json" hidden></label>
+      </div>
+      <p class="muted" data-i18n="opt_import_paste_hint"></p>
+      <textarea id="importText" rows="4" spellcheck="false" placeholder='{ "format": "speedup-video-pro-settings", … }'></textarea>
+      <div class="actions">
+        <button type="button" class="btn" id="importBtn" data-i18n="opt_import"></button>
+        <span id="importMsg" class="msg" aria-live="polite"></span>
+      </div>
     </section>
   </main>
   <script src="options.js"></script>

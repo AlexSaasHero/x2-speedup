@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="onb_title">SpeedUp Video Pro</title>
+  <link rel="stylesheet" href="onboarding.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <img src="../icons/icon128.png" alt="" width="64" height="64">
+      <div>
+        <h1 data-i18n="onb_welcome"></h1>
+        <p class="muted" data-i18n="onb_tagline"></p>
+      </div>
+    </header>
+
+    <section class="card" id="pin">
+      <h2 data-i18n="onb_pin_title"></h2>
+      <p data-i18n="onb_pin_body"></p>
+    </section>
+
+    <section class="card" id="demo">
+      <h2 data-i18n="onb_demo_title"></h2>
+      <p class="muted" data-i18n="onb_demo_body"></p>
+      <div class="player" id="player" tabindex="0">
+        <canvas id="wave" width="720" height="140"></canvas>
+        <div class="player-bar">
+          <button type="button" id="demoPlay" class="btn primary" data-i18n="onb_demo_play"></button>
+          <span class="speed" id="demoSpeed">1.0x</span>
+          <span class="time" id="demoTime">0:00</span>
+          <span class="feedback" id="demoFeedback" aria-live="polite"></span>
+        </div>
+      </div>
+      <ul class="keys" id="demoKeys"></ul>
+    </section>
+
+    <section class="card" id="trial">
+      <h2 data-i18n="onb_trial_title"></h2>
+      <p data-i18n="onb_trial_body"></p>
+      <ul class="features">
+        <li data-i18n="onb_trial_f1"></li>
+        <li data-i18n="onb_trial_f2"></li>
+        <li data-i18n="onb_trial_f3"></li>
+        <li data-i18n="onb_trial_f4"></li>
+      </ul>
+      <button type="button" id="startTrial" class="btn primary big" data-i18n="cta_start_trial"></button>
+      <p class="muted small" data-i18n="cta_microcopy"></p>
+      <div class="activate">
+        <label for="licenseKey" data-i18n="onb_have_key"></label>
+        <div class="row">
+          <input type="text" id="licenseKey" autocomplete="off" spellcheck="false" data-i18n-placeholder="license_placeholder">
+          <button type="button" id="activate" class="btn" data-i18n="license_activate"></button>
+        </div>
+        <p id="activateMsg" class="msg" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="card" id="whats-new">
+      <h2 data-i18n="onb_whats_new"></h2>
+      <div id="changelog"></div>
+    </section>
+
+    <footer class="muted small" data-i18n="privacy_line"></footer>
+  </main>
+  <script src="onboarding.js"></script>
+</body>
+</html>

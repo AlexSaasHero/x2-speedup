@@ -1,11 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "SpeedUp Video Pro",
-  "version": "1.7.0",
-  "description": "Controllo rapido della velocità per qualsiasi video web.",
+  "name": "__MSG_extName__",
+  "version": "1.8.0",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "alarms"
   ],
   "host_permissions": [
     "https://x2-speedup.vercel.app/*",
@@ -22,7 +24,8 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
-    }
+    },
+    "default_title": "__MSG_actionTitle__"
   },
   "content_scripts": [
     {

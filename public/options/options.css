@@ -58,3 +58,7 @@ table.rules input[type=text] { width: 100%; }
 table.rules input[type=number] { width: 72px; }
 select, input[type=text] { background: rgba(15, 23, 42, 0.9); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 6px 8px; font: inherit; }
 .empty { color: var(--muted); font-style: italic; }
+
+.actions { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.btn.file { display: inline-flex; align-items: center; }
+.msg.ok { color: #34d399; font-size: 12.5px; } .msg.err { color: #f87171; font-size: 12.5px; }

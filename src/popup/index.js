@@ -10,30 +10,33 @@ import {
   planLimits
 } from '../config/plans';
 import { isPro } from '../shared/entitlement';
+import { isInGrace, validateLicense } from '../shared/license';
+import { applyI18n, t } from '../shared/i18n';
+import { REVIEW_THRESHOLD_SECONDS, completeReview, shouldAskForReview, snoozeReview } from '../shared/review';
+import { reviewUrl } from '../shared/links';
+import { STATS_BUFFER_KEY, STATS_KEY, applyBuffer, formatDuration, validateStats } from '../shared/stats';
 import { isHostListed, normalizeHostPattern } from '../shared/hosts';
 import { roundSpeed } from '../shared/media-math';
 import { defaultShortcuts } from '../shared/shortcuts';
 import { normalizeMediaUrl } from '../shared/url';
 import { mountShortcutEditor } from '../ui/shortcut-editor';
 import { mountSmart } from './smart';
+import { LANDING_PAGE_URL } from '../shared/links';
 
-// Offline master key for local development only; '' in store builds (see scripts/build.mjs).
-const DEV_MASTER_KEY = __DEV_MASTER_KEY__;
 
 // Top-level feature flag defaults
 const HUD_ENABLED_DEFAULT = true;
 const PRESERVE_PITCH_DEFAULT = true;
 
 function initPopup() {
+  applyI18n();
   // ==========================================
   // 1. DOM ELEMENTS & CONSTANTS
   // ==========================================
-  const LANDING_PAGE_URL = "https://x2-speedup.vercel.app/";
-  const VALIDATE_ENDPOINT = "https://x2-speedup.vercel.app/api/validate-license";
   const MIN_SPEED = PRO_MIN_SPEED;
   const MAX_SPEED = PRO_MAX_SPEED;
-  const UNLOCK_TITLE = `Unlock speeds up to ${formatSpeed(PRO_MAX_SPEED)} with Pro (7-Day Free Trial)`;
-  const FREE_TIER_LABEL = `Free Tier (Max ${formatSpeed(FREE_MAX_SPEED)})`;
+  const UNLOCK_TITLE = t('unlock_title', [formatSpeed(PRO_MAX_SPEED)]);
+  const FREE_TIER_LABEL = t('free_tier', [formatSpeed(FREE_MAX_SPEED)]);
 
   // Header Elements
   const licenseTierBadge = document.getElementById('licenseTierBadge');
@@ -104,6 +107,7 @@ function initPopup() {
 
   // State & Access Control
   let isPermanentPro = false;
+  let license = validateLicense(null);
   let installDate = null;
   let currentSpeed = 1.0;
   let isPlaying = true;
@@ -184,11 +188,24 @@ function initPopup() {
   // ==========================================
   // 2. TIER & MODAL CONTROLLER (FREEMIUM / PRO)
   // ==========================================
+  /** Footer/badge wording for the current license state. */
+  function licenseLabel() {
+    if (isPermanentPro) return isInGrace(license) ? t('license_grace') : t('pro_active');
+    switch (license.status) {
+      case 'expired': return t('license_state_expired');
+      case 'revoked': return t('license_state_revoked');
+      case 'limit': return t('license_state_limit');
+      case 'invalid': return license.key ? t('license_state_invalid') : FREE_TIER_LABEL;
+      case 'active': return t('license_state_stale');
+      default: return FREE_TIER_LABEL;
+    }
+  }
+
   function getTierStatus() {
     if (isPermanentPro) {
-      return { isPro: true, hasFullAccess: true, label: 'Pro Active ✨' };
+      return { isPro: true, hasFullAccess: true, label: licenseLabel() };
     }
-    return { isPro: false, hasFullAccess: false, label: FREE_TIER_LABEL };
+    return { isPro: false, hasFullAccess: false, label: licenseLabel() };
   }
 
   function canUse(feature) {
@@ -204,12 +221,12 @@ function initPopup() {
       document.body.classList.remove('is-free', 'is-trial', 'is-expired');
       if (licenseTierBadge) {
         licenseTierBadge.className = 'tier-badge tier-pro';
-        licenseTierBadge.title = 'Licenza PRO Lifetime Attiva';
+        licenseTierBadge.title = t('pro_active');
       }
-      if (tierBadgeText) tierBadgeText.textContent = 'Pro Active ✨';
+      if (tierBadgeText) tierBadgeText.textContent = tier.label;
       if (tierRangeHint) tierRangeHint.textContent = `(${formatSpeed(PRO_MIN_SPEED)}–${formatSpeed(PRO_MAX_SPEED)})`;
       if (footerLicenseStatus) {
-        footerLicenseStatus.textContent = 'Pro Active ✨';
+        footerLicenseStatus.textContent = tier.label;
         footerLicenseStatus.className = 'footer-note footer-pro-active';
       }
       if (footerCtaSection) footerCtaSection.style.display = 'none';
@@ -232,18 +249,20 @@ function initPopup() {
       document.body.classList.add('is-free');
       if (licenseTierBadge) {
         licenseTierBadge.className = 'tier-badge tier-free';
-        licenseTierBadge.title = `${FREE_TIER_LABEL} — Clicca per attivare Pro o iniziare il trial gratuito`;
+        licenseTierBadge.title = t('tier_badge_title');
       }
       if (tierBadgeText) tierBadgeText.textContent = FREE_TIER_LABEL;
-      if (tierRangeHint) tierRangeHint.textContent = `(Free: ${formatSpeed(FREE_MIN_SPEED)}–${formatSpeed(FREE_MAX_SPEED)})`;
+      if (footerLicenseStatus && license.key) footerLicenseStatus.title = license.key;
+      if (tierRangeHint) tierRangeHint.textContent = `(${t('free')}: ${formatSpeed(FREE_MIN_SPEED)}–${formatSpeed(FREE_MAX_SPEED)})`;
       if (footerLicenseStatus) {
-        footerLicenseStatus.textContent = FREE_TIER_LABEL;
+        footerLicenseStatus.textContent = tier.label;
         footerLicenseStatus.className = 'footer-note';
       }
       if (footerCtaSection) footerCtaSection.style.display = 'flex';
-      if (footerCtaBtnText) footerCtaBtnText.textContent = 'Start 7-Day Free Trial ($0)';
+      if (footerCtaBtnText) footerCtaBtnText.textContent = t('cta_start_trial');
       if (openUpgradeBtn) openUpgradeBtn.style.display = 'inline-block';
-      if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
+      // A stored but unusable key (expired, revoked…) can be removed to enter a new one.
+      if (logoutKeyBtn) logoutKeyBtn.style.display = license.key ? 'inline-block' : 'none';
 
       if (slider) {
         slider.min = String(FREE_MIN_SPEED);
@@ -276,7 +295,7 @@ function initPopup() {
       if (customTitle) {
         proModalTitle.textContent = customTitle;
       } else if (tier.isPro) {
-        proModalTitle.textContent = "SpeedUP Video Pro is active! Enjoy unlimited speed and precision.";
+        proModalTitle.textContent = t('pro_modal_active');
       } else {
         proModalTitle.textContent = UNLOCK_TITLE;
       }
@@ -305,7 +324,7 @@ function initPopup() {
   function setModalActivating(isActivating) {
     if (!activateBtn) return;
     activateBtn.disabled = isActivating;
-    activateBtn.textContent = isActivating ? 'Verifica in corso...' : 'Attiva Licenza';
+    activateBtn.textContent = isActivating ? t('license_validating') : t('license_activate');
   }
 
   // ==========================================
@@ -348,9 +367,7 @@ function initPopup() {
   // ==========================================
   chrome.storage.local.get(
     {
-      isPro: false,
-      licenseKey: '',
-      activatedAt: 0,
+      license: null,
       defaultSpeed: 1.0,
       speedStep: 0.1,
       seekSeconds: 10,
@@ -366,6 +383,7 @@ function initPopup() {
       videoCheckpoints: {}
     },
     (data) => {
+      license = validateLicense(data.license);
       isPermanentPro = isPro(data);
 
       applyTierUI();
@@ -432,7 +450,7 @@ function initPopup() {
 
       activeTabId = tab.id;
       activeTabUrl = tab.url || '';
-      activeTabTitle = tab.title || 'Video Web';
+      activeTabTitle = tab.title || t('video');
 
       if (
         activeTabUrl.startsWith("chrome://") ||
@@ -492,8 +510,8 @@ function initPopup() {
     });
     if (seekBackLabel) seekBackLabel.textContent = `-${seekSeconds}s`;
     if (seekFwdLabel) seekFwdLabel.textContent = `+${seekSeconds}s`;
-    if (seekBack5Btn) seekBack5Btn.title = `Back ${seekSeconds} seconds`;
-    if (seekFwd5Btn) seekFwd5Btn.title = `Forward ${seekSeconds} seconds`;
+    if (seekBack5Btn) seekBack5Btn.title = t('seek_back_title', [seekSeconds]);
+    if (seekFwd5Btn) seekFwd5Btn.title = t('seek_fwd_title', [seekSeconds]);
     updateDomainUI();
     shortcutEditor?.render();
   }
@@ -501,33 +519,33 @@ function initPopup() {
   // ==========================================
   // 6. LICENSE ACTIVATION & VERIFICATION
   // ==========================================
+  const VERDICT_MESSAGES = Object.fromEntries(
+    ['valid', 'expired', 'revoked', 'limit', 'invalid', 'unreachable'].map((k) => [k, t(`license_verdict_${k}`)])
+  );
+
+  /** Validation runs in the background worker (single place, daily re-checks, offline grace). */
   async function handleModalActivation() {
     const rawKey = keyInput ? keyInput.value.trim() : '';
     if (!rawKey) {
-      showModalStatus('Please enter your license key.', 'error');
+      showModalStatus(t('license_enter'), 'error');
       if (keyInput) keyInput.focus();
       return;
     }
 
     setModalActivating(true);
-    showModalStatus('Validating license key...', 'info');
+    showModalStatus(t('license_validating'), 'info');
 
-    // 1. Dev Master Key (dev builds only) — instant offline validation without network calls
-    if (DEV_MASTER_KEY && rawKey === DEV_MASTER_KEY) {
-      const licenseData = {
-        isPro: true,
-        licenseKey: DEV_MASTER_KEY,
-        activatedAt: Date.now()
-      };
-      await chrome.storage.local.set(licenseData);
-      if (chrome.storage.sync) {
-        try {
-          await chrome.storage.sync.set(licenseData);
-        } catch (e) {}
-      }
-
-      isPermanentPro = true;
-      showModalStatus('✓ Pro activated successfully!', 'success');
+    let result = null;
+    try {
+      result = await chrome.runtime.sendMessage({ action: 'LICENSE_ACTIVATE', key: rawKey });
+    } catch (e) {
+      result = null;
+    }
+    const verdict = result?.verdict ?? 'unreachable';
+    if (result?.ok) {
+      license = validateLicense(result.license);
+      isPermanentPro = isPro({ license: result.license });
+      showModalStatus(VERDICT_MESSAGES.valid, 'success');
       setTimeout(() => {
         setModalActivating(false);
         applyTierUI();
@@ -535,100 +553,9 @@ function initPopup() {
       }, 400);
       return;
     }
-
-    // 2. Remote Validation via https://x2-speedup.vercel.app/api/validate-license
-    const isValid = await verifyLicenseKeyAsync(rawKey);
-
-    if (isValid) {
-      const licenseData = {
-        isPro: true,
-        licenseKey: rawKey,
-        activatedAt: Date.now()
-      };
-      await chrome.storage.local.set(licenseData);
-      if (chrome.storage.sync) {
-        try {
-          await chrome.storage.sync.set(licenseData);
-        } catch (e) {}
-      }
-
-      isPermanentPro = true;
-      showModalStatus('✓ Pro activated successfully!', 'success');
-      setTimeout(() => {
-        setModalActivating(false);
-        applyTierUI();
-        closeUpgradeModal();
-      }, 400);
-    } else {
-      setModalActivating(false);
-      showModalStatus('Invalid or expired license key', 'error');
-    }
-  }
-
-  async function verifyLicenseKeyAsync(key) {
-    if (DEV_MASTER_KEY && key === DEV_MASTER_KEY) return true;
-
-    const clean = (key || '').trim();
-    if (!clean) return false;
-
-    // 1. Primary validation endpoint: POST https://x2-speedup.vercel.app/api/validate-license
-    try {
-      const response = await fetch(VALIDATE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ license_key: clean }),
-        signal: AbortSignal.timeout(6000)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && (data.status === 'valid' || data.valid === true || data.is_valid === true)) {
-          return true;
-        }
-      }
-    } catch (err) {
-      console.warn('X2 license validation endpoint unreachable, checking fallback:', err);
-    }
-
-    // 2. Direct check with Lemon Squeezy API
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-      const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({ license_key: clean }).toString(),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && (data.valid === true || data.status === 'valid')) {
-          return true;
-        }
-      }
-    } catch (err) {
-      console.warn('Lemon Squeezy direct validation unreachable, checking fallback:', err);
-    }
-
-    // Fallback: check valid key format or prefix (PRO-*, TRIAL-*, UUID)
-    if (clean.toUpperCase().startsWith('PRO-') || clean.toUpperCase().startsWith('TRIAL-')) {
-      return true;
-    }
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidRegex.test(clean)) {
-      return true;
-    }
-
-    return false;
+    if (result?.license) license = validateLicense(result.license);
+    setModalActivating(false);
+    showModalStatus(VERDICT_MESSAGES[verdict] ?? VERDICT_MESSAGES.invalid, 'error');
   }
 
   // Modal & Upgrade Triggers
@@ -688,24 +615,14 @@ function initPopup() {
 
   if (logoutKeyBtn) {
     logoutKeyBtn.addEventListener('click', async () => {
+      await chrome.runtime.sendMessage({ action: 'LICENSE_DEACTIVATE' }).catch(() => {});
       isPermanentPro = false;
-      const resetData = {
-        isPro: false,
-        licenseKey: ''
-      };
-      await chrome.storage.local.set(resetData);
-      if (chrome.storage.sync) {
-        try {
-          await chrome.storage.sync.set(resetData);
-        } catch (e) {}
-      }
+      license = validateLicense(null);
       applyTierUI();
-      const tier = getTierStatus();
-      if (!tier.hasFullAccess && currentSpeed > FREE_MAX_SPEED) {
-        setSpeed(FREE_MAX_SPEED);
-      }
+      if (currentSpeed > FREE_MAX_SPEED) setSpeed(FREE_MAX_SPEED);
     });
   }
+
 
   // ==========================================
   // 7. TAB 1: SPEED HUB LOGIC (0.1x UP TO 16.0x)
@@ -767,16 +684,16 @@ function initPopup() {
       return;
     }
     if (active) {
-      statusText.textContent = `${count} Video ${count > 1 ? 'Trovati' : 'Trovato'}`;
+      statusText.textContent = count > 1 ? t('status_found_many', [count]) : t('status_found_one');
       statusBadge.className = 'status-badge status-online';
     } else {
-      statusText.textContent = 'Cerca video...';
+      statusText.textContent = t('status_searching');
       statusBadge.className = 'status-badge status-offline';
     }
   }
 
   function updatePlaybackUI() {
-    if (playText) playText.textContent = isPlaying ? 'Pausa' : 'Play';
+    if (playText) playText.textContent = isPlaying ? t('pause') : t('play');
   }
 
   if (slider) {
@@ -857,6 +774,31 @@ function initPopup() {
   }
   document.getElementById('openOptionsBtn2')?.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
+  // Review request (once, after 30 min saved in total; "Not now" = ask again in 14 days)
+  const reviewBanner = document.getElementById('reviewBanner');
+  async function maybeAskForReview() {
+    if (!reviewBanner) return;
+    const local = await chrome.storage.local.get(['reviewPrompt', STATS_KEY]);
+    const buffer = (await chrome.storage.session.get(STATS_BUFFER_KEY).catch(() => ({})))[STATS_BUFFER_KEY];
+    const total = applyBuffer(validateStats(local[STATS_KEY]), buffer).total.saved;
+    const prompt = local.reviewPrompt ?? { state: 'waiting', snoozedUntil: 0 };
+    if (!shouldAskForReview(prompt, total)) return;
+    const text = document.getElementById('reviewText');
+    if (text) text.textContent = t('review_text', [formatDuration(Math.max(total, REVIEW_THRESHOLD_SECONDS))]);
+    reviewBanner.hidden = false;
+  }
+  document.getElementById('reviewRate')?.addEventListener('click', () => {
+    chrome.storage.local.set({ reviewPrompt: completeReview() });
+    const url = reviewUrl(chrome.runtime.id, __TARGET__, navigator.userAgent);
+    if (url) chrome.tabs.create({ url });
+    if (reviewBanner) reviewBanner.hidden = true;
+  });
+  document.getElementById('reviewLater')?.addEventListener('click', () => {
+    chrome.storage.local.set({ reviewPrompt: snoozeReview() });
+    if (reviewBanner) reviewBanner.hidden = true;
+  });
+  void maybeAskForReview();
+
   // A-B repeat (Pro)
   const abState = document.getElementById('abState');
   const abAction = async (op) => {
@@ -864,7 +806,7 @@ function initPopup() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) return;
     const res = await sendTabMessageWithTimeout(tab.id, { action: 'AB_REPEAT', op }, 400);
-    if (abState) abState.textContent = res?.abLoop ? (res.abLoop.b !== undefined ? 'looping' : 'A set') : res?.success ? 'off' : 'no video';
+    if (abState) abState.textContent = res?.abLoop ? (res.abLoop.b !== undefined ? t('ab_looping') : t('ab_a_set')) : res?.success ? t('ab_off') : t('no_video');
   };
   document.getElementById('abSetA')?.addEventListener('click', () => abAction('a'));
   document.getElementById('abSetB')?.addEventListener('click', () => abAction('b'));
@@ -885,7 +827,7 @@ function initPopup() {
   // ==========================================
   async function handleFrameScrub(direction) {
     if (!canUse('frameStep')) {
-      openUpgradeModal(`Frame-by-frame precision stepping is a Pro feature. ${UNLOCK_TITLE}.`);
+      openUpgradeModal(t('upsell_frames'));
       return;
     }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -906,7 +848,7 @@ function initPopup() {
 
   async function handleQuickSkip(seconds) {
     if (!canUse('skipTime')) {
-      openUpgradeModal(`Quick skip scrubbing is a Pro feature. ${UNLOCK_TITLE}.`);
+      openUpgradeModal(t('upsell_skip'));
       return;
     }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -962,11 +904,15 @@ function initPopup() {
     const list = Array.isArray(videoCheckpoints[urlKey]) ? videoCheckpoints[urlKey] : [];
 
     if (checkpointCountBadge) {
-      checkpointCountBadge.textContent = `${list.length} salvat${list.length === 1 ? 'o' : 'i'}`;
+      checkpointCountBadge.textContent = t('bookmarks_count', [list.length]);
     }
 
     if (list.length === 0) {
-      checkpointsList.innerHTML = `<div class="cp-empty">Nessun checkpoint salvato per questo video.</div>`;
+      checkpointsList.textContent = '';
+      const empty = document.createElement('div');
+      empty.className = 'cp-empty';
+      empty.textContent = t('bookmarks_empty');
+      checkpointsList.append(empty);
       return;
     }
 
@@ -974,7 +920,7 @@ function initPopup() {
     list.forEach((cp) => {
       const item = document.createElement('div');
       item.className = 'cp-item';
-      item.title = `Salta a ${cp.formattedTime} — ${cp.pageTitle || ''}`;
+      item.title = t('bookmark_jump', [cp.formattedTime, cp.pageTitle || '']);
 
       const left = document.createElement('div');
       left.className = 'cp-left';
@@ -985,14 +931,14 @@ function initPopup() {
 
       const labelSpan = document.createElement('span');
       labelSpan.className = 'cp-label';
-      labelSpan.textContent = cp.label || cp.pageTitle || 'Checkpoint';
+      labelSpan.textContent = cp.label || cp.pageTitle || t('bookmark');
 
       left.appendChild(timeBadge);
       left.appendChild(labelSpan);
 
       const delBtn = document.createElement('button');
       delBtn.className = 'cp-delete-btn';
-      delBtn.title = 'Elimina checkpoint';
+      delBtn.title = t('bookmark_delete');
       delBtn.textContent = '×';
 
       item.addEventListener('click', () => {
@@ -1012,7 +958,7 @@ function initPopup() {
 
   async function addCheckpoint() {
     if (!canUse('checkpoints')) {
-      openUpgradeModal(`Video checkpoints are a Pro feature. ${UNLOCK_TITLE}.`);
+      openUpgradeModal(t('upsell_bookmarks'));
       return;
     }
 
@@ -1037,7 +983,7 @@ function initPopup() {
     const customNote = checkpointLabelInput ? checkpointLabelInput.value.trim() : '';
     const defaultTitle = activeTabTitle
       ? activeTabTitle.slice(0, 36)
-      : `Checkpoint #${existingList.length + 1}`;
+      : t('bookmark_n', [existingList.length + 1]);
 
     const newCp = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,

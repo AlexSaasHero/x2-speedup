@@ -3,6 +3,7 @@
 // markup changes and no player container is found, the module does nothing (logged in dev builds).
 import type { Media } from '../content/media-registry';
 import type { ProApi, ProModule } from '../content/pro-api';
+import { t } from '../shared/i18n';
 
 export const AD_SPEED = 16;
 const PLAYER_SELECTOR = '.html5-video-player, #movie_player';
@@ -25,7 +26,7 @@ export function create(api: ProApi): ProModule {
         saved.set(m, { muted: m.muted });
         m.muted = true;
         api.setOverride(m, 'ads', AD_SPEED);
-        api.flash('Ad · 16x muted', m);
+        api.flash(t('overlay_ad_fast'), m);
       } else if (!ad && inAd.has(m)) {
         restore(m);
       }

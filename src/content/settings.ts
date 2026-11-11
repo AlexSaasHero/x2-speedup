@@ -3,14 +3,16 @@ import { isPro } from '../shared/entitlement';
 import { migrate } from '../shared/migrations';
 import type { StoredState } from '../shared/storage';
 
-export type ContentSettings = Omit<StoredState, 'videoCheckpoints' | 'activeTab' | 'installDate' | 'activatedAt'> & {
+export type ContentSettings = Omit<
+  StoredState,
+  'videoCheckpoints' | 'activeTab' | 'installDate' | 'license' | 'syncEnabled' | 'deviceId' | 'reviewPrompt'
+> & {
   pro: boolean;
 };
 
 const KEYS = [
   'schemaVersion',
-  'isPro',
-  'licenseKey',
+  'license',
   'defaultSpeed',
   'rules',
   'skipSilence',
@@ -31,6 +33,8 @@ const KEYS = [
   // read only so migrate() can convert un-migrated legacy data in-memory
   'customHotkeys',
   'domainSpeeds',
+  'isPro',
+  'licenseKey',
   'is_pro',
   'license_key',
   'preservePitch'
@@ -40,8 +44,6 @@ function normalise(raw: Record<string, unknown>): ContentSettings {
   const s = migrate(raw).set as StoredState;
   return {
     schemaVersion: s.schemaVersion,
-    isPro: s.isPro,
-    licenseKey: s.licenseKey,
     pro: isPro(s),
     defaultSpeed: s.defaultSpeed,
     rules: s.rules,

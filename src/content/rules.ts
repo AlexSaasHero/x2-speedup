@@ -1,6 +1,7 @@
 // Applies the highest-priority matching speed rule for the current page.
 import { planLimits } from '../config/plans';
 import { describeRule, resolveRule, type PageContext, type Rule } from '../shared/rules';
+import { t } from '../shared/i18n';
 import { debug } from './log';
 import type { MediaRegistry } from './media-registry';
 import type { RateController } from './rate-controller';
@@ -56,6 +57,6 @@ export class RuleApplier {
     if (rule.id === this.appliedId || !this.registry.count()) return;
     this.appliedId = rule.id;
     debug('applying rule', describeRule(rule));
-    this.controller.setSpeed(rule.speed, this.registry.all(), { persist: false, label: `Rule · ${rule.speed}x` });
+    this.controller.setSpeed(rule.speed, this.registry.all(), { persist: false, label: t('overlay_rule', [`${rule.speed}x`]) });
   }
 }

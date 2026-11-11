@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,14 +23,14 @@
       </div>
       <div class="header-right">
         <!-- Interactive License / Trial Tier Badge -->
-        <button id="licenseTierBadge" class="tier-badge tier-free" title="Free Tier (Max 2.0x) — Clicca per attivare Pro o iniziare il trial">
+        <button id="licenseTierBadge" class="tier-badge tier-free" data-i18n-title="tier_badge_title">
           <span class="tier-dot"></span>
-          <span id="tierBadgeText">Free Tier (Max 2.0x)</span>
+          <span id="tierBadgeText"></span>
         </button>
         <!-- Video Detection Status Badge -->
         <div id="statusBadge" class="status-badge status-offline">
           <span class="status-dot"></span>
-          <span id="statusText">Cerca video...</span>
+          <span id="statusText" data-i18n="status_searching"></span>
         </div>
       </div>
     </header>
@@ -38,24 +38,20 @@
     <!-- COMPACT PRO UPGRADE & LICENSE MODAL / CASSETTO -->
     <section id="proUpgradeModal" class="pro-upgrade-modal" style="display: none;" role="dialog" aria-modal="true">
       <div class="pro-modal-card">
-        <button id="closeUpgradeModalBtn" class="pro-modal-close" title="Chiudi" aria-label="Chiudi">×</button>
+        <button id="closeUpgradeModalBtn" class="pro-modal-close" data-i18n-title="close" data-i18n-aria-label="close">×</button>
         <div class="pro-modal-badge">
           <span>⚡ SPEEDUP PRO</span>
         </div>
-        <p id="proModalTitle" class="pro-modal-title">
-          Unlock speeds up to 16.0x with Pro (7-Day Free Trial)
-        </p>
-        <button id="ctaBuyBtn" class="cta-buy-btn">
-          Start 7-Day Free Trial ($0)
-        </button>
+        <p id="proModalTitle" class="pro-modal-title"></p>
+        <button id="ctaBuyBtn" class="cta-buy-btn" data-i18n="cta_start_trial"></button>
 
         <div class="divider">
-          <span>Activate Pro / Enter License Key</span>
+          <span data-i18n="license_divider"></span>
         </div>
 
         <div class="key-form">
-          <input type="text" id="input-license-key" placeholder="Enter license key (e.g. PRO-1234)" autocomplete="off" spellcheck="false">
-          <button id="activateBtn" class="activate-btn">Activate</button>
+          <input type="text" id="input-license-key" data-i18n-placeholder="license_placeholder" autocomplete="off" spellcheck="false">
+          <button id="activateBtn" class="activate-btn" data-i18n="license_activate"></button>
         </div>
         <div id="statusMsg" class="status-msg"></div>
       </div>
@@ -64,13 +60,13 @@
     <!-- MAIN SUITE SECTION (Speed Hub, Shortcuts, Precision - Active Immediately) -->
     <div id="speedControls">
       <!-- 3-Tab Navigation Bar -->
-      <nav class="tab-nav" role="tablist" aria-label="Navigazione Principale">
+      <nav class="tab-nav" role="tablist" data-i18n-aria-label="tabs_label">
         <button class="tab-btn active" data-tab="speed" role="tab" aria-selected="true">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 14l4-4"></path>
             <path d="M3.34 19a10 10 0 1 1 17.32 0"></path>
           </svg>
-          <span>Speed</span>
+          <span data-i18n="tab_speed"></span>
         </button>
 
         <button class="tab-btn" data-tab="shortcuts" role="tab" aria-selected="false">
@@ -85,7 +81,7 @@
             <line x1="16" y1="12" x2="16.01" y2="12"></line>
             <line x1="7" y1="16" x2="17" y2="16"></line>
           </svg>
-          <span>Shortcuts</span>
+          <span data-i18n="tab_shortcuts"></span>
         </button>
 
         <button class="tab-btn" data-tab="precision" role="tab" aria-selected="false">
@@ -96,14 +92,14 @@
             <line x1="12" y1="6" x2="12" y2="2"></line>
             <line x1="12" y1="22" x2="12" y2="18"></line>
           </svg>
-          <span>Precision</span>
+          <span data-i18n="tab_precision"></span>
         </button>
 
         <button class="tab-btn" data-tab="pro" role="tab" aria-selected="false">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <span>Smart</span>
+          <span data-i18n="tab_smart"></span>
         </button>
       </nav>
 
@@ -115,13 +111,13 @@
           <section class="speed-display-card">
             <div class="card-glow"></div>
             <div class="speed-header">
-              <span class="label">Speed Hub <span id="tierRangeHint" class="tier-hint">(0.1x–16x)</span></span>
-              <button id="resetBtn" class="reset-btn" title="Ripristina a 1.0x (R)">
+              <span class="label"><span data-i18n="speed_hub"></span> <span id="tierRangeHint" class="tier-hint"></span></span>
+              <button id="resetBtn" class="reset-btn" data-i18n-title="reset_title">
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                   <path d="M3 3v5h5"></path>
                 </svg>
-                Reset 1.0x
+                <span data-i18n="reset_1x"></span>
               </button>
             </div>
 
@@ -145,7 +141,7 @@
               <button class="step-btn" data-step-mult="-2.5">-0.25x</button>
               <button class="step-btn" data-step-mult="-1">-0.10x</button>
               <div class="custom-input-wrapper">
-                <input type="number" id="customSpeedInput" min="0.1" max="16.0" step="0.05" value="1.00" aria-label="Velocità personalizzata">
+                <input type="number" id="customSpeedInput" min="0.1" max="16.0" step="0.05" value="1.00" data-i18n-aria-label="custom_speed">
                 <span class="input-unit">x</span>
               </div>
               <button class="step-btn" data-step-mult="1">+0.10x</button>
@@ -153,20 +149,29 @@
             </div>
           </section>
 
+          <!-- One-time review request (after 30 min saved) -->
+          <section class="review-banner" id="reviewBanner" hidden>
+            <span id="reviewText"></span>
+            <div class="review-actions">
+              <button type="button" id="reviewRate" class="review-rate" data-i18n="review_rate"></button>
+              <button type="button" id="reviewLater" class="review-later" data-i18n="review_later"></button>
+            </div>
+          </section>
+
           <!-- Time saved (headline for everyone, breakdown with Pro) -->
           <section class="stats-strip" id="statsStrip">
-            <div class="stats-headline">⏱ This week you saved <strong id="statsWeek">0s</strong></div>
+            <div class="stats-headline">⏱ <span data-i18n="stats_week"></span> <strong id="statsWeek">0s</strong></div>
             <div class="stats-details" id="statsDetails">
-              <span>Today <strong id="statsToday">0s</strong></span>
-              <span>This page <strong id="statsSession">0s</strong></span>
-              <span>Total <strong id="statsTotal">0s</strong></span>
+              <span><span data-i18n="stats_today"></span> <strong id="statsToday">0s</strong></span>
+              <span><span data-i18n="stats_page"></span> <strong id="statsSession">0s</strong></span>
+              <span><span data-i18n="stats_total"></span> <strong id="statsTotal">0s</strong></span>
             </div>
-            <button type="button" class="stats-locked pro-lock-btn" id="statsLocked">🔒 Daily &amp; total breakdown · Pro</button>
+            <button type="button" class="stats-locked pro-lock-btn" id="statsLocked" data-i18n="stats_locked"></button>
           </section>
 
           <!-- Quick Presets (all within the free range; >4x via slider/input with Pro) -->
           <section class="presets-section">
-            <span class="section-title">Preset Rapidi</span>
+            <span class="section-title" data-i18n="presets"></span>
             <div class="presets presets-six">
               <button class="preset-btn" data-speed="0.5">0.5x</button>
               <button class="preset-btn active" data-speed="1.0">1.0x</button>
@@ -187,11 +192,11 @@
           <section class="shortcuts-card">
             <div class="shortcuts-header">
               <div>
-                <span class="label">Keyboard Shortcuts</span>
-                <p class="shortcuts-sub">Click a key to change it, + to add another, × to remove.</p>
+                <span class="label" data-i18n="shortcuts_title"></span>
+                <p class="shortcuts-sub" data-i18n="shortcuts_sub"></p>
               </div>
-              <button id="resetHotkeysBtn" class="reset-btn" title="Restore default shortcuts">
-                Default
+              <button id="resetHotkeysBtn" class="reset-btn" data-i18n-title="shortcuts_restore">
+                <span data-i18n="default"></span>
               </button>
             </div>
 
@@ -199,17 +204,17 @@
 
             <label class="site-toggle-row">
               <input type="checkbox" id="siteShortcutsToggle">
-              <span>Disable shortcuts on <strong id="siteShortcutsHost">—</strong></span>
+              <span><span data-i18n="shortcuts_disable_on"></span> <strong id="siteShortcutsHost">—</strong></span>
             </label>
 
             <!-- Favorite Speed Target Setting -->
             <div class="fav-speed-row">
               <div class="hotkey-meta">
-                <span class="hotkey-name">Valore Favorite Speed</span>
-                <span class="hotkey-desc">Velocità target per il tasto rapido</span>
+                <span class="hotkey-name" data-i18n="preferred_value"></span>
+                <span class="hotkey-desc" data-i18n="preferred_value_desc"></span>
               </div>
               <div class="custom-input-wrapper fav-input-wrap">
-                <input type="number" id="favoriteSpeedInput" min="0.1" max="16.0" step="0.1" value="2.0" aria-label="Velocità preferita">
+                <input type="number" id="favoriteSpeedInput" min="0.1" max="16.0" step="0.1" value="2.0" data-i18n-aria-label="preferred_value">
                 <span class="input-unit">x</span>
               </div>
             </div>
@@ -217,9 +222,9 @@
 
           <div class="hud-feedback-banner">
             <span class="hud-banner-icon">⚡</span>
-            <span>The on-video badge confirms every action. Drag it to move it (saved per site).</span>
+            <span data-i18n="overlay_hint"></span>
           </div>
-          <button id="openOptionsBtn" class="options-link-btn" type="button">All settings →</button>
+          <button id="openOptionsBtn" class="options-link-btn" type="button" data-i18n="all_settings"></button>
         </main>
       </div>
 
@@ -231,22 +236,22 @@
           <!-- Frame-by-Frame Scrubbing & Quick Jumps -->
           <section class="precision-card">
             <div class="precision-header">
-              <span class="label">Frame &amp; Seek <span class="pro-pill-tag">PRO frames</span></span>
+              <span class="label"><span data-i18n="frame_seek"></span> <span class="pro-pill-tag" data-i18n="pro_frames"></span></span>
               <span id="precisionTimeBadge" class="time-pill">00:00</span>
             </div>
 
             <!-- Frame-by-Frame Buttons (-0.033s / +0.033s) -->
             <div class="scrub-grid">
-              <button id="prevFrameBtn" class="scrub-btn frame-btn" title="Fotogramma precedente (-0.033s)">
+              <button id="prevFrameBtn" class="scrub-btn frame-btn" data-i18n-title="prev_frame_title">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
                   <polygon points="19 20 9 12 19 4 19 20"></polygon>
                   <line x1="5" y1="19" x2="5" y2="5"></line>
                 </svg>
-                <span>Prev Frame</span>
+                <span data-i18n="prev_frame"></span>
               </button>
 
-              <button id="nextFrameBtn" class="scrub-btn frame-btn" title="Fotogramma successivo (+0.033s)">
-                <span>Next Frame</span>
+              <button id="nextFrameBtn" class="scrub-btn frame-btn" data-i18n-title="next_frame_title">
+                <span data-i18n="next_frame"></span>
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
                   <polygon points="5 4 15 12 5 20 5 4"></polygon>
                   <line x1="19" y1="5" x2="19" y2="19"></line>
@@ -256,18 +261,18 @@
 
             <!-- Quick Seek (-5s / Play-Pause / +5s) -->
             <div class="jump-grid">
-              <button id="seekBack5Btn" class="scrub-btn" title="Salta indietro di 5 secondi">
+              <button id="seekBack5Btn" class="scrub-btn">
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
                 </svg>
                 <span id="seekBackLabel">-10s</span>
               </button>
 
-              <button id="togglePlayBtn" class="scrub-btn play-Ctrl-btn" title="Play / Pausa">
-                <span id="playText">Pausa</span>
+              <button id="togglePlayBtn" class="scrub-btn play-Ctrl-btn" data-i18n-title="play_pause">
+                <span id="playText" data-i18n="pause"></span>
               </button>
 
-              <button id="seekFwd5Btn" class="scrub-btn" title="Salta avanti di 5 secondi">
+              <button id="seekFwd5Btn" class="scrub-btn">
                 <span id="seekFwdLabel">+10s</span>
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M13 5l5 5-5 5M6 5l5 5-5 5"></path>
@@ -279,36 +284,36 @@
           <!-- A-B repeat -->
           <section class="precision-card ab-card">
             <div class="precision-header">
-              <span class="label">A-B Repeat <span class="pro-pill-tag">PRO</span></span>
-              <span id="abState" class="time-pill">off</span>
+              <span class="label"><span data-i18n="ab_repeat"></span> <span class="pro-pill-tag">PRO</span></span>
+              <span id="abState" class="time-pill" data-i18n="ab_off"></span>
             </div>
             <div class="jump-grid">
-              <button id="abSetA" class="scrub-btn" type="button">Set A</button>
-              <button id="abSetB" class="scrub-btn" type="button">Set B</button>
-              <button id="abClear" class="scrub-btn" type="button">Clear</button>
+              <button id="abSetA" class="scrub-btn" type="button" data-i18n="ab_set_a"></button>
+              <button id="abSetB" class="scrub-btn" type="button" data-i18n="ab_set_b"></button>
+              <button id="abClear" class="scrub-btn" type="button" data-i18n="ab_clear"></button>
             </div>
           </section>
 
           <!-- Video Checkpoints / Bookmarks -->
           <section class="checkpoints-card">
             <div class="checkpoints-header">
-              <span class="label">Bookmarks <span class="pro-pill-tag">PRO</span></span>
-              <span id="checkpointCountBadge" class="cp-count">0 salvati</span>
+              <span class="label"><span data-i18n="bookmarks"></span> <span class="pro-pill-tag">PRO</span></span>
+              <span id="checkpointCountBadge" class="cp-count"></span>
             </div>
 
             <div class="checkpoint-add-bar">
-              <input type="text" id="checkpointLabelInput" placeholder="Nota opzionale (es. Capitolo 1)" maxlength="40" autocomplete="off">
-              <button id="addCheckpointBtn" class="add-cp-btn" title="Salva timestamp corrente">
+              <input type="text" id="checkpointLabelInput" data-i18n-placeholder="bookmark_note" maxlength="40" autocomplete="off">
+              <button id="addCheckpointBtn" class="add-cp-btn" data-i18n-title="bookmark_add_title">
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                <span>Add Checkpoint</span>
+                <span data-i18n="bookmark_add"></span>
               </button>
             </div>
 
             <div id="checkpointsList" class="checkpoints-list">
-              <div class="cp-empty">Nessun checkpoint salvato per questo video.</div>
+              <div class="cp-empty" data-i18n="bookmarks_empty"></div>
             </div>
           </section>
         </main>
@@ -322,8 +327,8 @@
           <section class="precision-card pro-feature" data-feature="skipSilence">
             <label class="feature-row">
               <span class="hotkey-meta">
-                <span class="hotkey-name">Skip silence <span class="pro-pill-tag">PRO</span></span>
-                <span class="hotkey-desc" id="skipSilenceStatus">Speeds through pauses automatically.</span>
+                <span class="hotkey-name"><span data-i18n="skip_silence"></span> <span class="pro-pill-tag">PRO</span></span>
+                <span class="hotkey-desc" id="skipSilenceStatus" data-i18n="skip_silence_desc"></span>
               </span>
               <input type="checkbox" id="skipSilenceToggle" class="switch">
             </label>
@@ -331,25 +336,25 @@
 
           <section class="precision-card pro-feature" data-feature="rules">
             <div class="hotkey-meta">
-              <span class="hotkey-name">Speed rules <span class="pro-pill-tag">PRO</span></span>
-              <span class="hotkey-desc" id="activeRuleText">No rule for this page.</span>
+              <span class="hotkey-name"><span data-i18n="rules_title"></span> <span class="pro-pill-tag">PRO</span></span>
+              <span class="hotkey-desc" id="activeRuleText" data-i18n="rules_none"></span>
             </div>
             <div class="rule-save">
-              <span class="hotkey-desc">Always play at <strong id="ruleSpeedLabel">1.0x</strong> for:</span>
+              <span class="hotkey-desc"><span data-i18n="rules_always_at"></span> <strong id="ruleSpeedLabel">1.0x</strong></span>
               <div class="jump-grid rule-grid">
-                <button id="ruleChannelBtn" class="scrub-btn" type="button" disabled>Channel</button>
-                <button id="ruleUrlBtn" class="scrub-btn" type="button">This video</button>
-                <button id="ruleDomainBtn" class="scrub-btn" type="button">This site</button>
+                <button id="ruleChannelBtn" class="scrub-btn" type="button" disabled data-i18n="rule_channel"></button>
+                <button id="ruleUrlBtn" class="scrub-btn" type="button" data-i18n="rule_video"></button>
+                <button id="ruleDomainBtn" class="scrub-btn" type="button" data-i18n="rule_site"></button>
               </div>
-              <button id="removeRuleBtn" class="logout-link" type="button" style="display:none">Remove active rule</button>
+              <button id="removeRuleBtn" class="logout-link" type="button" style="display:none" data-i18n="rule_remove"></button>
             </div>
           </section>
 
           <section class="precision-card pro-feature" data-feature="youtubeAds">
             <label class="feature-row">
               <span class="hotkey-meta">
-                <span class="hotkey-name">YouTube ads at 16x, muted <span class="pro-pill-tag">PRO</span></span>
-                <span class="hotkey-desc">Speed and volume come back when the ad ends.</span>
+                <span class="hotkey-name"><span data-i18n="yt_ads"></span> <span class="pro-pill-tag">PRO</span></span>
+                <span class="hotkey-desc" data-i18n="yt_ads_desc"></span>
               </span>
               <input type="checkbox" id="youtubeAdsToggle" class="switch">
             </label>
@@ -357,32 +362,32 @@
 
           <section class="precision-card pro-feature" data-feature="holdToSpeed">
             <div class="hotkey-meta">
-              <span class="hotkey-name">Hold to speed <span class="pro-pill-tag">PRO</span></span>
-              <span class="hotkey-desc" id="holdHint">Hold Shift+F for 2.5x, release to go back.</span>
+              <span class="hotkey-name"><span data-i18n="action_hold"></span> <span class="pro-pill-tag">PRO</span></span>
+              <span class="hotkey-desc" id="holdHint"></span>
             </div>
           </section>
 
-          <button id="openOptionsBtn2" class="options-link-btn" type="button">Rules &amp; advanced settings →</button>
+          <button id="openOptionsBtn2" class="options-link-btn" type="button" data-i18n="rules_advanced"></button>
         </main>
       </div>
 
       <!-- Sticky / Bottom Lifetime License CTA Section (Trial & Free only) -->
       <section id="footerCtaSection" class="footer-cta-section">
-        <button id="btn-upgrade-pro" class="main-cta-btn" type="button" title="Start 7-Day Free Trial ($0)">
+        <button id="btn-upgrade-pro" class="main-cta-btn" type="button" data-i18n-title="cta_start_trial">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <span id="footerCtaBtnText">Start 7-Day Free Trial ($0)</span>
+          <span id="footerCtaBtnText" data-i18n="cta_start_trial"></span>
         </button>
-        <p class="cta-microcopy">Includes all future updates &amp; features — no recurring fees</p>
+        <p class="cta-microcopy" data-i18n="cta_microcopy"></p>
       </section>
 
       <!-- Footer with License Status & Disattiva action -->
       <footer class="app-footer">
-        <span id="footerLicenseStatus" class="footer-note">Free Tier (Max 2.0x)</span>
+        <span id="footerLicenseStatus" class="footer-note"></span>
         <div class="footer-actions">
-          <button id="openUpgradeBtn" class="upgrade-footer-btn">Activate Pro</button>
-          <button id="logoutKeyBtn" class="logout-link" title="Disattiva licenza attuale" style="display: none;">Disattiva</button>
+          <button id="openUpgradeBtn" class="upgrade-footer-btn" data-i18n="activate_pro"></button>
+          <button id="logoutKeyBtn" class="logout-link" data-i18n-title="license_remove_title" style="display: none;" data-i18n="license_remove"></button>
         </div>
       </footer>
     </div>
