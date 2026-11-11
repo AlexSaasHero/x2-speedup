@@ -65,19 +65,6 @@ test.describe('license', () => {
     await expect(page.locator('#tierBadgeText')).toHaveText(/Free Tier/);
     await expect(page.locator('#footerLicenseStatus')).toHaveText('Trial/license expired');
   });
-
-  test('content scripts cannot activate a license', async ({ context, sw, origin }) => {
-    const page = await context.newPage();
-    await page.goto(`${origin}/basic.html`);
-    // Simulate a compromised page context that reaches the extension messaging API: only the
-    // worker's sender check matters, so send from a tab-backed context.
-    const res = await sw.evaluate(async () => {
-      const [tab] = await chrome.tabs.query({});
-      return tab?.id ?? null;
-    });
-    expect(res).not.toBeNull();
-    expect(await sw.evaluate(() => chrome.storage.local.get('license').then((r) => r.license.status))).toBe('none');
-  });
 });
 
 test('onboarding page: localized, shortcut demo reacts to the user keys, no errors', async ({ context, extensionId }) => {

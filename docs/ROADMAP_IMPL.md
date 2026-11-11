@@ -126,7 +126,7 @@ Test: 69 unit + 34 E2E (skip silence verificato con audio reale tono/silenzio, r
 
 Permessi: aggiunto `alarms` (controllo licenza giornaliero senza tenere vivo il service worker). Nessun altro.
 
-Test: 100 unit + 42 E2E (1 saltato su macOS). Bug trovato con gli E2E e corretto: skip silence non si ricollegava se l'`AudioContext` partiva sospeso (ora riprova su `statechange` e `timeupdate`).
+Test: 100 unit + 41 E2E (1 saltato su macOS). Il controllo "solo pagine dell'estensione possono attivare la licenza" è verificato solo in revisione del codice (non simulabile in E2E). Bug trovato con gli E2E e corretto: skip silence non si ricollegava se l'`AudioContext` partiva sospeso (ora riprova su `statechange` e `timeupdate`).
 
 ## Fase 4 — Qualità
 
