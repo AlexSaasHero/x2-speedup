@@ -23,9 +23,9 @@
       </div>
       <div class="header-right">
         <!-- Interactive License / Trial Tier Badge -->
-        <button id="licenseTierBadge" class="tier-badge tier-trial" title="Gestisci licenza / Upgrade">
+        <button id="licenseTierBadge" class="tier-badge tier-free" title="Free Tier (Max 2.0x) — Clicca per attivare Pro o iniziare il trial">
           <span class="tier-dot"></span>
-          <span id="tierBadgeText">Trial: 7 days left</span>
+          <span id="tierBadgeText">Free Tier (Max 2.0x)</span>
         </button>
         <!-- Video Detection Status Badge -->
         <div id="statusBadge" class="status-badge status-offline">
@@ -40,22 +40,22 @@
       <div class="pro-modal-card">
         <button id="closeUpgradeModalBtn" class="pro-modal-close" title="Chiudi" aria-label="Chiudi">×</button>
         <div class="pro-modal-badge">
-          <span>⚡ PRO LIFETIME</span>
+          <span>⚡ SPEEDUP PRO</span>
         </div>
         <p id="proModalTitle" class="pro-modal-title">
-          Enjoying your 7-day trial? Unlock SpeedUP Video Pro Lifetime for $1.99
+          Unlock speeds up to 16.0x with Pro (7-Day Free Trial)
         </p>
         <button id="ctaBuyBtn" class="cta-buy-btn">
-          Unlock SpeedUP Video Pro — $1.99
+          Start 7-Day Free Trial ($0)
         </button>
 
         <div class="divider">
-          <span>hai già una licenza?</span>
+          <span>Activate Pro / Enter License Key</span>
         </div>
 
         <div class="key-form">
-          <input type="text" id="keyInput" placeholder="Inserisci chiave (es. PRO-1234)" autocomplete="off" spellcheck="false">
-          <button id="activateBtn" class="activate-btn">Attiva Licenza</button>
+          <input type="text" id="input-license-key" placeholder="Enter license key (e.g. PRO-1234)" autocomplete="off" spellcheck="false">
+          <button id="activateBtn" class="activate-btn">Activate</button>
         </div>
         <div id="statusMsg" class="status-msg"></div>
       </div>
@@ -146,10 +146,11 @@
             </div>
           </section>
 
-          <!-- Quick Presets (1.0x, 1.5x, 2.0x, 3.0x, 4.0x) -->
+          <!-- Quick Presets (0.5x, 1.0x, 1.5x, 2.0x unlocked, 3.0x, 4.0x PRO) -->
           <section class="presets-section">
             <span class="section-title">Preset Rapidi</span>
-            <div class="presets presets-five">
+            <div class="presets presets-six">
+              <button class="preset-btn" data-speed="0.5">0.5x</button>
               <button class="preset-btn active" data-speed="1.0">1.0x</button>
               <button class="preset-btn" data-speed="1.5">1.5x</button>
               <button class="preset-btn" data-speed="2.0">2.0x</button>
@@ -314,21 +315,21 @@
 
       <!-- Sticky / Bottom Lifetime License CTA Section (Trial & Free only) -->
       <section id="footerCtaSection" class="footer-cta-section">
-        <button id="btn-upgrade-pro" class="main-cta-btn" type="button" title="Unlock Lifetime Pro">
+        <button id="btn-upgrade-pro" class="main-cta-btn" type="button" title="Start 7-Day Free Trial ($0)">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <span>Unlock Lifetime Pro — $1.99</span>
+          <span id="footerCtaBtnText">Start 7-Day Free Trial ($0)</span>
         </button>
         <p class="cta-microcopy">Includes all future updates &amp; features — no recurring fees</p>
       </section>
 
       <!-- Footer with License Status & Disattiva action -->
       <footer class="app-footer">
-        <span id="footerLicenseStatus" class="footer-note">SpeedUp Video PRO • Active ✨</span>
+        <span id="footerLicenseStatus" class="footer-note">Free Tier (Max 2.0x)</span>
         <div class="footer-actions">
-          <button id="openUpgradeBtn" class="upgrade-footer-btn" style="display: none;">Upgrade ($1.99)</button>
-          <button id="logoutKeyBtn" class="logout-link" title="Disattiva licenza attuale">Disattiva</button>
+          <button id="openUpgradeBtn" class="upgrade-footer-btn">Activate Pro</button>
+          <button id="logoutKeyBtn" class="logout-link" title="Disattiva licenza attuale" style="display: none;">Disattiva</button>
         </div>
       </footer>
     </div>

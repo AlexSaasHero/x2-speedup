@@ -1,4 +1,4 @@
-// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.1.5)
+// SpeedUp Video Pro - Universal HTML5 Content Script Controller (v1.5.1.8)
 (() => {
   const currentHostname = window.location.hostname;
   const DEFAULT_HOTKEYS = {
@@ -9,9 +9,7 @@
   };
 
   const DEV_MASTER_KEY = 'DEV-SPEEDUP-PRO-2026';
-  const TRIAL_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
   let isPermanentPro = false;
-  let installDate = null;
   let targetSpeed = 1.0;
   let isEnforcing = false;
   let hudEnabled = true;
@@ -22,11 +20,7 @@
   let customHotkeys = { ...DEFAULT_HOTKEYS };
 
   function hasFullAccess() {
-    if (isPermanentPro) return true;
-    if (installDate && (Date.now() - installDate <= TRIAL_DURATION_MS)) {
-      return true;
-    }
-    return false;
+    return isPermanentPro;
   }
 
   function normalizeKey(key) {
@@ -41,7 +35,7 @@
     if (hasFullAccess()) {
       return parseFloat(Math.min(Math.max(num, 0.1), 16.0).toFixed(2));
     }
-    return parseFloat(Math.min(Math.max(num, 0.25), 2.5).toFixed(2));
+    return parseFloat(Math.min(Math.max(num, 0.25), 2.0).toFixed(2));
   }
 
   function formatSpeedText(speed) {
@@ -117,6 +111,17 @@
     video.addEventListener(
       'ratechange',
       (e) => {
+        // Content script protection: prevent direct console manipulation beyond 2.0x if is_pro is false
+        if (!hasFullAccess() && video.playbackRate > 2.0) {
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+          targetSpeed = 2.0;
+          forceRateOnVideo(video);
+          updateHUDForVideo(video);
+          showHUD('Max Free Speed: 2.0x');
+          return;
+        }
+
         if (isEnforcing) {
           // Block YouTube's internal ratechange listener from resetting >2x speeds
           if (targetSpeed > 2.0) {
@@ -367,21 +372,29 @@
   // ==========================================
   chrome.storage.local.get(
     [
-      'installDate',
+      'is_pro',
       'isPro',
       'isLicensed',
+      'license_key',
       'licenseKey',
       'defaultSpeed',
       'domainSpeeds',
       'hudEnabled',
       'preservesPitch',
+      'preservePitch',
       'loopVideo',
       'customHotkeys',
       'favoriteSpeed'
     ],
     (data) => {
-      installDate = data.installDate || null;
-      isPermanentPro = !!(data.isPro || data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && data.licenseKey.trim().length > 3));
+      isPermanentPro = !!(
+        data.is_pro ||
+        data.isPro ||
+        data.license_key === DEV_MASTER_KEY ||
+        data.licenseKey === DEV_MASTER_KEY ||
+        (data.license_key && typeof data.license_key === 'string' && data.license_key.trim().length > 3) ||
+        (data.licenseKey && typeof data.licenseKey === 'string' && data.licenseKey.trim().length > 3)
+      );
 
       if (data.domainSpeeds && typeof data.domainSpeeds === 'object') {
         domainSpeeds = data.domainSpeeds;
@@ -395,6 +408,7 @@
 
       if (typeof data.hudEnabled !== 'undefined') hudEnabled = data.hudEnabled;
       if (typeof data.preservesPitch !== 'undefined') preservesPitch = data.preservesPitch;
+      else if (typeof data.preservePitch !== 'undefined') preservesPitch = data.preservePitch;
       else preservesPitch = true;
       if (typeof data.loopVideo !== 'undefined') loopVideo = data.loopVideo;
       if (typeof data.favoriteSpeed !== 'undefined') favoriteSpeed = parseFloat(data.favoriteSpeed) || 2.0;
@@ -409,10 +423,19 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.isPro !== undefined || changes.isLicensed !== undefined || changes.licenseKey !== undefined || changes.installDate !== undefined) {
-      chrome.storage.local.get(['isPro', 'isLicensed', 'licenseKey', 'installDate'], (res) => {
-        isPermanentPro = !!(res.isPro || res.licenseKey === DEV_MASTER_KEY || (res.licenseKey && res.licenseKey.trim().length > 3));
-        installDate = res.installDate || null;
+    if (changes.is_pro !== undefined || changes.isPro !== undefined || changes.isLicensed !== undefined || changes.license_key !== undefined || changes.licenseKey !== undefined) {
+      chrome.storage.local.get(['is_pro', 'isPro', 'isLicensed', 'license_key', 'licenseKey'], (res) => {
+        isPermanentPro = !!(
+          res.is_pro ||
+          res.isPro ||
+          res.license_key === DEV_MASTER_KEY ||
+          res.licenseKey === DEV_MASTER_KEY ||
+          (res.license_key && typeof res.license_key === 'string' && res.license_key.trim().length > 3) ||
+          (res.licenseKey && typeof res.licenseKey === 'string' && res.licenseKey.trim().length > 3)
+        );
+        if (!isPermanentPro && targetSpeed > 2.0) {
+          applySpeed(2.0, true, true);
+        }
       });
     }
     if (changes.defaultSpeed && changes.defaultSpeed.newValue !== undefined) {
@@ -551,6 +574,11 @@
 
     switch (request.action) {
       case 'SET_SPEED':
+        if (request.is_pro !== undefined) {
+          isPermanentPro = !!request.is_pro;
+        } else if (request.isPro !== undefined) {
+          isPermanentPro = !!request.isPro;
+        }
         if (request.preservesPitch !== undefined) {
           preservesPitch = !!request.preservesPitch;
         } else if (request.preservePitch !== undefined) {
@@ -560,7 +588,7 @@
           hudEnabled = !!request.hudEnabled;
         }
         applySpeed(request.speed, true, true);
-        sendResponse({ success: true, currentSpeed: targetSpeed, speed: targetSpeed });
+        sendResponse({ success: true, currentSpeed: targetSpeed, speed: targetSpeed, is_pro: isPermanentPro });
         break;
 
       case 'GET_SPEED':

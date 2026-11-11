@@ -1,4 +1,4 @@
-// SpeedUp Video Pro v1.5.1.5 - Instant Modular Popup Controller (Manifest V3)
+// SpeedUp Video Pro v1.5.1.8 - Instant Modular Popup Controller (Manifest V3)
 import { sendTelemetryEvent } from '../utils/analytics.js';
 
 // Top-level feature flag defaults
@@ -10,11 +10,12 @@ function initPopup() {
   // 1. DOM ELEMENTS & CONSTANTS
   // ==========================================
   const LANDING_PAGE_URL = "https://x2-speedup.vercel.app/";
+  const VALIDATE_ENDPOINT = "https://x2-speedup.vercel.app/api/validate-license";
   const DEV_MASTER_KEY = "DEV-SPEEDUP-PRO-2026";
   const MIN_SPEED = 0.1;
   const MAX_SPEED = 16.0;
-  const FREE_MAX_SPEED = 2.5;
-  const TRIAL_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+  const FREE_MIN_SPEED = 0.25;
+  const FREE_MAX_SPEED = 2.0;
 
   const DEFAULT_HOTKEYS = {
     speedUp: ']',
@@ -34,8 +35,8 @@ function initPopup() {
   const closeUpgradeModalBtn = document.getElementById('closeUpgradeModalBtn');
   const proModalTitle = document.getElementById('proModalTitle');
   const ctaBuyBtn = document.getElementById('ctaBuyBtn');
-  const keyInput = document.getElementById('keyInput');
-  const activateBtn = document.getElementById('activateBtn');
+  const keyInput = document.getElementById('input-license-key') || document.getElementById('keyInput');
+  const activateBtn = document.getElementById('activateBtn') || document.getElementById('btn-activate-license');
   const statusMsg = document.getElementById('statusMsg');
 
   // Main Suite View & Footer Elements
@@ -43,6 +44,7 @@ function initPopup() {
   const footerCtaSection = document.getElementById('footerCtaSection');
   const upgradeLifetimeBtn = document.getElementById('btn-upgrade-pro') || document.getElementById('upgradeLifetimeBtn');
   const mainCtaBtn = upgradeLifetimeBtn;
+  const footerCtaBtnText = document.getElementById('footerCtaBtnText');
   const footerLicenseStatus = document.getElementById('footerLicenseStatus');
   const openUpgradeBtn = document.getElementById('openUpgradeBtn');
   const logoutKeyBtn = document.getElementById('logoutKeyBtn');
@@ -184,70 +186,76 @@ function initPopup() {
   // ==========================================
   function getTierStatus() {
     if (isPermanentPro) {
-      return { isPro: true, isTrial: false, isExpired: false, hasFullAccess: true, daysLeft: 0 };
+      return { isPro: true, hasFullAccess: true, label: 'Pro Active ✨' };
     }
-    const now = Date.now();
-    const effectiveInstallDate = installDate || now;
-    const elapsed = now - effectiveInstallDate;
-    if (elapsed <= TRIAL_DURATION_MS) {
-      const remaining = Math.max(0, TRIAL_DURATION_MS - elapsed);
-      const days = Math.max(1, Math.ceil(remaining / (24 * 60 * 60 * 1000)));
-      return { isPro: false, isTrial: true, isExpired: false, hasFullAccess: true, daysLeft: days };
-    }
-    return { isPro: false, isTrial: false, isExpired: true, hasFullAccess: false, daysLeft: 0 };
+    return { isPro: false, hasFullAccess: false, label: 'Free Tier (Max 2.0x)' };
   }
 
   function applyTierUI() {
     const tier = getTierStatus();
+    const sliderTicks = document.querySelector('.slider-ticks');
 
     if (tier.isPro) {
       document.body.classList.add('is-licensed');
-      document.body.classList.remove('is-trial', 'is-expired');
+      document.body.classList.remove('is-free', 'is-trial', 'is-expired');
       if (licenseTierBadge) {
         licenseTierBadge.className = 'tier-badge tier-pro';
         licenseTierBadge.title = 'Licenza PRO Lifetime Attiva';
       }
-      if (tierBadgeText) tierBadgeText.textContent = '✨ PRO Lifetime';
-      if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x)';
+      if (tierBadgeText) tierBadgeText.textContent = 'Pro Active ✨';
+      if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16.0x)';
       if (footerLicenseStatus) {
-        footerLicenseStatus.textContent = 'SpeedUP Pro Lifetime Active ✓';
+        footerLicenseStatus.textContent = 'Pro Active ✨';
         footerLicenseStatus.className = 'footer-note footer-pro-active';
       }
       if (footerCtaSection) footerCtaSection.style.display = 'none';
       if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'inline-block';
-    } else if (tier.isTrial) {
-      document.body.classList.add('is-licensed', 'is-trial');
-      document.body.classList.remove('is-expired');
-      if (licenseTierBadge) {
-        licenseTierBadge.className = 'tier-badge tier-trial';
-        licenseTierBadge.title = `7-Day Free Trial attivo (${tier.daysLeft} ${tier.daysLeft === 1 ? 'giorno rimanente' : 'giorni rimanenti'}) — Clicca per info / Upgrade`;
+
+      if (slider) {
+        slider.min = "0.1";
+        slider.max = "16.0";
       }
-      if (tierBadgeText) tierBadgeText.textContent = `Trial: ${tier.daysLeft} ${tier.daysLeft === 1 ? 'day' : 'days'} left`;
-      if (tierRangeHint) tierRangeHint.textContent = '(0.1x–16x Trial)';
-      if (footerLicenseStatus) {
-        footerLicenseStatus.textContent = 'SpeedUp Video PRO • Free Trial';
-        footerLicenseStatus.className = 'footer-note';
+      if (customSpeedInput) {
+        customSpeedInput.min = "0.1";
+        customSpeedInput.max = "16.0";
       }
-      if (footerCtaSection) footerCtaSection.style.display = 'flex';
-      if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
-      if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
+      if (sliderTicks) {
+        sliderTicks.innerHTML = '<span>0.25x</span><span>1.0x</span><span>2.0x</span><span>4.0x</span><span>16x ⚡</span>';
+      }
     } else {
-      document.body.classList.remove('is-licensed', 'is-trial');
-      document.body.classList.add('is-expired');
+      document.body.classList.remove('is-licensed');
+      document.body.classList.add('is-free');
       if (licenseTierBadge) {
-        licenseTierBadge.className = 'tier-badge tier-expired';
-        licenseTierBadge.title = 'Trial terminato — Passa a Pro per sbloccare tutto a $1.99';
+        licenseTierBadge.className = 'tier-badge tier-free';
+        licenseTierBadge.title = 'Free Tier (Max 2.0x) — Clicca per attivare Pro o iniziare il trial gratuito';
       }
-      if (tierBadgeText) tierBadgeText.textContent = 'Trial Expired • Upgrade to Pro ($1.99)';
-      if (tierRangeHint) tierRangeHint.textContent = '(Free: 0.25x–2.5x)';
+      if (tierBadgeText) tierBadgeText.textContent = 'Free Tier (Max 2.0x)';
+      if (tierRangeHint) tierRangeHint.textContent = '(Free: 0.25x–2.0x)';
       if (footerLicenseStatus) {
-        footerLicenseStatus.textContent = 'Free Tier (Max 2.5x)';
+        footerLicenseStatus.textContent = 'Free Tier (Max 2.0x)';
         footerLicenseStatus.className = 'footer-note';
       }
       if (footerCtaSection) footerCtaSection.style.display = 'flex';
-      if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
+      if (footerCtaBtnText) footerCtaBtnText.textContent = 'Start 7-Day Free Trial ($0)';
+      if (openUpgradeBtn) openUpgradeBtn.style.display = 'inline-block';
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'none';
+
+      if (slider) {
+        slider.min = "0.25";
+        slider.max = "2.0";
+      }
+      if (customSpeedInput) {
+        customSpeedInput.min = "0.25";
+        customSpeedInput.max = "2.0";
+      }
+      if (sliderTicks) {
+        sliderTicks.innerHTML = '<span>0.25x</span><span>0.5x</span><span>1.0x</span><span>1.5x</span><span>2.0x</span>';
+      }
+
+      if (currentSpeed > FREE_MAX_SPEED) {
+        setSpeed(FREE_MAX_SPEED);
+      }
     }
 
     renderHotkeysUI();
@@ -261,11 +269,9 @@ function initPopup() {
       if (customTitle) {
         proModalTitle.textContent = customTitle;
       } else if (tier.isPro) {
-        proModalTitle.textContent = "SpeedUP Video Pro Lifetime is active! Enjoy unlimited speed and precision.";
-      } else if (tier.isTrial) {
-        proModalTitle.textContent = "Enjoying your 7-day trial? Unlock SpeedUP Video Pro Lifetime for $1.99";
+        proModalTitle.textContent = "SpeedUP Video Pro is active! Enjoy unlimited speed and precision.";
       } else {
-        proModalTitle.textContent = "Your 7-day trial has ended. Unlock SpeedUP Video Pro Lifetime for only $1.99 to access speeds up to 16x, custom hotkeys, and precision tools.";
+        proModalTitle.textContent = "Unlock speeds up to 16.0x with Pro (7-Day Free Trial)";
       }
     }
     if (statusMsg) {
@@ -275,6 +281,7 @@ function initPopup() {
     }
     if (keyInput) keyInput.value = '';
     proUpgradeModal.style.display = 'flex';
+    if (keyInput) setTimeout(() => keyInput.focus(), 80);
   }
 
   function closeUpgradeModal() {
@@ -334,9 +341,10 @@ function initPopup() {
   // ==========================================
   chrome.storage.local.get(
     {
-      installDate: null,
+      is_pro: false,
       isPro: false,
       isLicensed: false,
+      license_key: null,
       licenseKey: '',
       activatedAt: 0,
       defaultSpeed: 1.0,
@@ -351,16 +359,15 @@ function initPopup() {
       videoCheckpoints: {}
     },
     (data) => {
-      // 1. Initialize 7-Day Free Trial install date if not yet present
-      if (!data.installDate) {
-        installDate = Date.now();
-        chrome.storage.local.set({ installDate });
-      } else {
-        installDate = data.installDate;
-      }
-
-      // 2. Compute Pro and Trial state
-      isPermanentPro = !!(data.isPro || data.licenseKey === DEV_MASTER_KEY || (data.licenseKey && data.licenseKey.trim().length > 3));
+      // Compute Pro state: is_pro or isPro or valid license key
+      isPermanentPro = !!(
+        data.is_pro ||
+        data.isPro ||
+        data.license_key === DEV_MASTER_KEY ||
+        data.licenseKey === DEV_MASTER_KEY ||
+        (data.license_key && typeof data.license_key === 'string' && data.license_key.trim().length > 3) ||
+        (data.licenseKey && typeof data.licenseKey === 'string' && data.licenseKey.trim().length > 3)
+      );
 
       applyTierUI();
       inspectActiveTabAsync();
@@ -378,8 +385,9 @@ function initPopup() {
       if (data.defaultSpeed !== undefined) {
         const rawSpeed = parseFloat(data.defaultSpeed) || 1.0;
         const tier = getTierStatus();
+        const min = tier.hasFullAccess ? MIN_SPEED : FREE_MIN_SPEED;
         const max = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
-        currentSpeed = Math.min(Math.max(rawSpeed, MIN_SPEED), max);
+        currentSpeed = Math.min(Math.max(rawSpeed, min), max);
         setSpeedUI(currentSpeed);
       }
 
@@ -480,32 +488,33 @@ function initPopup() {
   async function handleModalActivation() {
     const rawKey = keyInput ? keyInput.value.trim() : '';
     if (!rawKey) {
-      showModalStatus('Inserisci la chiave di licenza o la tua email.', 'error');
+      showModalStatus('Please enter your license key.', 'error');
+      if (keyInput) keyInput.focus();
       return;
     }
 
+    setModalActivating(true);
+    showModalStatus('Validating license key...', 'info');
+
     // 1. Dev Master Key — Instant offline validation without network calls
     if (rawKey === DEV_MASTER_KEY) {
-      setModalActivating(true);
-      await chrome.storage.local.set({
+      const licenseData = {
+        is_pro: true,
         isPro: true,
         isLicensed: true,
+        license_key: DEV_MASTER_KEY,
         licenseKey: DEV_MASTER_KEY,
         activatedAt: Date.now()
-      });
+      };
+      await chrome.storage.local.set(licenseData);
       if (chrome.storage.sync) {
         try {
-          chrome.storage.sync.set({
-            isPro: true,
-            isLicensed: true,
-            licenseKey: DEV_MASTER_KEY,
-            activatedAt: Date.now()
-          });
+          await chrome.storage.sync.set(licenseData);
         } catch (e) {}
       }
 
       isPermanentPro = true;
-      showModalStatus('✓ SpeedUP Pro Lifetime Attivato!', 'success');
+      showModalStatus('✓ Pro activated successfully!', 'success');
       setTimeout(() => {
         setModalActivating(false);
         applyTierUI();
@@ -514,32 +523,27 @@ function initPopup() {
       return;
     }
 
-    // 2. Standard Key Verification (Lemon Squeezy API or valid pattern)
-    setModalActivating(true);
-    showModalStatus('Verifica licenza in corso...', 'info');
-
+    // 2. Remote Validation via https://x2-speedup.vercel.app/api/validate-license
     const isValid = await verifyLicenseKeyAsync(rawKey);
 
     if (isValid) {
-      await chrome.storage.local.set({
+      const licenseData = {
+        is_pro: true,
         isPro: true,
         isLicensed: true,
+        license_key: rawKey,
         licenseKey: rawKey,
         activatedAt: Date.now()
-      });
+      };
+      await chrome.storage.local.set(licenseData);
       if (chrome.storage.sync) {
         try {
-          chrome.storage.sync.set({
-            isPro: true,
-            isLicensed: true,
-            licenseKey: rawKey,
-            activatedAt: Date.now()
-          });
+          await chrome.storage.sync.set(licenseData);
         } catch (e) {}
       }
 
       isPermanentPro = true;
-      showModalStatus('✓ Licenza convalidata con successo!', 'success');
+      showModalStatus('✓ Pro activated successfully!', 'success');
       setTimeout(() => {
         setModalActivating(false);
         applyTierUI();
@@ -547,7 +551,7 @@ function initPopup() {
       }, 400);
     } else {
       setModalActivating(false);
-      showModalStatus('Chiave licenza non valida. Controlla l\'email o acquistala sul sito.', 'error');
+      showModalStatus('Invalid or expired license key', 'error');
     }
   }
 
@@ -557,7 +561,41 @@ function initPopup() {
     const clean = (key || '').trim();
     if (!clean) return false;
 
-    // Direct check with Lemon Squeezy API
+    // Get telemetry client ID for attribution
+    let clientId = '';
+    try {
+      const stored = await chrome.storage.local.get('telemetry_client_id');
+      clientId = stored.telemetry_client_id || self.crypto.randomUUID();
+    } catch (e) {
+      clientId = self.crypto.randomUUID();
+    }
+
+    // 1. Primary validation endpoint: POST https://x2-speedup.vercel.app/api/validate-license
+    try {
+      const response = await fetch(VALIDATE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          license_key: clean,
+          telemetry_client_id: clientId
+        }),
+        signal: AbortSignal.timeout(6000)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && (data.status === 'valid' || data.valid === true || data.is_valid === true)) {
+          return true;
+        }
+      }
+    } catch (err) {
+      console.warn('X2 license validation endpoint unreachable, checking fallback:', err);
+    }
+
+    // 2. Direct check with Lemon Squeezy API
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000);
@@ -575,7 +613,7 @@ function initPopup() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data && data.valid === true) {
+        if (data && (data.valid === true || data.status === 'valid')) {
           return true;
         }
       }
@@ -583,15 +621,12 @@ function initPopup() {
       console.warn('Lemon Squeezy direct validation unreachable, checking fallback:', err);
     }
 
-    // Fallback: check valid key format or prefix (PRO-*, TRIAL-*, UUID, or trial email)
+    // Fallback: check valid key format or prefix (PRO-*, TRIAL-*, UUID)
     if (clean.toUpperCase().startsWith('PRO-') || clean.toUpperCase().startsWith('TRIAL-')) {
       return true;
     }
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(clean)) {
-      return true;
-    }
-    if (clean.includes('@') && clean.includes('.')) {
       return true;
     }
 
@@ -670,10 +705,17 @@ function initPopup() {
   if (logoutKeyBtn) {
     logoutKeyBtn.addEventListener('click', async () => {
       isPermanentPro = false;
-      await chrome.storage.local.set({ isPro: false, isLicensed: false, licenseKey: '' });
+      const resetData = {
+        is_pro: false,
+        isPro: false,
+        isLicensed: false,
+        license_key: null,
+        licenseKey: ''
+      };
+      await chrome.storage.local.set(resetData);
       if (chrome.storage.sync) {
         try {
-          chrome.storage.sync.set({ isPro: false, isLicensed: false, licenseKey: '' });
+          await chrome.storage.sync.set(resetData);
         } catch (e) {}
       }
       applyTierUI();
@@ -692,13 +734,14 @@ function initPopup() {
     if (isNaN(raw)) return;
 
     const tier = getTierStatus();
+    const minAllowed = tier.hasFullAccess ? MIN_SPEED : FREE_MIN_SPEED;
     const maxAllowed = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
 
     if (!tier.hasFullAccess && raw > FREE_MAX_SPEED) {
-      openUpgradeModal("Your 7-day trial has ended. Speeds above 2.5x require SpeedUP Video Pro Lifetime ($1.99).");
+      openUpgradeModal("Unlock speeds up to 16.0x with Pro (7-Day Free Trial)");
     }
 
-    const clamped = Math.min(Math.max(raw, MIN_SPEED), maxAllowed);
+    const clamped = Math.min(Math.max(raw, minAllowed), maxAllowed);
     currentSpeed = parseFloat(clamped.toFixed(2));
     setSpeedUI(currentSpeed);
 
@@ -721,6 +764,8 @@ function initPopup() {
         {
           action: 'SET_SPEED',
           speed: currentSpeed,
+          is_pro: tier.hasFullAccess,
+          isPro: tier.hasFullAccess,
           hudEnabled: HUD_ENABLED_DEFAULT,
           preservesPitch: PRESERVE_PITCH_DEFAULT,
           preservePitch: PRESERVE_PITCH_DEFAULT
@@ -819,7 +864,7 @@ function initPopup() {
           target_speed: String(FREE_MAX_SPEED),
           domain: currentHostname || 'unknown'
         });
-        openUpgradeModal("Your 7-day trial has ended. Speeds above 2.5x require SpeedUP Video Pro Lifetime ($1.99).");
+        openUpgradeModal("Unlock speeds up to 16.0x with Pro (7-Day Free Trial)");
         return;
       }
       setSpeed(speed);
@@ -861,7 +906,7 @@ function initPopup() {
       e.stopPropagation();
       const tier = getTierStatus();
       if (!tier.hasFullAccess) {
-        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
         return;
       }
       const action = btn.dataset.action;
@@ -901,7 +946,7 @@ function initPopup() {
     resetHotkeysBtn.addEventListener('click', () => {
       const tier = getTierStatus();
       if (!tier.hasFullAccess) {
-        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+        openUpgradeModal("Custom keyboard shortcuts remapping is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
         return;
       }
       cancelHotkeyListening();
@@ -928,7 +973,7 @@ function initPopup() {
   async function handleFrameScrub(direction) {
     const tier = getTierStatus();
     if (!tier.hasFullAccess) {
-      openUpgradeModal("Frame-by-frame precision stepping is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+      openUpgradeModal("Frame-by-frame precision stepping is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
       return;
     }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -950,7 +995,7 @@ function initPopup() {
   async function handleQuickSkip(seconds) {
     const tier = getTierStatus();
     if (!tier.hasFullAccess) {
-      openUpgradeModal("Quick skip scrubbing is a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+      openUpgradeModal("Quick skip scrubbing is a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
       return;
     }
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -1057,7 +1102,7 @@ function initPopup() {
   async function addCheckpoint() {
     const tier = getTierStatus();
     if (!tier.hasFullAccess) {
-      openUpgradeModal("Video checkpoints are a Pro feature. Unlock SpeedUP Pro Lifetime for $1.99.");
+      openUpgradeModal("Video checkpoints are a Pro feature. Unlock speeds up to 16.0x with Pro (7-Day Free Trial).");
       return;
     }
 

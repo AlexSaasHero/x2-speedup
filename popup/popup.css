@@ -139,6 +139,17 @@ body {
   flex-shrink: 0;
 }
 
+/* Free Tier: clean subtle slate/blue pill */
+.tier-free {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  color: #cbd5e1;
+}
+.tier-free .tier-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+}
+
 /* 1. Trial: blue/violet pill */
 .tier-trial {
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(37, 99, 235, 0.22));
@@ -708,9 +719,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: block;
 }
 
-.presets {
+.presets,
+.presets-six {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 5px;
 }
 

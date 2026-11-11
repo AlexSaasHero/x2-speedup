@@ -1,4 +1,4 @@
-// SpeedUp Video Pro - Background Service Worker (Manifest V3 - v1.5.1.5)
+// SpeedUp Video Pro - Background Service Worker (Manifest V3 - v1.5.1.8)
 
 const WELCOME_URL = 'https://x2-speedup.vercel.app/#welcome';
 
@@ -13,8 +13,11 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   const existing = await chrome.storage.local.get([
     'installDate',
     'telemetry_client_id',
+    'is_pro',
     'isPro',
     'isLicensed',
+    'license_key',
+    'licenseKey',
     'defaultSpeed',
     'hudEnabled',
     'preservesPitch',
@@ -32,7 +35,10 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   if (!existing.telemetry_client_id) {
     updates.telemetry_client_id = self.crypto.randomUUID();
   }
+  if (existing.is_pro === undefined) updates.is_pro = false;
   if (existing.isPro === undefined) updates.isPro = false;
+  if (existing.license_key === undefined) updates.license_key = null;
+  if (existing.licenseKey === undefined) updates.licenseKey = '';
   if (existing.isLicensed === undefined) updates.isLicensed = false;
   if (existing.defaultSpeed === undefined) updates.defaultSpeed = 1.0;
   if (existing.hudEnabled === undefined) updates.hudEnabled = true;
