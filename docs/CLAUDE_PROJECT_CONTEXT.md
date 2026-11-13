@@ -1,23 +1,27 @@
 # SpeedUp Video Pro — contesto di progetto (per Claude)
 
-> Documento da caricare nella knowledge di un Progetto Claude. Aggiornato al **2026-11-11, v1.8.2** (commit `d03d242` su `main`).
+> Documento da caricare nella knowledge di un Progetto Claude. Aggiornato al **2026-11-13**: nuovo posizionamento (study tool); codice ancora a **v1.8.2**, sullo Store c'è la **v1.5.1.8**.
 > Fonti di verità nel repo: `docs/ROADMAP_IMPL.md` (stato di ogni punto), `docs/BUGS.md`, `docs/QA.md`, `docs/STORE_LISTING.md`, `docs/FIREFOX.md`, `README.md`.
 
 ## 1. Il prodotto
 
 - **Cos'è**: estensione browser (Chrome/Edge MV3, build Firefox disponibile) che controlla la velocità di qualsiasi video/audio HTML5 da tastiera, senza uscire dalla pagina.
-- **Concorrenti di riferimento**: Video Speed Controller (~3M utenti), Global Speed (~700K). Obiettivo: parità sulle funzioni base (gratis) e superarli con funzioni Pro che fanno risparmiare tempo.
-- **Posizionamento**: "100% locale, zero tracciamento". L'unica chiamata di rete dell'estensione è la verifica della licenza (invia solo la chiave).
+- **Posizionamento (deciso il 2026-11-13, dopo una ricerca di mercato)**: **strumento di studio per lezioni registrate**. "Studia le lezioni registrate in metà tempo, su Panopto, Canvas, Moodle e Echo360." Poi Udemy e Coursera. Target: studenti universitari, mercato globale (in inglese).
+- **La velocità è un plus, non l'USP**: la velocità alta è gratuita. Sul generico non si compete con Video Speed Controller (gratuito, ~3M utenti) né con Global Speed (~700K).
+- **Piattaforme target (priorità)**: 1) Panopto (anche in iframe dentro Canvas e Moodle), 2) Echo360, 3) Canvas e Moodle (player nativi), 4) Udemy, Coursera, 5) YouTube e qualsiasi `<video>` HTML5. Le prime tre **non sono ancora testate**.
+- **Stato**: ~350 download, 6 utenti attivi. Priorità: **attivazione e compatibilità**, poi monetizzazione.
+- **Privacy**: "100% locale, zero tracciamento". L'unica chiamata di rete dell'estensione è la verifica della licenza (invia solo la chiave).
 - **Repo**: github.com/AlexSaasHero/x2-speedup (privato), cartella locale `~/Documents/Saas/Saas X2`.
 - **Landing**: `landing-page/` (HTML statico + Tailwind CDN) su x2-speedup.vercel.app. Contiene Google Analytics 4 e Microsoft Clarity (il sito, non l'estensione).
 
 ## 2. Modello di business (decisioni prese)
 
-- **Freemium** con licenza Pro gestita da **Lemon Squeezy** (merchant of record).
-- **Prezzo**: prova gratuita di 7 giorni, poi **$1.99 una tantum** (a vita, niente abbonamento). Il "$3.99" in `docs/CHROMEWEBSTORE.md` è storico.
-- La chiave di licenza arriva al checkout (anche per la trial); se la trial viene annullata, la chiave risulta scaduta al controllo successivo.
-- **Free**: 0.1x–4x, tutte le scorciatoie (personalizzabili), seek ±N s, overlay, persistenza velocità, statistica "risparmiato questa settimana", sync/import/export, 7 lingue.
-- **Pro**: fino a 16x, fotogramma per fotogramma, segnalibri per video, A-B repeat, skip silence, regole di velocità (canale YouTube / URL / sito), pubblicità YouTube a 16x mute, hold-to-speed (Shift+F), statistiche dettagliate.
+- **Freemium** con licenza Pro gestita da **Lemon Squeezy** (merchant of record), sbloccata con license key.
+- **Prezzo (nuovo, 2026-11-13)**: **abbonamento annuale** con 7 giorni gratis; importo da decidere (tra $4.99 e $9.99 l'anno). Sostituisce il vecchio "7 giorni gratis, poi $1.99 una tantum" (e il "$3.99" in `docs/CHROMEWEBSTORE.md`, ancora più vecchio).
+- La chiave di licenza arriva al checkout (anche per la trial); se la trial o l'abbonamento finiscono, la chiave risulta scaduta al controllo successivo.
+- **Free (obiettivo)**: velocità 0.1x–16x su tutti i siti, scorciatoie base, contatore base del tempo risparmiato.
+- **Pro (obiettivo)**: memoria della velocità per sito/piattaforma, salto dei silenzi, statistiche dettagliate del tempo risparmiato, checkpoint con note, frame per frame, loop A-B, scorciatoie personalizzabili.
+- ⚠️ **Il codice v1.8.2 implementa ancora il modello vecchio**: free 0.1x–4x con scorciatoie personalizzabili gratis; Pro fino a 16x, con anche pubblicità YouTube a 16x e hold-to-speed (Shift+F). Anche i testi della UI, `docs/STORE_LISTING.md` e la landing parlano di 16x come Pro e di $1.99. Da allineare con un task dedicato.
 - Limiti e feature per piano in **un solo file**: `src/config/plans.ts`. Ogni controllo passa da `isPro()` / `can(feature)` in `src/shared/entitlement.ts`.
 - **Decisioni licenza**: nessun limite di dispositivi per chiave; stato licenza **non firmato crittograficamente** (rischio accettato per ora — servirebbe un token firmato dal backend).
 
@@ -53,7 +57,7 @@ Permessi finali: `storage`, `activeTab`, `alarms`; host `x2-speedup.vercel.app` 
 ## 5. Stato attuale
 
 - Fasi 0–4 completate (parità leader, funzioni Pro, licenza/onboarding/sync/i18n/Firefox, qualità/prestazioni). Dettaglio punto per punto in `docs/ROADMAP_IMPL.md`.
-- **v1.8.2** committata su `main`, **non ancora pushata** (alla data di questo documento). Zip pronto: `release/SpeedUp_Video_Pro_v1.8.2.zip`.
+- **v1.8.2** su `main` e su GitHub (pushata). Zip pronto: `release/SpeedUp_Video_Pro_v1.8.2.zip`. Sullo Store c'è ancora la **v1.5.1.8**.
 - Il primo run della CI (v1.8.1) è fallito all'installazione di Chromium; corretto in v1.8.2 (immagine Playwright), da verificare al prossimo push.
 - QA live su YouTube: 4 scenari ok; pubblicità non verificate (YouTube non ne ha servite nel run).
 - Bug storici chiusi: licenza aggirabile (qualsiasi chiave > 3 caratteri), GA4 nell'estensione, menu velocità nativo rotto, velocità propagata a tutte le schede, observer costoso, Netflix M7375, scorciatoie native YouTube annullate.
@@ -61,13 +65,16 @@ Permessi finali: `storage`, `activeTab`, `alarms`; host `x2-speedup.vercel.app` 
 ## 6. Cose aperte
 
 **Per Alex (manuali):**
-1. Push di v1.8.2 (porta il fix CI e pubblica la nuova `privacy.html`).
+1. Verificare su GitHub che la CI della v1.8.2 sia verde (il push è stato fatto).
 2. QA manuale (`docs/QA.md`): pubblicità YouTube con Pro, Netflix, Prime Video, Spotify, Twitch, Vimeo, Udemy, Coursera.
 3. Test reali su Edge e Firefox (su Firefox: richiesta di accesso ai siti nell'onboarding).
 4. Revisione delle traduzioni da madrelingua (soprattutto ja, de, pt_BR).
-5. Invio allo store con lo zip 1.8.2 e i testi di `docs/STORE_LISTING.md`.
+5. Invio allo store: **in attesa** del riallineamento al nuovo posizionamento (testi di `docs/STORE_LISTING.md` da riscrivere).
 
 **Decisioni ancora da prendere:**
+- **Prezzo dell'abbonamento annuale** ($4.99–$9.99) e configurazione del prodotto in abbonamento su Lemon Squeezy.
+- Cosa fare di pubblicità YouTube a 16x e hold-to-speed, che non compaiono nel nuovo elenco Pro.
+- Se pubblicare la 1.8.2 così com'è o prima allinearla al nuovo modello free/Pro.
 - **Cookie consent sulla landing**: GA4 e Clarity girano senza banner; per i visitatori UE serve consenso prima dell'attivazione. Opzioni: banner di consenso oppure rimozione dei tracker.
 - Firefox: ID definitivo (`speedup-video-pro@x2-speedup` provvisorio) e slug AMO per il link recensioni.
 - In futuro: token firmato dal backend licenze e/o limite dispositivi (oggi esclusi per scelta).

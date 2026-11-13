@@ -1,6 +1,26 @@
 # CLAUDE.md — SpeedUp Video Pro
 
-Browser extension (Chrome/Edge MV3, Firefox build) that controls HTML5 video/audio speed. Freemium: Pro via Lemon Squeezy license (7-day trial, then $1.99 one-time). Full context: `docs/CLAUDE_PROJECT_CONTEXT.md`; status of every item: `docs/ROADMAP_IMPL.md`.
+Browser extension (Chrome/Edge MV3, Firefox build) that controls HTML5 video/audio speed. Full context: `docs/CLAUDE_PROJECT_CONTEXT.md`; status of every item: `docs/ROADMAP_IMPL.md`.
+
+## Product
+- **Positioning (decided 2026-11-13):** a study tool for recorded lectures — "Study your recorded lectures in half the time, on Panopto, Canvas, Moodle and Echo360". Then Udemy and Coursera.
+- **Speed is a bonus, not the USP:** high speed is free (on generic sites we can't beat Video Speed Controller: free, 3M users).
+- **Status:** Chrome Web Store has **v1.5.1.8**; `main` is **v1.8.2** (not submitted). ~350 installs, 6 active users. Priority: **activation and compatibility** on the target platforms, then monetization.
+
+## Free vs Pro
+- **Free:** 0.1x–16x on every site, basic shortcuts, basic time-saved counter.
+- **Pro:** speed memory per site/platform (`rules`), skip silence, detailed time-saved stats, checkpoints with notes, frame-by-frame, A-B loop, customizable shortcuts.
+- **License:** **yearly subscription** on Lemon Squeezy with a 7-day free trial, unlocked by license key (price TBD, $4.99–$9.99/yr). Replaces the old $1.99 one-time.
+- ⚠️ **The code still implements the old model** — don't assume it's done: `src/config/plans.ts` has free max **4x**, `customHotkeys` free, `youtubeAds`/`holdToSpeed` Pro; UI strings (`unlock_title`, `upsell_*`), `docs/STORE_LISTING.md` and the landing still say 16x-is-Pro / $1.99. Aligning them is a separate, explicitly requested task.
+
+## Target platforms (priority)
+1. Panopto (also embedded in iframes inside Canvas and Moodle)
+2. Echo360
+3. Canvas and Moodle (native players)
+4. Udemy, Coursera
+5. YouTube and any HTML5 `<video>`
+
+None of 1–3 is tested yet (no fixtures, not in `docs/QA.md`); add quirks to `src/content/quirks.ts`.
 
 ## Stack
 - TypeScript (strict; `src/popup/index.js` is the only JS file), bundled by **esbuild** via `scripts/build.mjs` — no Vite/webpack/WXT.
@@ -15,11 +35,17 @@ Browser extension (Chrome/Edge MV3, Firefox build) that controls HTML5 video/aud
 - Minimal permissions; justify any new one in `docs/ROADMAP_IMPL.md` ("Permessi finali").
 - Extension privacy: no tracking/analytics; the only network call is license verification.
 - Do **not** change prices, sales copy or the license backend without asking Alex.
-- Free/Pro limits only in `src/config/plans.ts`; gate features only with `isPro()` / `can()` from `src/shared/entitlement.ts`.
+- Free/Pro limits only in `src/config/plans.ts`; gate features only with `isPro()` / `can()` from `src/shared/entitlement.ts`, in **both** the UI and the content script. License state lives in `chrome.storage`.
+- Never lock out a paying user: license server unreachable → keep Pro within the grace window (`src/shared/license.ts`).
+- University players live in iframes and swap videos without reloads: keep `all_frames`, dynamic media discovery (`media-registry.ts`) and the `ratechange` re-apply without loops (`rate-controller.ts`) working; cover new players with E2E fixtures.
+- Before extending skip silence to Panopto/Echo360, verify Web Audio works on their cross-origin/HLS media (CORS).
 - No hardcoded UI strings: add keys to **all** `src/_locales/*.json` (`{1}` placeholders); the build fails otherwise.
 - Storage shape changes: bump `SCHEMA_VERSION` in `src/shared/storage.ts` and add a step in `src/shared/migrations.ts` + unit test.
 - Log found bugs in `docs/BUGS.md`; fix them only if they block the current task.
-- Atomic commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`); never push unless asked. Reply to Alex in Italian.
+- Atomic commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`); never push unless asked.
+- Tasks touching more than 2 files: plan first (plan mode), then implement.
+- **Never delete files:** move them to `_to_delete/` (same folder structure) and tell Alex.
+- Reply to Alex in Italian, direct and technical. Alex is still learning git: explain a git command in 1–2 sentences before running it.
 
 ## Commands
 ```bash
