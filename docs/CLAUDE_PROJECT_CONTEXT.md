@@ -14,7 +14,7 @@
 ## 2. Modello di business (decisioni prese)
 
 - **Freemium** con licenza Pro gestita da **Lemon Squeezy** (merchant of record).
-- **Prezzo**: prova gratuita di 7 giorni, poi **$1.99 una tantum** (a vita, niente abbonamento). Il "$3.99" in `CHROMEWEBSTORE.md` è storico.
+- **Prezzo**: prova gratuita di 7 giorni, poi **$1.99 una tantum** (a vita, niente abbonamento). Il "$3.99" in `docs/CHROMEWEBSTORE.md` è storico.
 - La chiave di licenza arriva al checkout (anche per la trial); se la trial viene annullata, la chiave risulta scaduta al controllo successivo.
 - **Free**: 0.1x–4x, tutte le scorciatoie (personalizzabili), seek ±N s, overlay, persistenza velocità, statistica "risparmiato questa settimana", sync/import/export, 7 lingue.
 - **Pro**: fino a 16x, fotogramma per fotogramma, segnalibri per video, A-B repeat, skip silence, regole di velocità (canale YouTube / URL / sito), pubblicità YouTube a 16x mute, hold-to-speed (Shift+F), statistiche dettagliate.
