@@ -62,7 +62,7 @@ test.describe('license', () => {
     await page.evaluate(() => chrome.runtime.sendMessage({ action: 'LICENSE_REFRESH' }));
     await expect.poll(() => sw.evaluate(() => chrome.storage.local.get('license').then((r) => r.license.status))).toBe('expired');
     await page.reload();
-    await expect(page.locator('#tierBadgeText')).toHaveText(/Free Tier/);
+    await expect(page.locator('#tierBadgeText')).toHaveText('Free');
     await expect(page.locator('#footerLicenseStatus')).toHaveText('Trial/license expired');
   });
 });

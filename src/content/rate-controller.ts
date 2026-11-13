@@ -5,7 +5,7 @@
 // element swap) we re-apply — through a ReapplyBudget so a player that keeps fighting cannot
 // cause an infinite loop. When the *user* changes speed through the player's own controls
 // (a pointer/key gesture inside the player shortly before the ratechange) we adopt that speed.
-import { FREE_MAX_SPEED, clampSpeed, formatSpeed } from '../config/plans';
+import { clampSpeed, formatSpeed } from '../config/plans';
 import { ReapplyBudget, rangesFrom, roundSpeed, sameSpeed, seekTarget } from '../shared/media-math';
 import { t } from '../shared/i18n';
 import { debug } from './log';
@@ -158,11 +158,7 @@ export class RateController {
     }
     if (opts.persist !== false) this.persist(next);
     const anchor = scope[0] ?? this.registry.primary();
-    const limited = !s.pro && roundSpeed(requested) > FREE_MAX_SPEED;
-    this.feedback.flash(
-      limited ? t('overlay_free_max', [formatSpeed(FREE_MAX_SPEED)]) : opts.label ?? formatSpeed(next),
-      anchor
-    );
+    this.feedback.flash(opts.label ?? formatSpeed(next), anchor);
     this.feedback.speedChanged(anchor);
     this.updateBadge(next);
     return next;

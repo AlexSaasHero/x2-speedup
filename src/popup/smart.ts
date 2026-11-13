@@ -47,7 +47,6 @@ export function mountSmart(deps: SmartDeps) {
     skipSilence = { ...skipSilence, enabled: skipToggle.checked };
     chrome.storage.local.set({ skipSilence });
   });
-  document.querySelector('[data-feature="holdToSpeed"]')?.addEventListener('click', () => gate('holdToSpeed'));
   $('statsLocked')?.addEventListener('click', () => gate('statsDetails'));
 
   function saveRule(type: Rule['type'], pattern: string, label?: string) {

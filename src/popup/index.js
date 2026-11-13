@@ -2,8 +2,6 @@
 import {
   ABSOLUTE_MAX_SPEED,
   ABSOLUTE_MIN_SPEED,
-  FREE_MAX_SPEED,
-  FREE_MIN_SPEED,
   PRO_MAX_SPEED,
   PRO_MIN_SPEED,
   formatSpeed,
@@ -36,8 +34,7 @@ function initPopup() {
   // ==========================================
   const MIN_SPEED = PRO_MIN_SPEED;
   const MAX_SPEED = PRO_MAX_SPEED;
-  const UNLOCK_TITLE = t('unlock_title', [formatSpeed(PRO_MAX_SPEED)]);
-  const FREE_TIER_LABEL = t('free_tier', [formatSpeed(FREE_MAX_SPEED)]);
+  const FREE_TIER_LABEL = t('free');
 
   // Header Elements
   const licenseTierBadge = document.getElementById('licenseTierBadge');
@@ -226,7 +223,6 @@ function initPopup() {
         licenseTierBadge.title = t('pro_active');
       }
       if (tierBadgeText) tierBadgeText.textContent = tier.label;
-      if (tierRangeHint) tierRangeHint.textContent = `(${formatSpeed(PRO_MIN_SPEED)}–${formatSpeed(PRO_MAX_SPEED)})`;
       if (footerLicenseStatus) {
         footerLicenseStatus.textContent = tier.label;
         footerLicenseStatus.className = 'footer-note footer-pro-active';
@@ -234,18 +230,6 @@ function initPopup() {
       if (footerCtaSection) footerCtaSection.style.display = 'none';
       if (openUpgradeBtn) openUpgradeBtn.style.display = 'none';
       if (logoutKeyBtn) logoutKeyBtn.style.display = 'inline-block';
-
-      if (slider) {
-        slider.min = String(PRO_MIN_SPEED);
-        slider.max = String(PRO_MAX_SPEED);
-      }
-      if (customSpeedInput) {
-        customSpeedInput.min = String(PRO_MIN_SPEED);
-        customSpeedInput.max = String(PRO_MAX_SPEED);
-      }
-      if (sliderTicks) {
-        sliderTicks.innerHTML = '<span>0.25x</span><span>1.0x</span><span>2.0x</span><span>4.0x</span><span>16x ⚡</span>';
-      }
     } else {
       document.body.classList.remove('is-licensed');
       document.body.classList.add('is-free');
@@ -255,7 +239,6 @@ function initPopup() {
       }
       if (tierBadgeText) tierBadgeText.textContent = FREE_TIER_LABEL;
       if (footerLicenseStatus && license.key) footerLicenseStatus.title = license.key;
-      if (tierRangeHint) tierRangeHint.textContent = `(${t('free')}: ${formatSpeed(FREE_MIN_SPEED)}–${formatSpeed(FREE_MAX_SPEED)})`;
       if (footerLicenseStatus) {
         footerLicenseStatus.textContent = tier.label;
         footerLicenseStatus.className = 'footer-note';
@@ -265,25 +248,20 @@ function initPopup() {
       if (openUpgradeBtn) openUpgradeBtn.style.display = 'inline-block';
       // A stored but unusable key (expired, revoked…) can be removed to enter a new one.
       if (logoutKeyBtn) logoutKeyBtn.style.display = license.key ? 'inline-block' : 'none';
+    }
 
-      if (slider) {
-        slider.min = String(FREE_MIN_SPEED);
-        slider.max = String(FREE_MAX_SPEED);
-      }
-      if (customSpeedInput) {
-        customSpeedInput.min = String(FREE_MIN_SPEED);
-        customSpeedInput.max = String(FREE_MAX_SPEED);
-      }
-      if (sliderTicks) {
-        const ticks = [...new Set([FREE_MIN_SPEED, 1, 2, 3, FREE_MAX_SPEED])]
-          .filter((v) => v >= FREE_MIN_SPEED && v <= FREE_MAX_SPEED)
-          .sort((a, b) => a - b);
-        sliderTicks.innerHTML = ticks.map((v) => `<span>${formatSpeed(v)}</span>`).join('');
-      }
-
-      if (currentSpeed > FREE_MAX_SPEED) {
-        setSpeed(FREE_MAX_SPEED);
-      }
+    // Speed is free up to 16x: same range for every plan (src/config/plans.ts).
+    if (tierRangeHint) tierRangeHint.textContent = `(${formatSpeed(MIN_SPEED)}–${formatSpeed(MAX_SPEED)})`;
+    if (slider) {
+      slider.min = String(MIN_SPEED);
+      slider.max = String(MAX_SPEED);
+    }
+    if (customSpeedInput) {
+      customSpeedInput.min = String(MIN_SPEED);
+      customSpeedInput.max = String(MAX_SPEED);
+    }
+    if (sliderTicks) {
+      sliderTicks.innerHTML = '<span>0.25x</span><span>1.0x</span><span>2.0x</span><span>4.0x</span><span>16x ⚡</span>';
     }
 
     updateDomainUI();
@@ -299,7 +277,7 @@ function initPopup() {
       } else if (tier.isPro) {
         proModalTitle.textContent = t('pro_modal_active');
       } else {
-        proModalTitle.textContent = UNLOCK_TITLE;
+        proModalTitle.textContent = t('pro_modal_title');
       }
     }
     if (statusMsg) {
@@ -399,10 +377,7 @@ function initPopup() {
 
       if (data.defaultSpeed !== undefined) {
         const rawSpeed = parseFloat(data.defaultSpeed) || 1.0;
-        const tier = getTierStatus();
-        const min = tier.hasFullAccess ? MIN_SPEED : FREE_MIN_SPEED;
-        const max = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
-        currentSpeed = Math.min(Math.max(rawSpeed, min), max);
+        currentSpeed = Math.min(Math.max(rawSpeed, MIN_SPEED), MAX_SPEED);
         setSpeedUI(currentSpeed);
       }
 
@@ -621,7 +596,6 @@ function initPopup() {
       isPermanentPro = false;
       license = validateLicense(null);
       applyTierUI();
-      if (currentSpeed > FREE_MAX_SPEED) setSpeed(FREE_MAX_SPEED);
     });
   }
 
@@ -633,15 +607,7 @@ function initPopup() {
     const raw = parseFloat(requestedSpeed);
     if (isNaN(raw)) return;
 
-    const tier = getTierStatus();
-    const minAllowed = tier.hasFullAccess ? MIN_SPEED : FREE_MIN_SPEED;
-    const maxAllowed = tier.hasFullAccess ? MAX_SPEED : FREE_MAX_SPEED;
-
-    if (!tier.hasFullAccess && raw > FREE_MAX_SPEED) {
-      openUpgradeModal(UNLOCK_TITLE);
-    }
-
-    const clamped = Math.min(Math.max(raw, minAllowed), maxAllowed);
+    const clamped = Math.min(Math.max(raw, MIN_SPEED), MAX_SPEED);
     currentSpeed = parseFloat(clamped.toFixed(2));
     setSpeedUI(currentSpeed);
 
@@ -717,14 +683,7 @@ function initPopup() {
   presetButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       if (!btn.dataset.speed) return;
-      const speed = parseFloat(btn.dataset.speed);
-      const tier = getTierStatus();
-      if (!tier.hasFullAccess && speed > FREE_MAX_SPEED) {
-        setSpeed(FREE_MAX_SPEED);
-        openUpgradeModal(UNLOCK_TITLE);
-        return;
-      }
-      setSpeed(speed);
+      setSpeed(parseFloat(btn.dataset.speed));
     });
   });
 

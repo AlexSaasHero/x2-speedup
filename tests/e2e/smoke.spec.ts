@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { FREE_MAX_SPEED, PRO_MAX_SPEED, formatSpeed } from '../../src/config/plans';
+import { FREE_MAX_SPEED, PRO_MAX_SPEED } from '../../src/config/plans';
 import { SHORTCUT_ACTIONS } from '../../src/shared/shortcuts';
 import { expect, rateOf, sendToTabs, setPro, test } from './harness';
 
@@ -35,7 +35,7 @@ test('popup renders free tier from plans config with no errors and no network', 
   page.on('request', (r) => requests.push(r.url()));
 
   await page.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-  await expect(page.locator('#tierBadgeText')).toHaveText(`Free Tier (Max ${formatSpeed(FREE_MAX_SPEED)})`);
+  await expect(page.locator('#tierBadgeText')).toHaveText('Free');
   await expect(page.locator('#speedSlider')).toHaveAttribute('max', String(FREE_MAX_SPEED));
   await expect(page.locator('#shortcutEditor .hotkey-remap-row')).toHaveCount(SHORTCUT_ACTIONS.length);
 
