@@ -1,11 +1,8 @@
 // License validation in the service worker. Stateless: everything lives in storage.local.license.
 import {
   LS_VALIDATE_URL,
-  X2_VALIDATE_URL,
   applyVerdict,
-  combineVerdicts,
   interpretLemonSqueezy,
-  interpretX2,
   needsCheck,
   noLicense,
   validateLicense,
@@ -36,15 +33,10 @@ async function post(url: string, body: BodyInit, contentType: string): Promise<{
   }
 }
 
-/** Ask our endpoint first; Lemon Squeezy is consulted when ours does not confirm the key. */
+/** Lemon Squeezy's public License API is the single source of truth (validate only, no activation). */
 export async function verify(key: string): Promise<{ verdict: Verdict; source: LicenseState['source'] }> {
-  const x2 = await post(X2_VALIDATE_URL, JSON.stringify({ license_key: key }), 'application/json');
-  const x2Verdict = interpretX2(x2.status, x2.json);
-  if (x2Verdict.kind === 'valid') return { verdict: x2Verdict, source: 'x2' };
   const ls = await post(LS_VALIDATE_URL, new URLSearchParams({ license_key: key }).toString(), 'application/x-www-form-urlencoded');
-  const lsVerdict = interpretLemonSqueezy(ls.status, ls.json);
-  const verdict = combineVerdicts(x2Verdict, lsVerdict);
-  return { verdict, source: lsVerdict.kind === 'valid' || x2Verdict.kind === 'unreachable' ? 'lemonsqueezy' : 'x2' };
+  return { verdict: interpretLemonSqueezy(ls.status, ls.json), source: 'lemonsqueezy' };
 }
 
 export async function readLicense(): Promise<LicenseState> {

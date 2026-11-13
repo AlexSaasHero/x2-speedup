@@ -6,7 +6,7 @@ import { expect, rateOf, sendToTabs, setPro, test } from './harness';
 test('manifest declares only the minimal permissions', () => {
   const manifest = JSON.parse(readFileSync('dist/manifest.json', 'utf8'));
   expect(manifest.permissions).toEqual(['storage', 'activeTab', 'alarms']);
-  expect(manifest.host_permissions).toEqual(['https://x2-speedup.vercel.app/*', 'https://api.lemonsqueezy.com/*']);
+  expect(manifest.host_permissions).toEqual(['https://api.lemonsqueezy.com/*']);
   expect(manifest.content_scripts[0].css).toBeUndefined();
 });
 

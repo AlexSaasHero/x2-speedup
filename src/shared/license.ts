@@ -1,13 +1,16 @@
 // License model and pure decision logic. Network calls live in src/background/license.ts.
 //
 // - Validation happens in the service worker, at most once a day (plus on activation).
+// - The only source is Lemon Squeezy's public License API (no own backend: the old
+//   x2-speedup.vercel.app/api/validate-license was never deployed: 404 on 2026-11-13).
+// - A key counts only if it belongs to our store (and, once listed, to one of our products):
+//   a valid key from any other Lemon Squeezy store must not unlock Pro.
 // - If the server cannot be reached, Pro stays on until LICENSE_GRACE_MS after the last
 //   successful validation (1 day of normal check interval + 7 days offline grace).
-// - Only an explicit answer from a server ("expired", "disabled", "invalid") turns Pro off;
-//   network errors never do.
+// - Only an explicit answer ("expired", "disabled", "invalid") turns Pro off; network errors never do.
 //
 // NOTE: the cached state is a timestamped record in chrome.storage, not cryptographically
-// signed — the license endpoint does not return a signature to verify. See ROADMAP_IMPL §3.1.
+// signed — Lemon Squeezy's public API returns no signature to verify. See ROADMAP_IMPL §3.1.
 
 export type LicenseStatus = 'none' | 'active' | 'expired' | 'revoked' | 'invalid' | 'limit';
 
@@ -18,7 +21,7 @@ export interface LicenseState {
   lastCheckedAt: number;
   /** Last time a server confirmed the key as valid. */
   lastValidAt: number;
-  /** Which source last answered: our endpoint, Lemon Squeezy, or the dev master key. */
+  /** Which source last answered. 'x2' = the retired own endpoint (kept so old states still parse). */
   source: 'x2' | 'lemonsqueezy' | 'dev' | 'migrated' | '';
   /** When the license (e.g. trial) ends, if the server says so. */
   expiresAt: number | null;
@@ -29,8 +32,15 @@ export const LICENSE_CHECK_INTERVAL_MS = DAY_MS;
 export const LICENSE_OFFLINE_GRACE_MS = 7 * DAY_MS;
 export const LICENSE_GRACE_MS = LICENSE_CHECK_INTERVAL_MS + LICENSE_OFFLINE_GRACE_MS;
 
-export const X2_VALIDATE_URL = 'https://x2-speedup.vercel.app/api/validate-license';
 export const LS_VALIDATE_URL = 'https://api.lemonsqueezy.com/v1/licenses/validate';
+
+/** Our Lemon Squeezy store (public ID, not a secret). */
+export const LS_STORE_ID = 455524;
+/**
+ * Products whose keys unlock Pro: the old $1.99 lifetime (Pro forever) and the yearly
+ * subscription. Empty = any product of our store. TODO: fill in from `meta.product_id`.
+ */
+export const LS_PRODUCT_IDS: readonly number[] = [];
 
 export function noLicense(): LicenseState {
   return { key: '', status: 'none', lastCheckedAt: 0, lastValidAt: 0, source: '', expiresAt: null };
@@ -81,28 +91,14 @@ const parseDate = (v: unknown): number | null => {
   return Number.isFinite(t) ? t : null;
 };
 
-/**
- * Our endpoint (x2-speedup.vercel.app/api/validate-license). Its exact schema is not in this
- * repo, so we accept the shapes the extension has always accepted plus common status words.
- */
-export function interpretX2(httpStatus: number, body: unknown): Verdict {
-  if (httpStatus >= 500 || httpStatus === 0 || httpStatus === 404 || httpStatus === 405 || httpStatus === 429) return { kind: 'unreachable' };
-  if (typeof body !== 'object' || body === null) return httpStatus >= 400 ? { kind: 'invalid' } : { kind: 'unreachable' };
-  const b = body as Record<string, unknown>;
-  const status = String(b.status ?? b.license_status ?? '').toLowerCase();
-  if (b.valid === true || b.is_valid === true || status === 'valid' || status === 'active') {
-    return { kind: 'valid', expiresAt: parseDate(b.expires_at ?? b.expiresAt) };
-  }
-  return statusVerdict(status, String(b.error ?? ''));
-}
-
 /** Lemon Squeezy public license API (POST /v1/licenses/validate). */
 export function interpretLemonSqueezy(httpStatus: number, body: unknown): Verdict {
   if (httpStatus >= 500 || httpStatus === 0 || httpStatus === 429) return { kind: 'unreachable' };
   if (typeof body !== 'object' || body === null) return { kind: 'unreachable' };
-  const b = body as { valid?: boolean; error?: string | null; license_key?: Record<string, unknown> | null };
+  const b = body as { valid?: boolean; error?: string | null; license_key?: Record<string, unknown> | null; meta?: Record<string, unknown> | null };
   const lk = b.license_key ?? {};
   const status = String(lk.status ?? '').toLowerCase();
+  if (b.valid === true && !isOurProduct(b.meta)) return { kind: 'invalid' };
   if (b.valid === true && (status === '' || status === 'active' || status === 'inactive')) {
     const limit = Number(lk.activation_limit);
     const usage = Number(lk.activation_usage);
@@ -112,6 +108,12 @@ export function interpretLemonSqueezy(httpStatus: number, body: unknown): Verdic
   return statusVerdict(status, String(b.error ?? ''));
 }
 
+/** The key was sold by our store (and by one of our products, once they are listed). */
+export function isOurProduct(meta: Record<string, unknown> | null | undefined): boolean {
+  if (!meta || Number(meta.store_id) !== LS_STORE_ID) return false;
+  return LS_PRODUCT_IDS.length === 0 || LS_PRODUCT_IDS.includes(Number(meta.product_id));
+}
+
 function statusVerdict(status: string, error: string): Verdict {
   if (status === 'expired' || /expired/i.test(error)) return { kind: 'expired' };
   if (['disabled', 'revoked', 'refunded', 'cancelled', 'canceled'].includes(status) || /disabled|revoked/i.test(error)) {
@@ -119,18 +121,6 @@ function statusVerdict(status: string, error: string): Verdict {
   }
   if (/activation limit|too many/i.test(error) || status === 'limit') return { kind: 'limit' };
   return { kind: 'invalid' };
-}
-
-/**
- * Combine both sources: valid if either says valid; otherwise the most specific explicit
- * answer; unreachable only if neither answered.
- */
-export function combineVerdicts(x2: Verdict, ls: Verdict | null): Verdict {
-  if (x2.kind === 'valid') return x2;
-  if (ls?.kind === 'valid') return ls;
-  const rank = ['expired', 'revoked', 'limit', 'invalid'] as const;
-  for (const k of rank) if (x2.kind === k || ls?.kind === k) return { kind: k };
-  return { kind: 'unreachable' };
 }
 
 /** New state after a validation attempt. Network errors keep the previous status. */

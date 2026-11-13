@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   DAY_MS,
   LICENSE_GRACE_MS,
+  LS_STORE_ID,
   applyVerdict,
-  combineVerdicts,
   interpretLemonSqueezy,
-  interpretX2,
+  isOurProduct,
   isInGrace,
   licenseGrantsPro,
   needsCheck,
@@ -58,30 +58,29 @@ describe('grace period', () => {
 });
 
 describe('server answers', () => {
-  it('our endpoint', () => {
-    expect(interpretX2(200, { status: 'valid' })).toEqual({ kind: 'valid', expiresAt: null });
-    expect(interpretX2(200, { valid: true, expires_at: '2030-01-01T00:00:00Z' })).toEqual({ kind: 'valid', expiresAt: Date.parse('2030-01-01T00:00:00Z') });
-    expect(interpretX2(200, { status: 'expired' })).toEqual({ kind: 'expired' });
-    expect(interpretX2(403, { valid: false, error: 'License key disabled' })).toEqual({ kind: 'revoked' });
-    expect(interpretX2(400, { valid: false })).toEqual({ kind: 'invalid' });
-    for (const s of [0, 404, 429, 500, 503]) expect(interpretX2(s, null).kind).toBe('unreachable');
-  });
-
   it('Lemon Squeezy', () => {
-    expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active' } }).kind).toBe('valid');
+    const meta = { store_id: LS_STORE_ID, product_id: 1, variant_id: 1 };
+    expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active' }, meta }).kind).toBe('valid');
+    expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'inactive', expires_at: '2030-01-01T00:00:00Z' }, meta })).toEqual({
+      kind: 'valid',
+      expiresAt: Date.parse('2030-01-01T00:00:00Z')
+    });
     expect(interpretLemonSqueezy(200, { valid: false, license_key: { status: 'expired' } }).kind).toBe('expired');
     expect(interpretLemonSqueezy(200, { valid: false, license_key: { status: 'disabled' } }).kind).toBe('revoked');
     expect(interpretLemonSqueezy(404, { valid: false, error: 'license_key not found.' }).kind).toBe('invalid');
-    expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active', activation_limit: 2, activation_usage: 3 } }).kind).toBe('limit');
+    expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active', activation_limit: 2, activation_usage: 3 }, meta }).kind).toBe('limit');
     expect(interpretLemonSqueezy(0, null).kind).toBe('unreachable');
+    for (const s of [429, 500, 503]) expect(interpretLemonSqueezy(s, null).kind).toBe('unreachable');
   });
 
-  it('combination: either valid wins, else the most specific answer, else unreachable', () => {
-    expect(combineVerdicts({ kind: 'invalid' }, { kind: 'valid', expiresAt: null }).kind).toBe('valid');
-    expect(combineVerdicts({ kind: 'unreachable' }, { kind: 'expired' }).kind).toBe('expired');
-    expect(combineVerdicts({ kind: 'invalid' }, { kind: 'revoked' }).kind).toBe('revoked');
-    expect(combineVerdicts({ kind: 'unreachable' }, { kind: 'unreachable' }).kind).toBe('unreachable');
+  it('a valid key from another Lemon Squeezy store never unlocks Pro', () => {
+    const other = { valid: true, license_key: { status: 'active' }, meta: { store_id: 1, product_id: 1 } };
+    expect(interpretLemonSqueezy(200, other).kind).toBe('invalid');
+    expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active' } }).kind).toBe('invalid');
+    expect(isOurProduct({ store_id: String(LS_STORE_ID), product_id: '7' })).toBe(true);
+    expect(isOurProduct(null)).toBe(false);
   });
+
 });
 
 describe('applyVerdict', () => {

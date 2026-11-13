@@ -10,7 +10,6 @@
     "alarms"
   ],
   "host_permissions": [
-    "https://x2-speedup.vercel.app/*",
     "https://api.lemonsqueezy.com/*"
   ],
   "icons": {

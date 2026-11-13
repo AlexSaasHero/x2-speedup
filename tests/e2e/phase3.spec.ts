@@ -1,33 +1,43 @@
 import { chromium, type Route } from '@playwright/test';
 import path from 'node:path';
 import { CHANGELOG } from '../../src/onboarding/changelog';
+import { LS_STORE_ID } from '../../src/shared/license';
 import { expect, proLicense, test } from './harness';
 
-/** Fake license servers (the harness blocks the real ones). */
+/** Fake Lemon Squeezy License API (the harness blocks the real one). */
 async function fakeServers(context: import('@playwright/test').BrowserContext, answer: (key: string) => object | null) {
   await context.unroute(/x2-speedup\.vercel\.app|lemonsqueezy\.com/);
-  await context.route(/x2-speedup\.vercel\.app\/api\/validate-license/, async (route: Route) => {
-    const key = JSON.parse(route.request().postData() ?? '{}').license_key;
+  await context.route(/api\.lemonsqueezy\.com\/v1\/licenses\/validate/, async (route: Route) => {
+    const key = new URLSearchParams(route.request().postData() ?? '').get('license_key') ?? '';
     const body = answer(key);
     if (!body) return route.abort();
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
   });
-  await context.route(/lemonsqueezy\.com/, (route) => route.abort());
 }
+
+const OUR_META = { store_id: LS_STORE_ID, product_id: 1, variant_id: 1 };
 
 test.describe('license', () => {
   test.afterEach(async ({ context }) => {
-    await context.unroute(/x2-speedup\.vercel\.app\/api\/validate-license/).catch(() => {});
+    await context.unroute(/api\.lemonsqueezy\.com\/v1\/licenses\/validate/).catch(() => {});
     await context.unroute(/lemonsqueezy\.com/).catch(() => {});
     await context.route(/x2-speedup\.vercel\.app|lemonsqueezy\.com/, (route) => route.abort());
   });
 
   test('popup activation goes through the worker: valid key → Pro; unknown key → error', async ({ context, sw, extensionId }) => {
-    await fakeServers(context, (key) => (key === 'GOOD-KEY' ? { status: 'valid' } : { status: 'invalid' }));
+    await fakeServers(context, (key) =>
+      key === 'GOOD-KEY'
+        ? { valid: true, license_key: { status: 'active' }, meta: OUR_META }
+        : key === 'OTHER-STORE'
+          ? { valid: true, license_key: { status: 'active' }, meta: { ...OUR_META, store_id: 1 } }
+          : { valid: false, error: 'license_key not found.' });
     const page = await context.newPage();
     await page.goto(`chrome-extension://${extensionId}/popup/popup.html`);
     await page.click('#openUpgradeBtn');
     await page.fill('#input-license-key', 'PRO-1234'); // used to be accepted offline by format
+    await page.click('#activateBtn');
+    await expect(page.locator('#statusMsg')).toHaveText('Invalid license key.');
+    await page.fill('#input-license-key', 'OTHER-STORE'); // valid key, but sold by another store
     await page.click('#activateBtn');
     await expect(page.locator('#statusMsg')).toHaveText('Invalid license key.');
     await page.fill('#input-license-key', 'GOOD-KEY');
@@ -56,7 +66,7 @@ test.describe('license', () => {
   });
 
   test('daily re-check turns an expired trial off', async ({ context, sw, extensionId }) => {
-    await fakeServers(context, () => ({ valid: false, status: 'expired' }));
+    await fakeServers(context, () => ({ valid: false, license_key: { status: 'expired' }, meta: OUR_META }));
     await sw.evaluate((l) => chrome.storage.local.set({ license: l }), { ...proLicense(), lastCheckedAt: 0 });
     const page = await context.newPage();
     await page.goto(`chrome-extension://${extensionId}/popup/popup.html`);
