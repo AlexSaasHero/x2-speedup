@@ -10,3 +10,7 @@ coverage/
 test-results/
 playwright-report/
 dist-firefox/
+
+# Riordino 2026-11-13: cartelle locali, non vanno su git
+_to_delete/
+_archive/
