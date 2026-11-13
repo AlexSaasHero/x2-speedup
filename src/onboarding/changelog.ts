@@ -11,7 +11,7 @@ export const CHANGELOG: Release[] = [
   },
   {
     version: '1.7',
-    items: ['changelog_17_skip', 'changelog_17_rules', 'changelog_17_ads', 'changelog_17_hold', 'changelog_17_stats']
+    items: ['changelog_17_skip', 'changelog_17_rules', 'changelog_17_hold', 'changelog_17_stats']
   },
   {
     version: '1.6',

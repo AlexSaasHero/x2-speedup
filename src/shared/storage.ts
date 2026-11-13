@@ -5,7 +5,7 @@ import { noLicense, type LicenseState } from './license';
 import type { Rule } from './rules';
 import { defaultShortcuts, type Shortcut } from './shortcuts';
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 /** Overlay top-left corner as a fraction (0–1) of the video's width/height. */
 export interface OverlayPosition {
@@ -68,7 +68,6 @@ export interface StoredState {
   /** Speed while the hold-to-speed key is down. */
   holdSpeed: number;
   /** YouTube ads at 16x + muted, then restore. Opt-in. */
-  youtubeAds: boolean;
   // v4
   /** Mirror settings to chrome.storage.sync (other devices signed into the same browser profile). */
   syncEnabled: boolean;
@@ -123,7 +122,6 @@ export function defaultState(): Omit<StoredState, 'installDate'> {
       minSpeechMs: SETTING_BOUNDS.minSpeechMs.fallback
     },
     holdSpeed: SETTING_BOUNDS.holdSpeed.fallback,
-    youtubeAds: false,
     syncEnabled: true,
     deviceId: '',
     reviewPrompt: { state: 'waiting', snoozedUntil: 0 }

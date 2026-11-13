@@ -114,22 +114,3 @@ test('Pro — channel detected for rules, channel rule applied', async ({ contex
   await sw.evaluate((p) => chrome.storage.local.set({ rules: [{ id: 'c', type: 'channel', pattern: p, speed: 1.75 }] }), pattern);
   await expect.poll(() => rate(page), { timeout: 15_000 }).toBe(1.75);
 });
-
-test('Pro — ads at 16x muted, then restored (only if YouTube serves an ad)', async ({ context, sw }) => {
-  await sw.evaluate((l) => chrome.storage.local.set({ license: l, youtubeAds: true, defaultSpeed: 1.5 }), proLicense());
-  const page = await context.newPage();
-  await page.goto(VIDEO, { waitUntil: 'domcontentloaded' });
-  if (/consent\./.test(page.url())) {
-    await page.getByRole('button', { name: /reject all|rifiuta tutto/i }).first().click();
-  }
-  await page.waitForSelector('#movie_player video', { timeout: 60_000 });
-  const sawAd = await expect
-    .poll(() => inAd(page), { timeout: 15_000 })
-    .toBe(true)
-    .then(() => true, () => false);
-  test.skip(!sawAd, 'YouTube served no ad this time');
-  await expect.poll(() => rate(page)).toBe(16);
-  expect(await page.evaluate(() => (document.querySelector('#movie_player video') as HTMLVideoElement).muted)).toBe(true);
-  await waitAdsOut(page);
-  await expect.poll(() => rate(page)).toBe(1.5);
-});

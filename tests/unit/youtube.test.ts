@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
 import { extractChannel, isYouTubeHost } from '../../src/content/youtube';
-import { isAdShowing } from '../../src/pro/youtube-ads';
 import { isSafeSource } from '../../src/pro/skip-silence';
 
 const doc = (html: string) => {
@@ -37,18 +36,6 @@ describe('YouTube channel extraction', () => {
     expect(extractChannel(doc('<ytd-channel-name><a href="/@x">x</a></ytd-channel-name>'), 'https://vimeo.com/1')).toBeNull();
     expect(isYouTubeHost('m.youtube.com')).toBe(true);
     expect(isYouTubeHost('notyoutube.com')).toBe(false);
-  });
-});
-
-describe('YouTube ads detection', () => {
-  it('only the player classes count', () => {
-    const p = document.createElement('div');
-    p.className = 'html5-video-player playing-mode';
-    expect(isAdShowing(p)).toBe(false);
-    p.classList.add('ad-showing');
-    expect(isAdShowing(p)).toBe(true);
-    p.className = 'html5-video-player ad-interrupting';
-    expect(isAdShowing(p)).toBe(true);
   });
 });
 

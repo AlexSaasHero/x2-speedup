@@ -41,7 +41,7 @@ function bindNumber(id: string, read: () => number, write: (v: number) => Partia
   });
 }
 
-function bindCheck(id: 'rememberSpeed' | 'applyToAll' | 'preservesPitch' | 'hudEnabled' | 'youtubeAds' | 'syncEnabled') {
+function bindCheck(id: 'rememberSpeed' | 'applyToAll' | 'preservesPitch' | 'hudEnabled' | 'syncEnabled') {
   const input = $<HTMLInputElement>(id);
   input.checked = !!state[id];
   input.addEventListener('change', () => save({ [id]: input.checked } as Partial<StoredState>));
@@ -159,7 +159,6 @@ function initPro(pro: boolean) {
   bindNumber('ssMinSilence', () => ss().minSilenceMs, (v) => ({ skipSilence: { ...ss(), minSilenceMs: Math.round(v) } }), SETTING_BOUNDS.minSilenceMs);
   bindNumber('ssMinSpeech', () => ss().minSpeechMs, (v) => ({ skipSilence: { ...ss(), minSpeechMs: Math.round(v) } }), SETTING_BOUNDS.minSpeechMs);
   bindNumber('holdSpeed', () => state.holdSpeed, (v) => ({ holdSpeed: v }), SETTING_BOUNDS.holdSpeed);
-  bindCheck('youtubeAds');
 
   renderRules();
   $('addRule').addEventListener('click', () => {

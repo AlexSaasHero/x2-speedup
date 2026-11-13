@@ -21,7 +21,6 @@ import { installShortcuts } from './shortcuts';
 import { quirksFor } from './quirks';
 import { onSpaNavigation } from './spa';
 import { StatsTracker } from './stats';
-import { isYouTubeHost } from './youtube';
 
 const host = location.hostname;
 let settings: ContentSettings | null = null;
@@ -33,7 +32,6 @@ const can = (f: Feature) => !!settings && planLimits(settings.pro).features[f];
 
 const asVideo = (m: Media | null) => (isVideo(m) ? m : null);
 const OVERRIDE_BADGE: Record<string, () => string> = {
-  ads: () => ` · ${t('overlay_ad')}`,
   hold: () => ` · ${t('overlay_hold')}`,
   silence: () => ' ⏩'
 };
@@ -109,8 +107,7 @@ const proApi: ProApi = {
 function syncProModules(): void {
   const s = getSettings();
   const wanted: [ProModuleName, boolean][] = [
-    ['skip-silence', can('skipSilence') && s.skipSilence.enabled],
-    ['youtube-ads', can('youtubeAds') && s.youtubeAds && isYouTubeHost(host)]
+    ['skip-silence', can('skipSilence') && s.skipSilence.enabled]
   ];
   for (const [name, on] of wanted) {
     if (on) loadProModule(name, proApi).then((m) => m?.update());

@@ -68,7 +68,6 @@ const proOptions = {
   ...contentOptions,
   entryPoints: {
     'pro/skip-silence': 'src/pro/skip-silence.ts',
-    'pro/youtube-ads': 'src/pro/youtube-ads.ts',
     'pro/rules': 'src/pro/rules.ts'
   },
   format: 'esm'

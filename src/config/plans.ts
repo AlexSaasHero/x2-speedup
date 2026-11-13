@@ -14,7 +14,6 @@ export type Feature =
   | 'checkpoints'
   | 'skipSilence'
   | 'rules'
-  | 'youtubeAds'
   | 'holdToSpeed'
   | 'abRepeat'
   /** Today / week / total / page breakdown. The weekly headline is shown to everyone. */
@@ -41,7 +40,6 @@ export const PLANS: Record<PlanId, PlanLimits> = {
       checkpoints: false,
       skipSilence: false,
       rules: false,
-      youtubeAds: false,
       holdToSpeed: true,
       abRepeat: false,
       statsDetails: false
@@ -57,7 +55,6 @@ export const PLANS: Record<PlanId, PlanLimits> = {
       checkpoints: true,
       skipSilence: true,
       rules: true,
-      youtubeAds: true,
       holdToSpeed: true,
       abRepeat: true,
       statsDetails: true

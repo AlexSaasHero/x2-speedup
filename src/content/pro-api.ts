@@ -22,7 +22,7 @@ export interface ProModule {
   status(): Record<string, unknown>;
 }
 
-export type ProModuleName = 'skip-silence' | 'youtube-ads';
+export type ProModuleName = 'skip-silence';
 
 const loaded = new Map<ProModuleName, Promise<ProModule | null>>();
 

@@ -24,8 +24,8 @@ const PLAYER_ANCESTOR_DEPTH = 8;
 const PERSIST_DEBOUNCE_MS = 300;
 
 /** Temporary speeds layered on top of the user's speed, highest priority first. */
-export type OverrideSource = 'ads' | 'hold' | 'silence';
-const OVERRIDE_PRIORITY: readonly OverrideSource[] = ['ads', 'hold', 'silence'];
+export type OverrideSource = 'hold' | 'silence';
+const OVERRIDE_PRIORITY: readonly OverrideSource[] = ['hold', 'silence'];
 
 export interface SetSpeedOptions {
   /** Store as the remembered speed (false for rule-driven changes). */

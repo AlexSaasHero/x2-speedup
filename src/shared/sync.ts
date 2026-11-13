@@ -22,7 +22,6 @@ export const SYNC_KEYS = [
   'rules',
   'skipSilence',
   'holdSpeed',
-  'youtubeAds'
 ] as const satisfies readonly (keyof StoredState)[];
 
 export type SyncedSettings = Pick<StoredState, (typeof SYNC_KEYS)[number]>;

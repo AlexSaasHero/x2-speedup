@@ -111,12 +111,18 @@ describe('migrate', () => {
     expect(set.videoCheckpoints!['youtube.com/watch?v=abc'].map((c) => c.id)).toEqual(['2', '1']);
   });
 
-  it('v3 Pro settings are bounded with safe defaults (skip silence off, ads off)', () => {
-    const { set } = migrate({ skipSilence: { enabled: true, thresholdDb: -200, silenceSpeed: 99 }, holdSpeed: 'x', youtubeAds: 'yes' });
+  it('v3 Pro settings are bounded with safe defaults (skip silence off)', () => {
+    const { set } = migrate({ skipSilence: { enabled: true, thresholdDb: -200, silenceSpeed: 99 }, holdSpeed: 'x' });
     expect(set.skipSilence).toEqual({ enabled: true, thresholdDb: -70, minSilenceMs: 350, silenceSpeed: 16, minSpeechMs: 250 });
     expect(set.holdSpeed).toBe(2.5);
-    expect(set.youtubeAds).toBe(false);
     expect(migrate({}).set.skipSilence!.enabled).toBe(false);
+  });
+
+  it('v4 → v5: the removed YouTube ads setting is dropped', () => {
+    const { set, remove } = migrate({ schemaVersion: 4, youtubeAds: true });
+    expect(remove).toContain('youtubeAds');
+    expect(set).not.toHaveProperty('youtubeAds');
+    expect(set.schemaVersion).toBe(5);
   });
 
   it('is idempotent', () => {
@@ -125,7 +131,7 @@ describe('migrate', () => {
     expect(second.set).toEqual(first);
     expect(second.remove).toEqual([]);
     expect(first.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(4);
+    expect(SCHEMA_VERSION).toBe(5);
   });
 
   it('only lists legacy keys that are present', () => {

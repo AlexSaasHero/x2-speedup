@@ -21,7 +21,9 @@ export const LEGACY_KEYS = [
   // v3 → v4: replaced by `license`
   'isPro',
   'licenseKey',
-  'activatedAt'
+  'activatedAt',
+  // v4 → v5: YouTube ads feature removed (study-tool repositioning, 2026-11-13)
+  'youtubeAds'
 ] as const;
 
 export interface MigrationResult {
@@ -161,7 +163,6 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
     minSpeechMs: bounded(ss.minSpeechMs, SETTING_BOUNDS.minSpeechMs)
   };
   set.holdSpeed = bounded(raw.holdSpeed, SETTING_BOUNDS.holdSpeed);
-  set.youtubeAds = raw.youtubeAds === true;
 
   // v3 → v4: sync, device id, review prompt.
   set.syncEnabled = typeof raw.syncEnabled === 'boolean' ? raw.syncEnabled : defaults.syncEnabled;

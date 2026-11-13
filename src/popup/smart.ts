@@ -38,7 +38,6 @@ export function mountSmart(deps: SmartDeps) {
   };
 
   const skipToggle = $<HTMLInputElement>('skipSilenceToggle');
-  const adsToggle = $<HTMLInputElement>('youtubeAdsToggle');
 
   skipToggle?.addEventListener('change', () => {
     if (!gate('skipSilence') || !skipSilence) {
@@ -47,13 +46,6 @@ export function mountSmart(deps: SmartDeps) {
     }
     skipSilence = { ...skipSilence, enabled: skipToggle.checked };
     chrome.storage.local.set({ skipSilence });
-  });
-  adsToggle?.addEventListener('change', () => {
-    if (!gate('youtubeAds')) {
-      adsToggle.checked = false;
-      return;
-    }
-    chrome.storage.local.set({ youtubeAds: adsToggle.checked });
   });
   document.querySelector('[data-feature="holdToSpeed"]')?.addEventListener('click', () => gate('holdToSpeed'));
   $('statsLocked')?.addEventListener('click', () => gate('statsDetails'));
@@ -160,11 +152,10 @@ export function mountSmart(deps: SmartDeps) {
     if (hint) hint.textContent = b ? t('hold_hint', [formatShortcut(b, IS_MAC), formatSpeed(holdSpeed)]) : t('hold_hint_none', [formatSpeed(holdSpeed)]);
   }
 
-  chrome.storage.local.get(['skipSilence', 'youtubeAds', 'rules', 'holdSpeed', 'shortcuts', STATS_KEY]).then((d) => {
+  chrome.storage.local.get(['skipSilence', 'rules', 'holdSpeed', 'shortcuts', STATS_KEY]).then((d) => {
     skipSilence = d.skipSilence ?? null;
     rules = Array.isArray(d.rules) ? d.rules : [];
     if (skipToggle) skipToggle.checked = !!skipSilence?.enabled && can('skipSilence');
-    if (adsToggle) adsToggle.checked = d.youtubeAds === true && can('youtubeAds');
     renderStats(d[STATS_KEY]);
     renderHold(Number(d.holdSpeed) || 2.5, Array.isArray(d.shortcuts) ? d.shortcuts : []);
     renderRules();
