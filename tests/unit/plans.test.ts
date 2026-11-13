@@ -14,9 +14,15 @@ describe('plans', () => {
     expect(Object.values(PLANS.pro.features).every(Boolean)).toBe(true);
   });
 
+  it('speed is free up to 16x: both plans share the same range', () => {
+    expect(FREE_MIN_SPEED).toBe(PLANS.pro.minSpeed);
+    expect(FREE_MAX_SPEED).toBe(PRO_MAX_SPEED);
+    expect(FREE_MAX_SPEED).toBe(16);
+  });
+
   it('clamps to the plan range', () => {
-    expect(clampSpeed(10, false)).toBe(FREE_MAX_SPEED);
-    expect(clampSpeed(10, true)).toBe(10);
+    expect(clampSpeed(10, false)).toBe(10);
+    expect(clampSpeed(99, false)).toBe(FREE_MAX_SPEED);
     expect(clampSpeed(99, true)).toBe(PRO_MAX_SPEED);
     expect(clampSpeed(0.01, false)).toBe(FREE_MIN_SPEED);
     expect(clampSpeed('1.234', true)).toBe(1.23);
@@ -43,12 +49,12 @@ describe('entitlement', () => {
     expect(isPro(PRO)).toBe(true);
   });
 
-  it('every Phase 2 feature is Pro-only', () => {
-    for (const f of ['skipSilence', 'rules', 'youtubeAds', 'holdToSpeed', 'abRepeat', 'statsDetails'] as const) {
+  it('study tools are Pro-only; speed tools are free', () => {
+    for (const f of ['customHotkeys', 'checkpoints', 'frameStep', 'rules', 'skipSilence', 'abRepeat', 'statsDetails'] as const) {
       expect(can(f, {})).toBe(false);
       expect(can(f, PRO)).toBe(true);
     }
-    expect(can('customHotkeys', {})).toBe(true);
+    expect(can('holdToSpeed', {})).toBe(true);
     expect(can('skipTime', {})).toBe(true);
   });
 

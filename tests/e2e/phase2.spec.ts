@@ -32,15 +32,15 @@ test.describe('hold to speed', () => {
     await page.keyboard.up('Shift');
   });
 
-  test('Free: key is locked, speed unchanged', async ({ context, sw, origin }) => {
+  test('Free: hold-to-speed is free (speed tools are not Pro)', async ({ context, sw, origin }) => {
     const page = await context.newPage();
     await readyBasic(page, origin, sw);
     await page.keyboard.down('Shift');
     await page.keyboard.down('F');
-    await page.waitForTimeout(200);
-    expect(await rateOf(page)).toBe(1);
+    await expect.poll(() => rateOf(page)).toBe(2.5);
     await page.keyboard.up('F');
     await page.keyboard.up('Shift');
+    await expect.poll(() => rateOf(page)).toBe(1);
   });
 });
 

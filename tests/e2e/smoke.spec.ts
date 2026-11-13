@@ -10,18 +10,20 @@ test('manifest declares only the minimal permissions', () => {
   expect(manifest.content_scripts[0].css).toBeUndefined();
 });
 
-test('popup SET_SPEED is clamped to the free limit, Pro unlocks 16x', async ({ context, sw, origin }) => {
+test('popup SET_SPEED: free reaches 16x (speed is free), out-of-range is clamped', async ({ context, sw, origin }) => {
   const page = await context.newPage();
   await page.goto(`${origin}/basic.html`);
   await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo)).toBe(true);
 
   const res = await sendToTabs(sw, { action: 'SET_SPEED', speed: 10 });
-  expect(res.speed).toBe(FREE_MAX_SPEED);
+  expect(res.speed).toBe(10);
+  await expect.poll(() => rateOf(page)).toBe(10);
+
+  await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 99 }).then((r) => r?.speed)).toBe(FREE_MAX_SPEED);
   await expect.poll(() => rateOf(page)).toBe(FREE_MAX_SPEED);
 
   await setPro(sw);
   await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 99 }).then((r) => r?.speed)).toBe(PRO_MAX_SPEED);
-  await expect.poll(() => rateOf(page)).toBe(PRO_MAX_SPEED);
 });
 
 test('popup renders free tier from plans config with no errors and no network', async ({ context, sw, extensionId }) => {

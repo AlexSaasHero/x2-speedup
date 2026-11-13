@@ -49,16 +49,16 @@ test.describe('shortcuts', () => {
     expect(await rateOf(page)).toBe(1);
   });
 
-  test('free plan stops at 4x and says so', async ({ context, sw, origin }) => {
+  test('free plan goes past 4x up to 16x and stops there', async ({ context, sw, origin }) => {
     const page = await context.newPage();
     await readyBasic(page, origin, sw);
     await sw.evaluate(() => chrome.storage.local.set({ speedStep: 1 }));
     await expect.poll(async () => {
       await page.keyboard.press('d');
       return rateOf(page);
-    }).toBe(4);
+    }, { timeout: 20_000 }).toBe(16);
     await page.keyboard.press('d');
-    expect(await rateOf(page)).toBe(4);
+    expect(await rateOf(page)).toBe(16);
   });
 
   for (const [name, selector] of [

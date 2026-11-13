@@ -1,5 +1,7 @@
 // Single source of truth for Free vs Pro limits and feature gating.
 // Change limits here only — content script, popup and background all read from this file.
+// Model (2026-11-13): speed is free up to 16x; Pro sells study tools (rules, custom shortcuts,
+// checkpoints, frame step, A-B, detailed stats, skip silence).
 
 export type PlanId = 'free' | 'pro';
 
@@ -31,16 +33,16 @@ export const ABSOLUTE_MAX_SPEED = 16;
 export const PLANS: Record<PlanId, PlanLimits> = {
   free: {
     minSpeed: ABSOLUTE_MIN_SPEED,
-    maxSpeed: 4,
+    maxSpeed: ABSOLUTE_MAX_SPEED,
     features: {
-      customHotkeys: true,
+      customHotkeys: false,
       skipTime: true,
       frameStep: false,
       checkpoints: false,
       skipSilence: false,
       rules: false,
       youtubeAds: false,
-      holdToSpeed: false,
+      holdToSpeed: true,
       abRepeat: false,
       statsDetails: false
     }

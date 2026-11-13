@@ -11,8 +11,8 @@ describe('speed math', () => {
 
   it('steps within plan limits', () => {
     expect(stepSpeed(1, 0.1, false)).toBe(1.1);
-    expect(stepSpeed(FREE_MAX_SPEED, 0.1, false)).toBe(FREE_MAX_SPEED);
-    expect(stepSpeed(FREE_MAX_SPEED, 0.1, true)).toBe(roundSpeed(FREE_MAX_SPEED + 0.1));
+    expect(stepSpeed(4, 0.1, false)).toBe(4.1); // free is no longer capped at 4x
+    expect(stepSpeed(FREE_MAX_SPEED, 1, false)).toBe(FREE_MAX_SPEED);
     expect(stepSpeed(PRO_MAX_SPEED, 1, true)).toBe(PRO_MAX_SPEED);
     expect(stepSpeed(0.1, -0.1, true)).toBe(0.1);
   });
