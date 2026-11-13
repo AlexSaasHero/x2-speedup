@@ -2,6 +2,14 @@
 
 Browser extension (Chrome/Edge MV3, Firefox build) that controls HTML5 video/audio speed. Freemium: Pro via Lemon Squeezy license (7-day trial, then $1.99 one-time). Full context: `docs/CLAUDE_PROJECT_CONTEXT.md`; status of every item: `docs/ROADMAP_IMPL.md`.
 
+## Stack
+- TypeScript (strict; `src/popup/index.js` is the only JS file), bundled by **esbuild** via `scripts/build.mjs` — no Vite/webpack/WXT.
+- Output: `dist/` (Chrome/Edge, load unpacked from here), `dist-firefox/`, `release/*.zip` (upload to the Store). All git-ignored.
+- Tests: Vitest + happy-dom (unit), Playwright (e2e/live). CI: `.github/workflows/ci.yml`.
+- Key files: `public/manifest.json` (manifest + version of record) · `scripts/build.mjs` (build/zip, `--dev`, `--target=firefox`) · `scripts/firefox.mjs` (manifest rewrite for Firefox) · `scripts/locales.mjs` (`src/_locales/*.json` → `_locales/*/messages.json`, fails on missing keys) · `public/{popup,options,onboarding}/` (HTML/CSS, JS comes from `src/`).
+- Not in this repo: license backend (`/api/validate-license` on x2-speedup.vercel.app). `landing-page/` is static HTML deployed to Vercel — don't move or rename it.
+- Local-only folders (git-ignored): `_archive/release/` (old Store zips, keep), `_to_delete/` (Alex reviews and deletes by hand).
+
 ## Rules
 - MV3 only: no remote code, no `eval`, service worker keeps no state in memory (everything in `chrome.storage`).
 - Minimal permissions; justify any new one in `docs/ROADMAP_IMPL.md` ("Permessi finali").
