@@ -1,5 +1,6 @@
 import { chromium, type Route } from '@playwright/test';
 import path from 'node:path';
+import { CHANGELOG } from '../../src/onboarding/changelog';
 import { expect, proLicense, test } from './harness';
 
 /** Fake license servers (the harness blocks the real ones). */
@@ -77,7 +78,7 @@ test('onboarding page: localized, shortcut demo reacts to the user keys, no erro
   await page.click('#demoPlay');
   await page.keyboard.press('d');
   await expect(page.locator('#demoSpeed')).toHaveText('1.1x');
-  await expect(page.locator('#changelog .release')).toHaveCount(3);
+  await expect(page.locator('#changelog .release')).toHaveCount(CHANGELOG.length);
   expect(errors).toEqual([]);
 });
 
