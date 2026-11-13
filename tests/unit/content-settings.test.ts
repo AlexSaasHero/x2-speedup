@@ -3,6 +3,8 @@ import { normaliseContentSettings } from '../../src/content/settings';
 import { migrate } from '../../src/shared/migrations';
 import { binding, defaultShortcuts } from '../../src/shared/shortcuts';
 
+const PRO_LICENSE = { key: 'K', status: 'active', source: 'x2', lastValidAt: Date.now(), lastCheckedAt: Date.now(), expiresAt: null };
+
 describe('content settings normaliser (light read, no migration bundled)', () => {
   it('matches the full migration on a clean store', () => {
     const full = migrate({}).set as Record<string, unknown>;
@@ -19,7 +21,8 @@ describe('content settings normaliser (light read, no migration bundled)', () =>
       hudEnabled: 'yes',
       shortcuts: [binding('faster', 'd'), { action: 'bogus', key: 'q' }],
       shortcutBlacklist: ['a.com', 3],
-      skipSilence: { enabled: true }
+      skipSilence: { enabled: true },
+      license: PRO_LICENSE
     });
     expect(s.speedStep).toBe(0.1);
     expect(s.seekSeconds).toBe(10);
@@ -27,6 +30,12 @@ describe('content settings normaliser (light read, no migration bundled)', () =>
     expect(s.shortcuts).toEqual([binding('faster', 'd')]);
     expect(s.shortcutBlacklist).toEqual(['a.com']);
     expect(s.skipSilence).toMatchObject({ enabled: true, silenceSpeed: 4 });
+  });
+
+  it('custom shortcuts are Pro: free runs the defaults, saved ones come back with Pro', () => {
+    const custom = [binding('faster', 'k'), binding('slower', 'j')];
+    expect(normaliseContentSettings({ shortcuts: custom }).shortcuts).toEqual(defaultShortcuts());
+    expect(normaliseContentSettings({ shortcuts: custom, license: PRO_LICENSE }).shortcuts).toEqual(custom);
   });
 
   it('Pro comes only from a valid license', () => {

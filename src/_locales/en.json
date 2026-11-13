@@ -136,6 +136,8 @@
   "upsell_holdToSpeed": "Hold-to-speed is a Pro feature (7-Day Free Trial).",
   "upsell_statsDetails": "See time saved today, this week and in total with Pro (7-Day Free Trial).",
   "upsell_abRepeat": "A-B repeat is a Pro feature (7-Day Free Trial).",
+  "upsell_customHotkeys": "Custom shortcuts are a Pro feature (7-Day Free Trial).",
+  "shortcuts_locked": "🔒 Custom shortcuts are Pro. Free uses these default keys — tap to start the free trial.",
   "// shortcut actions": "",
   "action_slower": "Slower",
   "action_faster": "Faster",

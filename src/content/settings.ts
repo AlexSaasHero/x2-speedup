@@ -4,8 +4,9 @@
 // need a light, defensive read (type checks + defaults) instead of bundling the whole migration
 // into a script that runs in every frame. If the stored schema is older (the page loaded in the
 // few milliseconds before the worker finished migrating), we wait briefly for the migration.
+import { planLimits } from '../config/plans';
 import { isPro } from '../shared/entitlement';
-import { validateShortcut, type Shortcut } from '../shared/shortcuts';
+import { effectiveShortcuts, validateShortcut, type Shortcut } from '../shared/shortcuts';
 import { SCHEMA_VERSION, defaultState, type StoredState } from '../shared/storage';
 
 export type ContentSettings = Omit<
@@ -51,9 +52,10 @@ function pick<T>(v: unknown, fallback: T): T {
 
 export function normaliseContentSettings(raw: Record<string, unknown>): ContentSettings {
   const d = defaultState();
+  const pro = isPro({ license: raw.license });
   return {
     schemaVersion: pick(raw.schemaVersion, d.schemaVersion),
-    pro: isPro({ license: raw.license }),
+    pro,
     defaultSpeed: pick(raw.defaultSpeed, d.defaultSpeed),
     rules: pick(raw.rules, d.rules),
     skipSilence: pick(raw.skipSilence, d.skipSilence),
@@ -69,9 +71,11 @@ export function normaliseContentSettings(raw: Record<string, unknown>): ContentS
     applyToAll: pick(raw.applyToAll, d.applyToAll),
     overlayAutoHideMs: pick(raw.overlayAutoHideMs, d.overlayAutoHideMs),
     overlayPositions: pick(raw.overlayPositions, d.overlayPositions),
-    shortcuts: Array.isArray(raw.shortcuts)
-      ? raw.shortcuts.map(validateShortcut).filter((s): s is Shortcut => s !== null)
-      : d.shortcuts,
+    // Free plan: default keys only (custom shortcuts are Pro); saved ones stay in storage.
+    shortcuts: effectiveShortcuts(
+      Array.isArray(raw.shortcuts) ? raw.shortcuts.map(validateShortcut).filter((s): s is Shortcut => s !== null) : d.shortcuts,
+      planLimits(pro).features.customHotkeys
+    ),
     shortcutBlacklist: pick(raw.shortcutBlacklist, d.shortcutBlacklist).filter((h): h is string => typeof h === 'string')
   };
 }

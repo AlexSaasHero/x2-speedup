@@ -131,6 +131,8 @@
   "upsell_holdToSpeed": "Maintenir pour accélérer est une fonction Pro (essai gratuit de 7 jours).",
   "upsell_statsDetails": "Voyez le temps gagné aujourd'hui, cette semaine et au total avec Pro (essai gratuit de 7 jours).",
   "upsell_abRepeat": "La répétition A-B est une fonction Pro (essai gratuit de 7 jours).",
+  "upsell_customHotkeys": "Les raccourcis personnalisés sont une fonction Pro (essai gratuit de 7 jours).",
+  "shortcuts_locked": "🔒 Les raccourcis personnalisés sont Pro. En Free, ces touches par défaut s'appliquent : touchez pour l'essai gratuit.",
   "action_slower": "Plus lent",
   "action_faster": "Plus rapide",
   "action_reset": "Réinitialiser",

@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { expect, rateOf, sendToTabs, test } from './harness';
+import { expect, rateOf, sendToTabs, setPro, test } from './harness';
 
 async function openFixture(page: Page, origin: string, name: string) {
   await page.goto(`${origin}/${name}`);
@@ -14,6 +14,25 @@ async function readyBasic(page: Page, origin: string, sw: any) {
 }
 
 test.describe('shortcuts', () => {
+  test('custom keys are Pro: free ignores them and keeps the defaults, Pro uses them', async ({ context, sw, origin }) => {
+    const page = await context.newPage();
+    await readyBasic(page, origin, sw);
+    const custom = [{ action: 'faster', key: 'k', code: 'KeyK', ctrl: false, alt: false, shift: false, meta: false }];
+    await sw.evaluate((shortcuts) => chrome.storage.local.set({ shortcuts }), custom);
+    await page.waitForTimeout(200);
+    await page.keyboard.press('k');
+    await page.waitForTimeout(200);
+    expect(await rateOf(page)).toBe(1);
+    await page.keyboard.press('d');
+    await expect.poll(() => rateOf(page)).toBe(1.1);
+
+    await setPro(sw, { shortcuts: custom });
+    await expect.poll(async () => {
+      await page.keyboard.press('k');
+      return rateOf(page);
+    }).toBeGreaterThan(1.1);
+  });
+
   test('VSC defaults: D/S step, R toggles reset, G preferred, X/Z seek', async ({ context, sw, origin }) => {
     const page = await context.newPage();
     await readyBasic(page, origin, sw);

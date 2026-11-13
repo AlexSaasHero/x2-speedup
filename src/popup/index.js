@@ -214,6 +214,7 @@ function initPopup() {
   }
 
   function applyTierUI() {
+    shortcutEditor?.render();
     const tier = getTierStatus();
     const sliderTicks = document.querySelector('.slider-ticks');
 
@@ -747,12 +748,15 @@ function initPopup() {
         shortcuts = list;
         chrome.storage.local.set({ shortcuts });
       },
-      context: () => ({ speedStep, seekSeconds, favoriteSpeed, holdSpeed })
+      context: () => ({ speedStep, seekSeconds, favoriteSpeed, holdSpeed }),
+      locked: () => !canUse('customHotkeys'),
+      onLocked: () => openUpgradeModal(t('upsell_customHotkeys'))
     });
   }
 
   if (resetHotkeysBtn) {
     resetHotkeysBtn.addEventListener('click', () => {
+      if (!canUse('customHotkeys')) return openUpgradeModal(t('upsell_customHotkeys'));
       shortcutEditor?.cancel();
       shortcuts = defaultShortcuts();
       chrome.storage.local.set({ shortcuts });

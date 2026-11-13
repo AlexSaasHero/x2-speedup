@@ -131,6 +131,8 @@
   "upsell_holdToSpeed": "Mantener pulsado para acelerar es una función Pro (prueba gratuita de 7 días).",
   "upsell_statsDetails": "Ve el tiempo ahorrado hoy, esta semana y en total con Pro (prueba gratuita de 7 días).",
   "upsell_abRepeat": "La repetición A-B es una función Pro (prueba gratuita de 7 días).",
+  "upsell_customHotkeys": "Los atajos personalizados son una función Pro (prueba gratuita de 7 días).",
+  "shortcuts_locked": "🔒 Los atajos personalizados son Pro. En Free se usan estas teclas predeterminadas: toca para la prueba gratuita.",
   "action_slower": "Más lento",
   "action_faster": "Más rápido",
   "action_reset": "Restablecer",

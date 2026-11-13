@@ -131,6 +131,8 @@
   "upsell_holdToSpeed": "Tieni premuto per accelerare è una funzione Pro (prova gratuita di 7 giorni).",
   "upsell_statsDetails": "Vedi il tempo risparmiato oggi, questa settimana e in totale con Pro (prova gratuita di 7 giorni).",
   "upsell_abRepeat": "La ripetizione A-B è una funzione Pro (prova gratuita di 7 giorni).",
+  "upsell_customHotkeys": "Le scorciatoie personalizzate sono una funzione Pro (prova gratuita di 7 giorni).",
+  "shortcuts_locked": "🔒 Le scorciatoie personalizzate sono Pro. Nel piano Free valgono questi tasti predefiniti: tocca per la prova gratuita.",
   "action_slower": "Rallenta",
   "action_faster": "Accelera",
   "action_reset": "Reset",

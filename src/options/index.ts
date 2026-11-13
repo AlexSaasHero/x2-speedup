@@ -59,7 +59,8 @@ async function init() {
     container: $('shortcutEditor'),
     get: () => state.shortcuts,
     save: (list: Shortcut[]) => save({ shortcuts: list }),
-    context: () => ({ speedStep: state.speedStep, seekSeconds: state.seekSeconds, favoriteSpeed: state.favoriteSpeed, holdSpeed: state.holdSpeed })
+    context: () => ({ speedStep: state.speedStep, seekSeconds: state.seekSeconds, favoriteSpeed: state.favoriteSpeed, holdSpeed: state.holdSpeed }),
+    locked: () => !limits.features.customHotkeys
   });
 
   bindNumber('speedStep', () => state.speedStep, (v) => ({ speedStep: v }), SETTING_BOUNDS.speedStep);
@@ -82,6 +83,7 @@ async function init() {
     positions.textContent = '0';
   });
 
+  $('resetShortcuts').hidden = !limits.features.customHotkeys;
   $('resetShortcuts').addEventListener('click', () => {
     editor.cancel();
     save({ shortcuts: defaultShortcuts() });

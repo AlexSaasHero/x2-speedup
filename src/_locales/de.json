@@ -131,6 +131,8 @@
   "upsell_holdToSpeed": "Gedrückt halten zum Beschleunigen ist eine Pro-Funktion (7 Tage kostenlos testen).",
   "upsell_statsDetails": "Sieh mit Pro, wie viel Zeit du heute, diese Woche und insgesamt gespart hast (7 Tage kostenlos testen).",
   "upsell_abRepeat": "A-B-Wiederholung ist eine Pro-Funktion (7 Tage kostenlos testen).",
+  "upsell_customHotkeys": "Eigene Tastenkürzel sind eine Pro-Funktion (7 Tage kostenlos testen).",
+  "shortcuts_locked": "🔒 Eigene Tastenkürzel sind Pro. In Free gelten diese Standardtasten – tippen, um kostenlos zu testen.",
   "action_slower": "Langsamer",
   "action_faster": "Schneller",
   "action_reset": "Zurücksetzen",

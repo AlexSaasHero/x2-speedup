@@ -131,6 +131,8 @@
   "upsell_holdToSpeed": "長押しで加速は Pro 機能です（7日間無料トライアル）。",
   "upsell_statsDetails": "Pro なら今日・今週・合計の節約時間を確認できます（7日間無料トライアル）。",
   "upsell_abRepeat": "A-B リピートは Pro 機能です（7日間無料トライアル）。",
+  "upsell_customHotkeys": "ショートカットのカスタマイズは Pro 機能です（7日間無料トライアル）。",
+  "shortcuts_locked": "🔒 ショートカットのカスタマイズは Pro 機能です。Free では以下の既定のキーを使います。タップして無料トライアルを開始。",
   "action_slower": "遅く",
   "action_faster": "速く",
   "action_reset": "リセット",

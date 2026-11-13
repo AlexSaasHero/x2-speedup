@@ -1,6 +1,7 @@
 // Shortcut list editor shared by the popup and the options page.
 import {
   SHORTCUT_ACTIONS,
+  defaultShortcuts,
   formatShortcut,
   isModifierOnly,
   shortcutFromEvent,
@@ -46,6 +47,10 @@ export interface ShortcutEditorOptions {
   get(): Shortcut[];
   save(list: Shortcut[]): void;
   context(): EditorContext;
+  /** Free plan: show the default keys read-only (custom shortcuts are Pro). */
+  locked?(): boolean;
+  /** Called when a locked chip is clicked (e.g. open the upgrade modal). */
+  onLocked?(): void;
 }
 
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.userAgent);
@@ -88,7 +93,10 @@ export function mountShortcutEditor(opts: ShortcutEditorOptions): { render(): vo
     return b;
   }
 
+  const isLocked = () => opts.locked?.() ?? false;
+
   function startListening(action: ShortcutAction, button: HTMLButtonElement, replacing?: Shortcut) {
+    if (isLocked()) return opts.onLocked?.();
     if (listening?.button === button) return cancel();
     render();
     listening = { action, replacing, button };
@@ -103,9 +111,20 @@ export function mountShortcutEditor(opts: ShortcutEditorOptions): { render(): vo
   }
 
   function render() {
-    const list = opts.get();
+    const locked = isLocked();
+    if (locked) listening = null;
+    const list = locked ? defaultShortcuts() : opts.get();
     const ctx = opts.context();
     opts.container.textContent = '';
+    opts.container.classList.toggle('hk-locked', locked);
+    if (locked) {
+      const note = document.createElement('button');
+      note.type = 'button';
+      note.className = 'hk-locked-note';
+      note.textContent = t('shortcuts_locked');
+      note.addEventListener('click', () => opts.onLocked?.());
+      opts.container.append(note);
+    }
     for (const action of SHORTCUT_ACTIONS) {
       const row = document.createElement('div');
       row.className = 'hotkey-remap-row';
@@ -134,12 +153,15 @@ export function mountShortcutEditor(opts: ShortcutEditorOptions): { render(): vo
           render();
         }, 'hk-remove');
         rm.title = t('key_remove');
-        wrap.append(b, rm);
+        if (locked) wrap.append(b);
+        else wrap.append(b, rm);
         chips.append(wrap);
       });
-      const add = chip('+', t('key_add'), (btn) => startListening(action, btn), 'hk-add');
-      add.dataset.add = action;
-      chips.append(add);
+      if (!locked) {
+        const add = chip('+', t('key_add'), (btn) => startListening(action, btn), 'hk-add');
+        add.dataset.add = action;
+        chips.append(add);
+      }
 
       row.append(meta, chips);
       opts.container.append(row);

@@ -116,6 +116,14 @@ export function defaultShortcuts(): Shortcut[] {
 }
 
 /**
+ * Shortcuts that are actually active: the saved list when the plan allows customizing them,
+ * otherwise the defaults. Saved customizations are kept in storage and come back with Pro.
+ */
+export function effectiveShortcuts(saved: Shortcut[], canCustomize: boolean): Shortcut[] {
+  return canCustomize ? saved : defaultShortcuts();
+}
+
+/**
  * Give actions introduced after `existing` was saved their default binding,
  * unless that key combination is already taken.
  */

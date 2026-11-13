@@ -61,7 +61,14 @@ test('options page loads and saves settings', async ({ context, sw, extensionId 
     .poll(() => sw.evaluate(() => chrome.storage.local.get(['seekSeconds', 'shortcutBlacklist'])))
     .toEqual({ seekSeconds: 30, shortcutBlacklist: ['example.com', 'foo.org'] });
 
-  // Rebind "Faster" to Shift+F via the editor.
+  // Free: custom shortcuts are Pro, the editor is read-only.
+  await expect(page.locator('.hk-locked-note')).toBeVisible();
+  await expect(page.locator('[data-add="faster"]')).toHaveCount(0);
+  await expect(page.locator('#resetShortcuts')).toBeHidden();
+
+  // Pro: rebind "Faster" to Shift+F via the editor.
+  await setPro(sw);
+  await page.reload();
   await page.locator('[data-action="faster"] [data-add="faster"]').click();
   await page.keyboard.press('Shift+F');
   const shortcuts = await sw.evaluate(() => chrome.storage.local.get('shortcuts').then((r) => r.shortcuts));

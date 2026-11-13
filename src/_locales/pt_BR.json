@@ -131,6 +131,8 @@
   "upsell_holdToSpeed": "Segurar para acelerar é um recurso Pro (teste grátis de 7 dias).",
   "upsell_statsDetails": "Veja o tempo economizado hoje, nesta semana e no total com o Pro (teste grátis de 7 dias).",
   "upsell_abRepeat": "A repetição A-B é um recurso Pro (teste grátis de 7 dias).",
+  "upsell_customHotkeys": "Atalhos personalizados são um recurso Pro (teste grátis de 7 dias).",
+  "shortcuts_locked": "🔒 Atalhos personalizados são Pro. No Free valem estas teclas padrão: toque para o teste grátis.",
   "action_slower": "Mais devagar",
   "action_faster": "Mais rápido",
   "action_reset": "Redefinir",

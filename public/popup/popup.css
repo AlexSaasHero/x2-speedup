@@ -1376,3 +1376,7 @@ body:not(.is-licensed) .pro-feature .hotkey-name::after { content: ' 🔒'; }
 .review-actions { display: flex; gap: 8px; margin-top: 7px; }
 .review-rate { flex: 1; padding: 6px; border-radius: 8px; border: none; background: var(--accent-purple); color: #fff; font-weight: 700; cursor: pointer; }
 .review-later { padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: transparent; color: var(--text-secondary); cursor: pointer; }
+
+/* Free plan: default shortcuts shown read-only (custom shortcuts are Pro). */
+.hk-locked-note { display: block; width: 100%; margin: 0 0 8px; padding: 8px 10px; border-radius: 10px; border: 1px dashed currentColor; background: transparent; color: inherit; font: inherit; font-size: 12px; text-align: left; opacity: 0.85; cursor: pointer; }
+.hk-locked .hotkey-capture-btn { cursor: pointer; opacity: 0.75; }
