@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   DAY_MS,
   LICENSE_GRACE_MS,
+  LS_PRODUCT_ANNUAL,
+  LS_PRODUCT_IDS,
+  LS_PRODUCT_LIFETIME,
   LS_STORE_ID,
   applyVerdict,
   interpretLemonSqueezy,
@@ -59,7 +62,7 @@ describe('grace period', () => {
 
 describe('server answers', () => {
   it('Lemon Squeezy', () => {
-    const meta = { store_id: LS_STORE_ID, product_id: 1, variant_id: 1 };
+    const meta = { store_id: LS_STORE_ID, product_id: LS_PRODUCT_ANNUAL, variant_id: 1 };
     expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active' }, meta }).kind).toBe('valid');
     expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'inactive', expires_at: '2030-01-01T00:00:00Z' }, meta })).toEqual({
       kind: 'valid',
@@ -77,8 +80,38 @@ describe('server answers', () => {
     const other = { valid: true, license_key: { status: 'active' }, meta: { store_id: 1, product_id: 1 } };
     expect(interpretLemonSqueezy(200, other).kind).toBe('invalid');
     expect(interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active' } }).kind).toBe('invalid');
-    expect(isOurProduct({ store_id: String(LS_STORE_ID), product_id: '7' })).toBe(true);
+    expect(isOurProduct({ store_id: String(LS_STORE_ID), product_id: String(LS_PRODUCT_ANNUAL) })).toBe(true);
     expect(isOurProduct(null)).toBe(false);
+  });
+
+  it('a valid key of another product of our store never unlocks Pro', () => {
+    expect(LS_PRODUCT_IDS).toEqual([1526762, 1414439]);
+    const otherProduct = { valid: true, license_key: { status: 'active' }, meta: { store_id: LS_STORE_ID, product_id: 999 } };
+    expect(interpretLemonSqueezy(200, otherProduct).kind).toBe('invalid');
+    expect(interpretLemonSqueezy(200, { ...otherProduct, meta: { store_id: LS_STORE_ID } }).kind).toBe('invalid');
+    expect(isOurProduct({ store_id: LS_STORE_ID, product_id: LS_PRODUCT_LIFETIME })).toBe(true);
+  });
+
+  it('annual: expired or disabled subscription is not Pro; lifetime (no expiry) stays Pro', () => {
+    const annual = { store_id: LS_STORE_ID, product_id: LS_PRODUCT_ANNUAL, variant_id: 1 };
+    const lifetime = { store_id: LS_STORE_ID, product_id: LS_PRODUCT_LIFETIME, variant_id: 1 };
+    // Lemon Squeezy answers either valid:false + status, or valid:true with a non-active status.
+    for (const valid of [false, true]) {
+      const exp = interpretLemonSqueezy(200, { valid, error: valid ? null : 'This license key has expired.', license_key: { status: 'expired', expires_at: '2026-01-01T00:00:00Z' }, meta: annual });
+      const dis = interpretLemonSqueezy(200, { valid, error: valid ? null : 'This license key is disabled.', license_key: { status: 'disabled' }, meta: annual });
+      expect(exp.kind).toBe('expired');
+      expect(dis.kind).toBe('revoked');
+      expect(licenseGrantsPro(applyVerdict(active(), 'KEY', exp, 'lemonsqueezy', NOW), NOW)).toBe(false);
+      expect(licenseGrantsPro(applyVerdict(active(), 'KEY', dis, 'lemonsqueezy', NOW), NOW)).toBe(false);
+    }
+    const life = interpretLemonSqueezy(200, { valid: true, license_key: { status: 'active', expires_at: null }, meta: lifetime });
+    expect(life).toEqual({ kind: 'valid', expiresAt: null });
+    let state = applyVerdict(noLicense(), 'LIFE', life, 'lemonsqueezy', NOW);
+    for (let day = 1; day <= 3650; day += 365) {
+      const at = NOW + day * DAY_MS;
+      state = applyVerdict(state, 'LIFE', life, 'lemonsqueezy', at);
+      expect(licenseGrantsPro(state, at)).toBe(true);
+    }
   });
 
 });

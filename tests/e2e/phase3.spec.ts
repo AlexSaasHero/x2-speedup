@@ -1,7 +1,7 @@
 import { chromium, type Route } from '@playwright/test';
 import path from 'node:path';
 import { CHANGELOG } from '../../src/onboarding/changelog';
-import { LS_STORE_ID } from '../../src/shared/license';
+import { LS_PRODUCT_ANNUAL, LS_STORE_ID } from '../../src/shared/license';
 import { expect, proLicense, test } from './harness';
 
 /** Fake Lemon Squeezy License API (the harness blocks the real one). */
@@ -15,7 +15,7 @@ async function fakeServers(context: import('@playwright/test').BrowserContext, a
   });
 }
 
-const OUR_META = { store_id: LS_STORE_ID, product_id: 1, variant_id: 1 };
+const OUR_META = { store_id: LS_STORE_ID, product_id: LS_PRODUCT_ANNUAL, variant_id: 1 };
 
 test.describe('license', () => {
   test.afterEach(async ({ context }) => {

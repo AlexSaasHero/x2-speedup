@@ -36,11 +36,12 @@ export const LS_VALIDATE_URL = 'https://api.lemonsqueezy.com/v1/licenses/validat
 
 /** Our Lemon Squeezy store (public ID, not a secret). */
 export const LS_STORE_ID = 455524;
-/**
- * Products whose keys unlock Pro: the old $1.99 lifetime (Pro forever) and the yearly
- * subscription. Empty = any product of our store. TODO: fill in from `meta.product_id`.
- */
-export const LS_PRODUCT_IDS: readonly number[] = [];
+/** Live product: SpeedUp Video Pro – Annual ($4.99/year, 7-day trial). Keys expire with the subscription. */
+export const LS_PRODUCT_ANNUAL = 1526762;
+/** Old product: Lifetime License ($1.99), no longer sold. Its keys never expire and stay Pro forever. */
+export const LS_PRODUCT_LIFETIME = 1414439;
+/** Products whose keys unlock Pro. Empty would mean "any product of our store". */
+export const LS_PRODUCT_IDS: readonly number[] = [LS_PRODUCT_ANNUAL, LS_PRODUCT_LIFETIME];
 
 export function noLicense(): LicenseState {
   return { key: '', status: 'none', lastCheckedAt: 0, lastValidAt: 0, source: '', expiresAt: null };
@@ -108,7 +109,7 @@ export function interpretLemonSqueezy(httpStatus: number, body: unknown): Verdic
   return statusVerdict(status, String(b.error ?? ''));
 }
 
-/** The key was sold by our store (and by one of our products, once they are listed). */
+/** The key was sold by our store, for one of our products. */
 export function isOurProduct(meta: Record<string, unknown> | null | undefined): boolean {
   if (!meta || Number(meta.store_id) !== LS_STORE_ID) return false;
   return LS_PRODUCT_IDS.length === 0 || LS_PRODUCT_IDS.includes(Number(meta.product_id));
