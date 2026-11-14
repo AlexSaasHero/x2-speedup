@@ -22,6 +22,42 @@ Suite Playwright su YouTube reale (video pubblico, nessun login, cookie rifiutat
 
 Limiti: il Chromium di Playwright non decodifica H.264 (Twitch, Vimeo, gran parte dei corsi) e non ha DRM (Netflix, Prime Video, Spotify): questi siti restano nella checklist manuale qui sotto.
 
+### 0b. Piattaforme di lezioni — `tests/live/lectures.spec.ts`
+
+Serve un Chromium con H.264 che accetti `--load-extension`: **Chrome for Testing** (`npx @puppeteer/browsers install chrome@stable`), passato con `PW_EXECUTABLE`. Il Chrome installato (≥137) ignora `--load-extension`. Per la pagina LMS: `python3 -m http.server 8001 --directory tests/live/fixtures`.
+
+```bash
+PW_EXECUTABLE="<…>/Google Chrome for Testing" npm run qa:live -- tests/live/lectures.spec.ts
+```
+
+Registrazioni pubbliche usate: Panopto `howtovideos.hosted.panopto.com` (Viewer, Embed, Embed in iframe di una pagina LMS locale), Echo360 `echo360.org/section/5e1d12d0-…/public` (prima e quarta lezione di "Getting Started"). Scartate: `arizona.hosted.panopto.com` (login Shibboleth), `utexas.hosted.panopto.com` (video archiviato).
+
+Ultimo run **2026-11-14** (main dopo i fix #22 e #23). "Effettiva" = secondi di lezione per secondo reale, non il `playbackRate` dichiarato.
+
+| # | Scenario | Panopto Viewer | Panopto Embed | Embed in iframe LMS | Echo360 |
+|---|---|---|---|---|---|
+| 1 | Video rilevati | ✅ 2 stream | ✅ 2 stream | ✅ 2 stream | ✅ 1 |
+| 2 | Velocità dal popup (2.5x) su tutti gli stream | ✅ | ✅ | ✅ | ❌ resta 1x subito dopo l'apertura della lezione |
+| 2b | Velocità effettiva ~2.5x (prima dei fix: **1.0x** su Panopto) | ✅ 2.37x | ✅ 2.44x | ✅ 2.37x | ❌ 1.29x |
+| 3 | Stream allineati tra loro dopo 10 s | ⚠️ lo stream grande salta avanti | ⚠️ idem | ⚠️ idem | — |
+| 4 | 16x | ✅ | ❌ torna a 1x e resta | ❌ idem | ✅ |
+| 5 | Velocità dopo pausa/play | ✅ | ✅ | ✅ | ✅ |
+| 6 | Velocità dopo un seek (+30 s) | ✅ | ✅ | ✅ | ❌ torna a 1x |
+| 7 | Il player rimette 1x da solo → l'estensione la ripristina | ✅ | ✅ | ✅ | ✅ |
+| 8 | Nessun ritorno a ≤2x in 15 s di riproduzione | ✅ | ✅ | ❌ torna a 1x e resta | ✅ |
+| 9 | Scorciatoia D dopo un clic sul video | ✅ | ⚠️ parte da 1x (vedi 4) | ⚠️ idem | ❌ torna a 1x |
+| 10 | Overlay dentro l'elemento a schermo intero | ✅ | ✅ | ❓ da verificare a mano col pulsante di Panopto | ❓ fullscreen non ottenuto dal test (nel run precedente ✅) |
+| 11 | Scrivere "dddd" nelle note della pagina LMS: testo digitato, velocità invariata | — | — | ✅ | — |
+| 12 | Lezione successiva alla velocità ricordata (2.5x) | — | — | — | ❌ parte a 1x |
+| 13 | Pausa/Play coi pulsanti di Echo360: velocità mantenuta (BUGS #23) | — | — | — | ✅ 2.5x (il test ha lasciato il video in pausa: velocità effettiva non misurata) |
+| 14 | D col focus sul pulsante Play di Echo360 | — | — | — | ✅ 2.6x: Echo360 non blocca i tasti |
+| 15 | Velocità scelta dal menu di Echo360 rispettata | — | — | — | ❓ il test non trova le voci del menu (selettore da sistemare); coperto dall'E2E |
+
+Note:
+- I fix #22 (velocità su tutti gli stream) e #23 (Play di Echo360) funzionano sui casi che coprono, anche in E2E (`tests/e2e/lectures.spec.ts`).
+- **Ancora aperto:** su Panopto Embed (16x, riproduzione lunga) ed Echo360 (apertura lezione, seek, clic sul video, lezione successiva) il player rimette 1x in momenti diversi dal Play e la velocità **resta** a 1x. Da indagare prima della 1.9.0.
+- Riga 3: con gli stream accelerati Panopto sposta in avanti lo stream grande. Va guardato a occhio (slide e voce restano allineate?) prima di decidere se è un problema.
+
 ## 1. Checklist per sito (manuale)
 
 | Scenario | YouTube | Netflix | Prime Video | Udemy | Coursera | Twitch | Vimeo | Spotify web |
