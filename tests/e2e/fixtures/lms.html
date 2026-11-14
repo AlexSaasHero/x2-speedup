@@ -1,0 +1,8 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: LMS course page embedding a lecture player</title></head>
+  <body>
+    <h1>Week 1 · Lecture recording</h1>
+    <iframe id="lecture" width="700" height="420" allow="autoplay"></iframe>
+    <script>document.getElementById('lecture').src = new URLSearchParams(location.search).get('src') || '';</script>
+  </body>
+</html>

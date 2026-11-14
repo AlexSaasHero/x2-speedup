@@ -1,16 +1,47 @@
 // Per-site behaviour differences. Keep this list short and documented in docs/QA.md.
+import { isHostListed } from '../shared/hosts';
+
+export type LecturePlatform = 'panopto' | 'echo360';
+
+/**
+ * Lecture-capture platforms, by domain (subdomains included). The single place to add new ones
+ * (Kaltura, YuJa, …). Matched against the host of the frame the content script runs in, so a
+ * player embedded in an <iframe> inside Canvas/Moodle is recognised too.
+ */
+export const LECTURE_PLATFORMS: Readonly<Record<LecturePlatform, readonly string[]>> = {
+  panopto: ['panopto.com', 'panopto.eu'],
+  echo360: ['echo360.org', 'echo360.org.uk', 'echo360.org.au', 'echo360.ca', 'echo360.net.au', 'echo360.com']
+};
 
 export interface SiteQuirks {
+  /** Lecture platform of this frame, if any. */
+  platform: LecturePlatform | null;
   /**
    * Writing media.currentTime directly breaks the player (Netflix shows error M7375 and stops).
    * Seek, frame step, A-B repeat and bookmark jumps are disabled there with a message.
    */
   noDirectSeek: boolean;
+  /**
+   * The player plays several synced streams (presenter + screen) and uses one of them as the
+   * clock: the speed must go to every media element of the frame, whatever `applyToAll` says,
+   * or the lecture keeps advancing at 1x (QA 2026-11-14, BUGS #22).
+   */
+  allStreams: boolean;
+}
+
+export function lecturePlatform(host: string): LecturePlatform | null {
+  for (const [platform, domains] of Object.entries(LECTURE_PLATFORMS) as [LecturePlatform, readonly string[]][]) {
+    if (isHostListed(host, domains)) return platform;
+  }
+  return null;
 }
 
 export function quirksFor(host: string): SiteQuirks {
   const h = host.toLowerCase();
+  const platform = lecturePlatform(h);
   return {
-    noDirectSeek: /(^|\.)netflix\.com$/.test(h)
+    platform,
+    noDirectSeek: /(^|\.)netflix\.com$/.test(h),
+    allStreams: platform !== null
   };
 }

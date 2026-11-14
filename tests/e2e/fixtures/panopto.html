@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: Panopto-like player with two synced streams</title></head>
+  <body>
+    <!-- Like Panopto: the small stream is the clock, the big one (screen/slides) is pulled back to it. -->
+    <video id="clock" src="/media.wav" muted autoplay style="width:4px;height:4px"></video>
+    <video id="screen" src="/media.wav" muted autoplay width="640" height="360"></video>
+    <script>
+      window.resyncs = 0;
+      const clock = document.getElementById('clock');
+      const screen = document.getElementById('screen');
+      setInterval(() => {
+        if (!clock.paused && Math.abs(screen.currentTime - clock.currentTime) > 0.5) {
+          window.resyncs++;
+          screen.currentTime = clock.currentTime;
+        }
+      }, 250);
+    </script>
+  </body>
+</html>

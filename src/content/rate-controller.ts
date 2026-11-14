@@ -54,6 +54,8 @@ export class RateController {
   private lastGesture: { t: number; path: EventTarget[]; keyboard: boolean } | null = null;
   private speedBeforeReset: number | null = null;
   private persistTimer = 0;
+  /** Quirks of the host of *this frame* (a Panopto iframe inside Canvas gets Panopto's). */
+  private readonly quirks = quirksFor(location.hostname);
 
   constructor(
     private readonly registry: MediaRegistry,
@@ -141,7 +143,8 @@ export class RateController {
   }
 
   targets(): Media[] {
-    if (this.settings().applyToAll) return this.registry.all();
+    // Lecture platforms play synced streams and keep them in step: every stream must change speed.
+    if (this.settings().applyToAll || this.quirks.allStreams) return this.registry.all();
     const p = this.registry.primary();
     return p ? [p] : [];
   }
@@ -187,7 +190,7 @@ export class RateController {
   seek(deltaSeconds: number): number | null {
     const m = this.registry.primary();
     if (!m) return null;
-    if (quirksFor(location.hostname).noDirectSeek) {
+    if (this.quirks.noDirectSeek) {
       this.feedback.flash(t('overlay_seek_unsupported'), m);
       return null;
     }
@@ -251,9 +254,12 @@ export class RateController {
       debug('accepting native speed change', rate);
       const s = this.settings();
       const next = clampSpeed(rate, s.pro);
-      this.desired.set(m, next);
       this.frameSpeed = next;
-      if (!sameSpeed(next, rate)) this.apply(m);
+      // Synced streams (lecture platforms): the choice made on one stream is the lecture's speed.
+      for (const x of this.quirks.allStreams ? this.registry.all() : [m]) {
+        this.desired.set(x, next);
+        if (x !== m || !sameSpeed(next, rate)) this.apply(x);
+      }
       this.persist(next);
       this.feedback.flash(formatSpeed(next), m);
       this.feedback.speedChanged(m);
