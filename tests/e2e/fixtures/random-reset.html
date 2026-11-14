@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: lecture player that resets playbackRate at random moments</title></head>
+  <body>
+    <div id="player">
+      <video id="v" src="/media.wav" muted width="640" height="360"></video>
+      <button id="play" type="button">Play</button>
+    </div>
+    <script>
+      // Worst case for BUGS #24: the player writes its own speed (1x) at random moments while
+      // playing, on play, on seek, on click; sometimes twice in a row (the second write fires no
+      // ratechange because the value does not change).
+      window.writes = 0;
+      const v = document.getElementById('v');
+      const write = () => { window.writes++; v.playbackRate = 1; };
+      document.getElementById('play').onclick = () => { v.play(); setTimeout(write, 300); };
+      v.addEventListener('seeked', () => setTimeout(write, Math.random() * 200));
+      v.addEventListener('click', write);
+      (function tick() {
+        if (!v.paused) { write(); if (Math.random() < 0.3) write(); }
+        setTimeout(tick, 50 + Math.random() * 650);
+      })();
+    </script>
+  </body>
+</html>

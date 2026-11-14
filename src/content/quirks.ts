@@ -28,12 +28,12 @@ export interface SiteQuirks {
    */
   allStreams: boolean;
   /**
-   * The player keeps writing its own menu speed back to playbackRate: when its Play button starts
-   * playback (~0.8 s after the click, before the `play` event) and about once a second while
-   * playing (Echo360, BUGS #23). Those writes are a player reset, not the user's choice: only a
-   * *new* value picked in the player's speed menu is.
+   * The extension is the source of truth for the speed. These players write their own speed back
+   * at many moments (Play button, opening a lecture, seek, click, buffering, next lecture; Echo360
+   * about once a second while playing: BUGS #23, #24). Any rate change not made by the extension
+   * is a player reset and is undone, including the player's own speed menu.
    */
-  playerAssertsRate: boolean;
+  extensionOwnsRate: boolean;
 }
 
 export function lecturePlatform(host: string): LecturePlatform | null {
@@ -50,6 +50,6 @@ export function quirksFor(host: string): SiteQuirks {
     platform,
     noDirectSeek: /(^|\.)netflix\.com$/.test(h),
     allStreams: platform !== null,
-    playerAssertsRate: platform === 'echo360'
+    extensionOwnsRate: platform !== null
   };
 }

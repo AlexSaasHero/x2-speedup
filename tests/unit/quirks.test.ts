@@ -20,6 +20,10 @@ describe('lecture platforms', () => {
     expect(quirksFor('echo360.org').allStreams).toBe(true);
     expect(quirksFor('www.youtube.com').allStreams).toBe(false);
     expect(quirksFor('www.netflix.com')).toMatchObject({ noDirectSeek: true, allStreams: false, platform: null });
+    // BUGS #24: on lecture platforms the extension owns the speed (player writes are undone).
+    expect(quirksFor('echo360.org.uk').extensionOwnsRate).toBe(true);
+    expect(quirksFor('uni.hosted.panopto.com').extensionOwnsRate).toBe(true);
+    expect(quirksFor('www.youtube.com').extensionOwnsRate).toBe(false);
   });
 
   it('keeps one list per platform', () => {

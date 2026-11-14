@@ -108,15 +108,57 @@ test.describe('lecture platforms', () => {
     expect(await sw.evaluate(() => chrome.storage.local.get('defaultSpeed').then((r) => r.defaultSpeed))).toBe(2);
   });
 
-  test("Echo360: a speed picked in the player's menu (no Play) is respected", async ({ context, sw, origin }) => {
+  test("Echo360: the player's own speed menu is ignored: the extension owns the speed (BUGS #24)", async ({ context, sw, origin }) => {
     const page = await openEcho360(context, sw, origin);
     await page.click('#play');
     await page.waitForTimeout(1500);
     await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 2 }).then((r) => r?.speed)).toBe(2);
-    expect(await staysAt(page, 2, 1500)).toBe(2);
     await page.click('#speed-1-5');
     await page.waitForTimeout(500);
-    expect(await staysAt(page, 1.5)).toBe(1.5);
-    await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.currentSpeed)).toBe(1.5);
+    expect(await staysAt(page, 2)).toBe(2);
+    expect((await sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }))?.currentSpeed).toBe(2);
   });
+
+  for (const host of [PANOPTO, ECHO360]) {
+    test(`a player that resets to 1x at random moments keeps the chosen speed on ${new URL(host).host} (BUGS #24)`, async ({ context, sw, origin }) => {
+      await serveAs(context, host, origin);
+      const page = await context.newPage();
+      await page.goto(`${host}/random-reset.html`);
+      await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo ?? false)).toBe(true);
+      await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 2 }).then((r) => r?.speed)).toBe(2);
+      await page.click('#play');
+      const time = () => page.evaluate(() => (document.getElementById('v') as HTMLVideoElement).currentTime);
+
+      let samples = 0;
+      let at2 = 0;
+      const sample = async (ms: number) => {
+        for (const end = Date.now() + ms; Date.now() < end; ) {
+          samples++;
+          if ((await rate(page)) === 2) at2++;
+          await page.waitForTimeout(50);
+        }
+      };
+      await page.waitForTimeout(1000);
+      const t0 = await time();
+      const w0 = Date.now();
+      await sample(6000);
+      const pace = ((await time()) - t0) / ((Date.now() - w0) / 1000);
+      // seek, pause/play, click on the video, shortcut
+      await page.evaluate(() => { (document.getElementById('v') as HTMLVideoElement).currentTime = 30; });
+      await sample(1500);
+      await page.evaluate(() => (document.getElementById('v') as HTMLVideoElement).pause());
+      await page.click('#play');
+      await sample(1500);
+      await page.click('#v');
+      await sample(1500);
+      await page.keyboard.press('d');
+      await sample(1500);
+
+      expect(await page.evaluate(() => (window as any).writes)).toBeGreaterThan(20);
+      expect(pace).toBeGreaterThan(1.8);
+      expect(at2 / samples).toBeGreaterThan(0.85); // the rest is D's 2.1 or a reset caught within ~250 ms
+      await expect.poll(() => rate(page)).toBe(2.1);
+      expect(await staysAt(page, 2.1, 2000)).toBe(2.1);
+    });
+  }
 });

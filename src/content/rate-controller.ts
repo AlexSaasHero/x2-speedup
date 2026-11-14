@@ -39,6 +39,8 @@ export interface Feedback {
   flash(label: string, media: Media | null): void;
   /** Speed changed: refresh any persistent display. */
   speedChanged(media: Media | null): void;
+  /** First time in this frame we undid a speed change made by the player (lecture platforms). */
+  playerOverridden?(media: Media): void;
 }
 
 export class RateController {
@@ -51,10 +53,9 @@ export class RateController {
   private readonly handled = new WeakSet<Event>();
   private readonly loopedByUs = new WeakSet<Media>();
   private readonly overrides = new WeakMap<Media, Partial<Record<OverrideSource, number>>>();
-  /** `paused`: media paused when the gesture happened (only tracked where `playerAssertsRate`). */
-  private lastGesture: { t: number; path: EventTarget[]; keyboard: boolean; paused: WeakSet<Media> | null } | null = null;
-  /** Last speed the player wrote back on its own (without the user), per media. */
-  private readonly playerRate = new WeakMap<Media, number>();
+  private lastGesture: { t: number; path: EventTarget[]; keyboard: boolean } | null = null;
+  private overrideNoticed = false;
+  private readonly backoffLoggedAt = new WeakMap<Media, number>();
   private speedBeforeReset: number | null = null;
   private persistTimer = 0;
   /** Quirks of the host of *this frame* (a Panopto iframe inside Canvas gets Panopto's). */
@@ -75,8 +76,7 @@ export class RateController {
         // Typing, bare modifiers and our own shortcuts are not "the user used the player".
         if (isModifierOnly(k) || isEditableEvent(k) || (this.ready && findShortcut(this.settings().shortcuts, k))) return;
       }
-      const paused = this.quirks.playerAssertsRate ? new WeakSet(this.registry.all().filter((m) => m.paused)) : null;
-      this.lastGesture = { t: performance.now(), path: e.composedPath(), keyboard: e.type === 'keydown', paused };
+      this.lastGesture = { t: performance.now(), path: e.composedPath(), keyboard: e.type === 'keydown' };
     };
     window.addEventListener('pointerdown', gesture, true);
     window.addEventListener('keydown', gesture, true);
@@ -104,11 +104,11 @@ export class RateController {
       for (const type of ['loadstart', 'loadedmetadata', 'play', 'emptied'] as const) {
         m.addEventListener(type, () => this.apply(m));
       }
-      if (this.quirks.playerAssertsRate) {
-        // Writing the same value again fires no ratechange: if a reset slipped through (back-off),
-        // catch it while playing.
+      if (this.quirks.extensionOwnsRate) {
+        // A player that writes the same value again fires no ratechange: if a reset slipped
+        // through (back-off, element swap), catch it while playing (~4 checks per second, cheap).
         m.addEventListener('timeupdate', () => {
-          if (!sameSpeed(m.playbackRate, this.speedOf(m)) && this.budgetFor(m).allow(performance.now())) this.apply(m);
+          if (!sameSpeed(m.playbackRate, this.speedOf(m))) this.reapply(m);
         });
       }
     }
@@ -261,7 +261,7 @@ export class RateController {
       return;
     }
 
-    if (this.isUserNativeChange(m, rate)) {
+    if (this.isUserNativeChange(m)) {
       debug('accepting native speed change', rate);
       const s = this.settings();
       const next = clampSpeed(rate, s.pro);
@@ -278,13 +278,26 @@ export class RateController {
       return;
     }
 
-    if (this.quirks.playerAssertsRate) this.playerRate.set(m, rate);
-    if (!this.budgetFor(m).allow(performance.now())) {
-      debug('player keeps resetting playbackRate; backing off', rate, '→', want);
-      return;
+    if (this.reapply(m)) e.stopImmediatePropagation();
+  }
+
+  /** Undo a speed change made by the player, within the anti-loop budget. */
+  private reapply(m: Media): boolean {
+    const now = performance.now();
+    if (!this.budgetFor(m).allow(now)) {
+      // A player that keeps forcing: stop fighting for a few seconds instead of burning CPU.
+      if (now - (this.backoffLoggedAt.get(m) ?? -Infinity) > 10_000) {
+        this.backoffLoggedAt.set(m, now);
+        debug('player keeps resetting playbackRate; backing off', m.playbackRate, '→', this.speedOf(m));
+      }
+      return false;
     }
-    e.stopImmediatePropagation();
     this.apply(m);
+    if (this.quirks.extensionOwnsRate && !this.overrideNoticed) {
+      this.overrideNoticed = true;
+      this.feedback.playerOverridden?.(m);
+    }
+    return true;
   }
 
   private budgetFor(m: Media): ReapplyBudget {
@@ -293,20 +306,13 @@ export class RateController {
     return budget;
   }
 
-  private isUserNativeChange(m: Media, rate: number): boolean {
+  private isUserNativeChange(m: Media): boolean {
+    // Lecture platforms: only the extension (popup, shortcuts, overlay) sets the speed.
+    if (this.quirks.extensionOwnsRate) return false;
     const g = this.lastGesture;
     const now = performance.now();
     if (!g || now - g.t > USER_GESTURE_WINDOW_MS) return false;
     if (now - (this.loadedAt.get(m) ?? 0) < LOAD_SETTLE_MS) return false;
-    if (this.quirks.playerAssertsRate) {
-      // The gesture started playback (the player's Play button): the player re-applying its menu
-      // speed, not a choice. Same for the value it keeps writing back on its own.
-      if (g.paused?.has(m) && !m.paused) return false;
-      const own = this.playerRate.get(m);
-      if (own !== undefined && sameSpeed(rate, own)) return false;
-      // The whole page is the player (its speed menu is a popover outside the video's ancestors).
-      return true;
-    }
     // Player keyboard shortcuts (e.g. YouTube's Shift+. / Shift+,) work with focus anywhere on
     // the page; clicks only count inside the player (its own speed menu).
     return g.keyboard || gestureInsidePlayer(g.path, m);
