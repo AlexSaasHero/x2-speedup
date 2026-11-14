@@ -24,6 +24,16 @@ Limiti: il Chromium di Playwright non decodifica H.264 (Twitch, Vimeo, gran part
 
 ### 0b. Piattaforme di lezioni — `tests/live/lectures.spec.ts`
 
+**Criteri di rilascio 1.9.0** (dal 2026-11-14, a 1.5x, 2x, 2.5x, 3x): velocità effettiva entro ±10% per 2 minuti di riproduzione continua; mantenuta dopo seek, pausa/play, clic sul video, D/S; Echo360 anche all'apertura della lezione e alla lezione successiva. Il test li verifica tutti (`QA_SPEEDS`, `QA_SUSTAIN_MS` per ridurre la prova).
+
+**Run del 2026-11-14 (dopo #24): non conclusivo.**
+- Chrome for Testing headless (WebGL software) si chiude da solo nei run lunghi, anche a 1x senza interventi dell'estensione: 3,9 h, 15 test su 17 interrotti o incompleti.
+- La registrazione Panopto pubblica dura ~3 min: a ≥1,5x finisce prima dei 2 minuti di misura. Serve una lezione pubblica più lunga (≥10 min).
+- Dati validi: Panopto Viewer 1,5x e 2x esattamente alla velocità in ogni finestra fino alla fine della lezione, velocità mantenuta dopo seek, pausa/play, clic e D/S (1,5x). Panopto Embed 3x: 2,9–3,0x per 2 minuti, seek, pausa/play e D/S ok. Velocità impostata mai persa in nessun caso, Echo360 compreso.
+- Echo360 (webinar da 51 min): il video risulta in riproduzione (`readyState` 4, 196 s scaricati) ma `currentTime` resta a 0, anche se l'estensione segna la velocità giusta. Il confronto a 1x non è riuscito perché il browser di test si è chiuso. Non è ancora chiaro se dipenda dall'estensione o dall'ambiente.
+
+La tabella sotto è il run precedente (prima di #24).
+
 Serve un Chromium con H.264 che accetti `--load-extension`: **Chrome for Testing** (`npx @puppeteer/browsers install chrome@stable`), passato con `PW_EXECUTABLE`. Il Chrome installato (≥137) ignora `--load-extension`. Per la pagina LMS: `python3 -m http.server 8001 --directory tests/live/fixtures`.
 
 ```bash
