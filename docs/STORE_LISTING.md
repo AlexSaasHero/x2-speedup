@@ -1,6 +1,7 @@
 # Store listing — SpeedUp Video Pro (v1.8.x)
 
-> Pricing (decided 2026-11-11): 7-day free trial, then a one-time **$1.99** lifetime license — same as the landing page and the Lemon Squeezy checkout.
+> Pricing (decided 2026-11-14): yearly subscription, 7-day free trial, then **$4.99/year** — same as the landing page and the Lemon Squeezy checkout. Old $1.99 lifetime keys stay Pro forever.
+> ⚠️ The feature lists below still describe v1.8 (16x was Pro): full rewrite for v1.9.0 pending.
 
 ---
 
@@ -25,7 +26,7 @@ FREE
 • Settings sync across your devices; import your Video Speed Controller settings in one paste
 • Available in English, Italiano, Español, Deutsch, Français, Português (Brasil) and 日本語
 
-PRO — 7-day free trial, then a one-time $1.99 (lifetime, no subscription)
+PRO — 7-day free trial, then $4.99/year (cancel anytime)
 • Up to 16x and frame-by-frame stepping
 • Skip silence: automatically speeds through pauses in lectures and podcasts
 • Speed rules per YouTube channel, URL or site — set it once, it's always right
@@ -61,7 +62,7 @@ GRATIS
 • Impostazioni sincronizzate tra i dispositivi; importa le impostazioni di Video Speed Controller con un incolla
 • Disponibile in English, Italiano, Español, Deutsch, Français, Português (Brasil) e 日本語
 
-PRO — prova gratuita di 7 giorni, poi $1.99 una tantum (a vita, nessun abbonamento)
+PRO — prova gratuita di 7 giorni, poi $4.99 l'anno (disdici quando vuoi)
 • Fino a 16x e avanzamento fotogramma per fotogramma
 • Salta silenzi: accelera automaticamente le pause in lezioni e podcast
 • Regole di velocità per canale YouTube, URL o sito — imposti una volta, è sempre giusta

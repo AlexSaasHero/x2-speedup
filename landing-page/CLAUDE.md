@@ -7,7 +7,7 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 - **Posizionamento:** strumento di studio per lezioni registrate. "Studia le lezioni registrate in metà tempo, su Panopto, Canvas, Moodle e Echo360."
 - **Target:** studenti universitari (in inglese, mercato globale), poi chi segue corsi su Udemy e Coursera.
 - **La velocità è un plus, non l'USP:** non presentare il prodotto come un "video speed controller" generico.
-- ⚠️ La pagina attuale è ancora quella vecchia (title "Universal Video Speed Controller", Pro a $1.99 una tantum): va riscritta secondo questo documento.
+- ⚠️ La pagina attuale è ancora quella vecchia (title "Universal Video Speed Controller", i prezzi sono già aggiornati a $4.99/anno): il resto va riscritto secondo questo documento.
 
 ## Obiettivi della landing (in ordine)
 1. Far installare l'estensione: CTA principale "Add to Chrome", link al Chrome Web Store.
@@ -21,7 +21,7 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 - **Free vs Pro:**
   - Free: velocità fino a 16x ovunque, scorciatoie, contatore del tempo risparmiato
   - Pro: memoria per piattaforma, salto dei silenzi, statistiche, checkpoint con note, frame per frame, loop A-B
-- **Prezzo Pro:** abbonamento annuale, 7 giorni gratis [prezzo DA DECIDERE, tra $4.99 e $9.99 l'anno]. Non pubblicare un prezzo senza conferma di Alex.
+- **Prezzo Pro:** abbonamento annuale, 7 giorni gratis, poi **$4.99 l'anno** (confermato da Alex il 2026-11-14). Non cambiare il prezzo senza conferma di Alex.
 - **Pagamenti:** checkout Lemon Squeezy (overlay `lemon.js` o link), nessun dato di pagamento gestito da noi.
 - **FAQ:** "Funziona sulla piattaforma della mia università?", "Raccogliete dati?", "Come attivo il Pro?", "Posso disdire?"
 

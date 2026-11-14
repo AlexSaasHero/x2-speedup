@@ -25,7 +25,7 @@ Legenda stato: ✅ fatto · ⚠️ parziale (+motivo) · ❌ non fatto (+motivo)
 | Popup | `popup/popup.html/.css/.js` (~2.800 righe) | ES module. 3 tab (Speed / Shortcuts / Precision), modal Pro, attivazione licenza, checkpoint per video. Testi misti IT/EN hardcoded. |
 | Telemetria | `utils/analytics.js` | **GA4 Measurement Protocol** con `api_secret` in chiaro, eventi `popup_opened`, `speed_updated`, `cta_upgrade_clicked` (con dominio visitato). |
 | Licenza | dentro `popup.js` + duplicata in `content.js` | Validazione: `POST x2-speedup.vercel.app/api/validate-license` → fallback Lemon Squeezy `/v1/licenses/validate` → fallback offline per formato. Stato salvato come flag booleani (`is_pro`, `isPro`, `isLicensed`, `license_key`, `licenseKey`). Nessuna rivalidazione periodica. |
-| Landing | `landing-page/index.html`, `privacy.html` | **HTML statico + Tailwind CDN**, non Next.js. Checkout Lemon Squeezy (trial 7 gg, $0 oggi, $1.99 lifetime dopo). Il backend `/api/validate-license` **non è in questo repo**. |
+| Landing | `landing-page/index.html`, `privacy.html` | **HTML statico + Tailwind CDN**, non Next.js. Checkout Lemon Squeezy (abbonamento annuale: trial 7 gg, $0 oggi, poi $4.99/anno). Il backend `/api/validate-license` **non è in questo repo**. |
 | Build/test | — | **Nessuno**: niente `package.json`, bundler, TypeScript, test. Le release sono zip committati nella root (15 file). |
 
 ### Divergenze tra il prompt e il repo (ipotesi che adotto)
@@ -169,7 +169,7 @@ Altro corretto in Fase 4: su Netflix seek/fotogramma/A-B/salto ai segnalibri son
 
 | Tema | Decisione | Applicata |
 |---|---|---|
-| Prezzo nella scheda store | 7 giorni gratis, poi **$1.99 una tantum** (come landing e checkout) | ✅ `docs/STORE_LISTING.md` |
+| Prezzo nella scheda store | 7 giorni gratis, poi **$4.99/anno** (come landing e checkout; dal 2026-11-14, prima $1.99 una tantum) | ✅ `docs/STORE_LISTING.md` |
 | Privacy landing (GA4 + Clarity vs "no analytics") | **Aggiornare `privacy.html`**: estensione zero tracking, sito con analytics dichiarati | ✅ `landing-page/privacy.html` |
 | Firma crittografica dello stato licenza | **Lasciare così per ora** (rischio accettato) | — |
 | Limite dispositivi per chiave | **Nessun limite** | — |

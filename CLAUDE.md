@@ -10,7 +10,7 @@ Browser extension (Chrome/Edge MV3, Firefox build) that controls HTML5 video/aud
 ## Free vs Pro
 - **Free:** 0.1x–16x on every site, basic shortcuts, basic time-saved counter.
 - **Pro:** speed memory per site/platform (`rules`), skip silence, detailed time-saved stats, checkpoints with notes, frame-by-frame, A-B loop, customizable shortcuts.
-- **License:** **yearly subscription** on Lemon Squeezy with a 7-day free trial, unlocked by license key (price TBD, $4.99–$9.99/yr). Replaces the old $1.99 one-time.
+- **License:** **yearly subscription** on Lemon Squeezy with a 7-day free trial, unlocked by license key: **$4.99/year** (decided 2026-11-14). Replaces the old $1.99 one-time (those keys stay Pro forever).
 - ⚠️ **The code still implements the old model** — don't assume it's done: `src/config/plans.ts` has free max **4x**, `customHotkeys` free, `youtubeAds`/`holdToSpeed` Pro; UI strings (`unlock_title`, `upsell_*`), `docs/STORE_LISTING.md` and the landing still say 16x-is-Pro / $1.99. Aligning them is a separate, explicitly requested task.
 
 ## Target platforms (priority)

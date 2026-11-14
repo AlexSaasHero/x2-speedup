@@ -17,7 +17,7 @@
 ## 2. Modello di business (decisioni prese)
 
 - **Freemium** con licenza Pro gestita da **Lemon Squeezy** (merchant of record), sbloccata con license key.
-- **Prezzo (nuovo, 2026-11-13)**: **abbonamento annuale** con 7 giorni gratis; importo da decidere (tra $4.99 e $9.99 l'anno). Sostituisce il vecchio "7 giorni gratis, poi $1.99 una tantum" (e il "$3.99" in `docs/CHROMEWEBSTORE.md`, ancora più vecchio).
+- **Prezzo (nuovo, 2026-11-13)**: **abbonamento annuale** con 7 giorni gratis; **$4.99 l'anno** (deciso 2026-11-14, checkout Lemon Squeezy `69ea0406-…`). Sostituisce il vecchio "7 giorni gratis, poi $1.99 una tantum" (e il "$3.99" in `docs/CHROMEWEBSTORE.md`, ancora più vecchio).
 - La chiave di licenza arriva al checkout (anche per la trial); se la trial o l'abbonamento finiscono, la chiave risulta scaduta al controllo successivo.
 - **Free (obiettivo)**: velocità 0.1x–16x su tutti i siti, scorciatoie base, contatore base del tempo risparmiato.
 - **Pro (obiettivo)**: memoria della velocità per sito/piattaforma, salto dei silenzi, statistiche dettagliate del tempo risparmiato, checkpoint con note, frame per frame, loop A-B, scorciatoie personalizzabili.
