@@ -84,6 +84,9 @@ function addTimeSaved(day: string, delta: DayStats): Promise<void> {
 const isDelta = (d: unknown): d is DayStats =>
   !!d && typeof d === 'object' && Number.isFinite((d as DayStats).saved) && Number.isFinite((d as DayStats).watched);
 
+/** storage.session flag: the lecture-platform toast was shown in this browser session. */
+const LECTURE_TOAST_KEY = 'lectureToastShown';
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // License operations are only accepted from extension pages (popup, options, onboarding).
   const fromExtensionPage = !sender.tab || sender.url?.startsWith(chrome.runtime.getURL(''));
@@ -108,6 +111,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     sendResponse({ success: true });
     return false;
+  }
+  if (message?.action === 'LECTURE_TOAST_ONCE') {
+    // "Speed controlled by SpeedUp" toast on lecture platforms: once per browser session.
+    chrome.storage.session
+      .get(LECTURE_TOAST_KEY)
+      .then((r) => (r[LECTURE_TOAST_KEY] ? false : chrome.storage.session.set({ [LECTURE_TOAST_KEY]: true }).then(() => true)))
+      .then((show) => sendResponse({ show }), () => sendResponse({ show: false }));
+    return true;
   }
   if (message?.action === 'STATS_ADD' && typeof message.day === 'string' && isDelta(message.delta)) {
     // Sanity bound: one delta never covers more than a few minutes of real time.

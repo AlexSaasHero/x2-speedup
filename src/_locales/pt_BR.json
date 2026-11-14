@@ -244,5 +244,6 @@
   "site_access_body": "O Firefox pede que você conceda acesso aos sites antes que uma extensão funcione neles. O SpeedUp só interage com elementos de vídeo e áudio e nunca lê nem envia o conteúdo das páginas.",
   "site_access_button": "Permitir em todos os sites",
   "site_access_granted": "✓ Acesso concedido. Atalhos e overlay agora funcionam em todos os sites.",
-  "site_access_popup": "O SpeedUp precisa de acesso aos sites para controlar os vídeos."
+  "site_access_popup": "O SpeedUp precisa de acesso aos sites para controlar os vídeos.",
+  "lecture_toast": "Velocidade controlada pelo SpeedUp — use D/S ou o popup"
 }

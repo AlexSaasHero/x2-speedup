@@ -244,5 +244,6 @@
   "site_access_body": "Firefox demande d'accorder l'accès aux sites avant qu'une extension puisse y fonctionner. SpeedUp n'interagit qu'avec les éléments vidéo et audio et ne lit ni n'envoie jamais le contenu des pages.",
   "site_access_button": "Autoriser sur tous les sites",
   "site_access_granted": "✓ Accès accordé. Les raccourcis et l'overlay fonctionnent désormais sur tous les sites.",
-  "site_access_popup": "SpeedUp a besoin d'accéder aux sites pour contrôler leurs vidéos."
+  "site_access_popup": "SpeedUp a besoin d'accéder aux sites pour contrôler leurs vidéos.",
+  "lecture_toast": "Vitesse contrôlée par SpeedUp — utilisez D/S ou le popup"
 }

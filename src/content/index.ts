@@ -71,7 +71,14 @@ const registry = new MediaRegistry(
 
 const controller = new RateController(registry, getSettings, {
   flash: (label, media) => overlay.show(asVideo(media), label),
-  speedChanged: () => overlay.update()
+  speedChanged: () => overlay.update(),
+  // Once per browser session (all tabs): explain why the player's own speed menu does nothing.
+  playerOverridden: (media) => {
+    chrome.runtime
+      .sendMessage({ action: 'LECTURE_TOAST_ONCE' })
+      .then((r) => r?.show && overlay.show(asVideo(media) ?? asVideo(registry.primary()), t('lecture_toast')))
+      .catch(() => {});
+  }
 });
 
 // Synchronous, before any page script: intercept ratechange in the capture phase.

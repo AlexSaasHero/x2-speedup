@@ -254,5 +254,6 @@
   "site_access_body": "Firefox asks you to grant access to websites before extensions can work on them. SpeedUp only touches video and audio elements and never reads or sends page content.",
   "site_access_button": "Allow on all websites",
   "site_access_granted": "✓ Access granted. Shortcuts and the overlay now work on every site.",
-  "site_access_popup": "SpeedUp needs access to websites to control their videos."
+  "site_access_popup": "SpeedUp needs access to websites to control their videos.",
+  "lecture_toast": "Speed controlled by SpeedUp — use D/S or the popup"
 }

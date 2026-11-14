@@ -109,6 +109,7 @@ test.describe('lecture platforms', () => {
   });
 
   test("Echo360: the player's own speed menu is ignored: the extension owns the speed (BUGS #24)", async ({ context, sw, origin }) => {
+    await sw.evaluate(() => chrome.storage.session.remove('lectureToastShown'));
     const page = await openEcho360(context, sw, origin);
     await page.click('#play');
     await page.waitForTimeout(1500);
@@ -117,6 +118,8 @@ test.describe('lecture platforms', () => {
     await page.waitForTimeout(500);
     expect(await staysAt(page, 2)).toBe(2);
     expect((await sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }))?.currentSpeed).toBe(2);
+    // The "Speed controlled by SpeedUp" toast was shown, and only once for the browser session.
+    expect(await sw.evaluate(() => chrome.storage.session.get('lectureToastShown').then((r) => r.lectureToastShown))).toBe(true);
   });
 
   for (const host of [PANOPTO, ECHO360]) {

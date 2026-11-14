@@ -244,5 +244,6 @@
   "site_access_body": "Firefox verlangt, dass du Erweiterungen den Zugriff auf Websites erlaubst. SpeedUp greift nur auf Video- und Audioelemente zu und liest oder sendet niemals Seiteninhalte.",
   "site_access_button": "Auf allen Websites erlauben",
   "site_access_granted": "✓ Zugriff erteilt. Tastenkürzel und Overlay funktionieren jetzt auf jeder Website.",
-  "site_access_popup": "SpeedUp braucht Zugriff auf Websites, um deren Videos zu steuern."
+  "site_access_popup": "SpeedUp braucht Zugriff auf Websites, um deren Videos zu steuern.",
+  "lecture_toast": "Geschwindigkeit wird von SpeedUp gesteuert — nutze D/S oder das Popup"
 }

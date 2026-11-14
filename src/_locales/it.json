@@ -244,5 +244,6 @@
   "site_access_body": "Firefox chiede di concedere l'accesso ai siti prima che un'estensione possa funzionarci. SpeedUp interagisce solo con gli elementi video e audio e non legge né invia mai il contenuto delle pagine.",
   "site_access_button": "Consenti su tutti i siti",
   "site_access_granted": "✓ Accesso concesso. Scorciatoie e overlay ora funzionano su ogni sito.",
-  "site_access_popup": "SpeedUp ha bisogno dell'accesso ai siti per controllarne i video."
+  "site_access_popup": "SpeedUp ha bisogno dell'accesso ai siti per controllarne i video.",
+  "lecture_toast": "Velocità gestita da SpeedUp — usa D/S o il popup"
 }
