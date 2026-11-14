@@ -27,6 +27,13 @@ export interface SiteQuirks {
    * or the lecture keeps advancing at 1x (QA 2026-11-14, BUGS #22).
    */
   allStreams: boolean;
+  /**
+   * The player keeps writing its own menu speed back to playbackRate: when its Play button starts
+   * playback (~0.8 s after the click, before the `play` event) and about once a second while
+   * playing (Echo360, BUGS #23). Those writes are a player reset, not the user's choice: only a
+   * *new* value picked in the player's speed menu is.
+   */
+  playerAssertsRate: boolean;
 }
 
 export function lecturePlatform(host: string): LecturePlatform | null {
@@ -42,6 +49,7 @@ export function quirksFor(host: string): SiteQuirks {
   return {
     platform,
     noDirectSeek: /(^|\.)netflix\.com$/.test(h),
-    allStreams: platform !== null
+    allStreams: platform !== null,
+    playerAssertsRate: platform === 'echo360'
   };
 }

@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: Echo360-like player that keeps writing its menu speed</title></head>
+  <body>
+    <!-- Like Echo360: the control bar lives inside the player container, next to the video. -->
+    <div id="player">
+      <video id="v" src="/media.wav" muted width="640" height="360"></video>
+      <div id="controls">
+        <button id="play" type="button">Play</button>
+        <button id="pause" type="button">Pause</button>
+      </div>
+    </div>
+    <!-- Speed menu rendered as a popover, outside the video's container (like Echo360's). -->
+    <div id="menu"><button id="speed-1-5" type="button">1.5x</button></div>
+    <script>
+      // Like Echo360's React player: its menu speed is state, written back to the element when the
+      // Play button starts playback (before the `play` event) and on every render while playing.
+      window.menuRate = 1;
+      window.writes = 0;
+      const v = document.getElementById('v');
+      const write = () => { window.writes++; v.playbackRate = window.menuRate; };
+      document.getElementById('play').onclick = () => { v.play(); setTimeout(write, 300); };
+      document.getElementById('pause').onclick = () => v.pause();
+      document.getElementById('speed-1-5').onclick = () => { window.menuRate = 1.5; write(); };
+      setInterval(() => { if (!v.paused) write(); }, 700);
+    </script>
+  </body>
+</html>
