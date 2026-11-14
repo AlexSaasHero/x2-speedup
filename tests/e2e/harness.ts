@@ -90,9 +90,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   extContext: [
     async ({}, use) => {
       if (!existsSync(path.join(dist, 'manifest.json'))) throw new Error('Run `npm run build` first');
+      // PW_EXECUTABLE: e.g. Chrome for Testing, for live QA on H.264 sites (Panopto, Echo360):
+      // Playwright's Chromium has no proprietary codecs, branded Chrome ignores --load-extension.
+      const executable = process.env.PW_EXECUTABLE;
       const context = await chromium.launchPersistentContext('', {
-        channel: 'chromium',
-        args: [`--disable-extensions-except=${dist}`, `--load-extension=${dist}`, '--autoplay-policy=no-user-gesture-required']
+        ...(executable ? { executablePath: executable } : { channel: 'chromium' }),
+        args: [
+          `--disable-extensions-except=${dist}`,
+          `--load-extension=${dist}`,
+          '--autoplay-policy=no-user-gesture-required',
+          // Software WebGL for live players that render video through a canvas (Echo360).
+          ...(executable ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : [])
+        ]
       });
       // No real network in tests: block the remote welcome page / license endpoints.
       await context.route(/x2-speedup\.vercel\.app|lemonsqueezy\.com/, (route) => route.abort());
