@@ -23,6 +23,9 @@ import { onSpaNavigation } from './spa';
 import { StatsTracker } from './stats';
 
 const host = location.hostname;
+const quirks = quirksFor(host);
+/** Overlay auto-hide on lecture platforms (and the default elsewhere). */
+const QUIET_OVERLAY_MS = 2000;
 let settings: ContentSettings | null = null;
 const getSettings = (): ContentSettings => {
   if (!settings) throw new Error('settings not loaded');
@@ -38,7 +41,7 @@ const OVERRIDE_BADGE: Record<string, () => string> = {
 
 const overlay = new Overlay({
   enabled: () => !!settings?.hudEnabled,
-  autoHideMs: () => settings?.overlayAutoHideMs ?? 2000,
+  autoHideMs: () => Math.min(settings?.overlayAutoHideMs ?? QUIET_OVERLAY_MS, quirks.quietOverlay ? QUIET_OVERLAY_MS : Infinity),
   speedText: (anchor) => {
     const o = controller.activeOverride(anchor);
     return formatSpeed(controller.speedOf(anchor)) + (o ? OVERRIDE_BADGE[o]() : '');
@@ -154,7 +157,7 @@ function runShortcut(action: ShortcutAction): void {
       break;
     case 'abRepeat': {
       const m = registry.primary();
-      if (m) overlay.show(asVideo(m), quirksFor(host).noDirectSeek ? t('overlay_seek_unsupported') : ab.apply(m, 'cycle'));
+      if (m) overlay.show(asVideo(m), quirks.noDirectSeek ? t('overlay_seek_unsupported') : ab.apply(m, 'cycle'));
       break;
     }
     case 'hold':
@@ -185,8 +188,9 @@ function boot(): Promise<void> {
       installMessageHandler({ registry, controller, overlay, settings: getSettings, host, rules: () => rules, ab, stats });
 
       // Show the overlay while the pointer is over a video (auto-hides after the configured delay).
+      // Not on lecture platforms: there it only appears when the speed changes.
       trackPointer(() => {
-        const v = registry.videoUnderPointer();
+        const v = quirks.quietOverlay ? null : registry.videoUnderPointer();
         if (v) overlay.show(v);
       });
 

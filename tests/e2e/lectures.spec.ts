@@ -164,4 +164,32 @@ test.describe('lecture platforms', () => {
       expect(await staysAt(page, 2.1, 2000)).toBe(2.1);
     });
   }
+
+  const overlayVisible = (f: Frame | Page) => f.locator('[data-speedup-overlay][data-visible]').count().then((n) => n > 0);
+
+  test('lecture platforms: the speed badge does not stay over the title', async ({ context, sw, origin }) => {
+    await serveAs(context, PANOPTO, origin);
+    const page = await context.newPage();
+    await page.goto(`${PANOPTO}/panopto.html`);
+    const f = await playerFrame(page);
+    await page.hover('#screen');
+    await page.mouse.move(300, 200);
+    await page.waitForTimeout(800);
+    expect(await overlayVisible(f)).toBe(false); // no badge on hover
+    await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 2 }).then((r) => r?.speed)).toBe(2);
+    await expect.poll(() => overlayVisible(f)).toBe(true); // reappears when the speed changes
+    await page.mouse.move(310, 210); // pointer still over the video
+    await page.waitForTimeout(2600);
+    expect(await overlayVisible(f)).toBe(false); // hidden after 2 s
+  });
+
+  test('a generic site still shows the badge on hover', async ({ context, sw, origin }) => {
+    const page = await context.newPage();
+    await page.goto(`${origin}/panopto.html`);
+    await playerFrame(page);
+    await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo ?? false)).toBe(true);
+    await page.hover('#screen');
+    await page.mouse.move(300, 200);
+    await expect.poll(() => overlayVisible(page)).toBe(true);
+  });
 });

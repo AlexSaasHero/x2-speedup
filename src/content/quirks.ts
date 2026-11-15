@@ -34,6 +34,11 @@ export interface SiteQuirks {
    * is a player reset and is undone, including the player's own speed menu.
    */
   extensionOwnsRate: boolean;
+  /**
+   * Keep the speed badge out of the way: lecture players put the title where the badge sits. It is
+   * not shown on hover and hides after at most 2 s; it reappears when the speed changes.
+   */
+  quietOverlay: boolean;
 }
 
 export function lecturePlatform(host: string): LecturePlatform | null {
@@ -50,6 +55,7 @@ export function quirksFor(host: string): SiteQuirks {
     platform,
     noDirectSeek: /(^|\.)netflix\.com$/.test(h),
     allStreams: platform !== null,
-    extensionOwnsRate: platform !== null
+    extensionOwnsRate: platform !== null,
+    quietOverlay: platform !== null
   };
 }

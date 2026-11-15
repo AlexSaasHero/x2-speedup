@@ -77,6 +77,7 @@ export class Overlay {
     if (!this.visible) {
       this.visible = true;
       this.pill.classList.add('visible');
+      this.host?.setAttribute('data-visible', ''); // for tests (the shadow root is closed)
       window.addEventListener('scroll', this.reposition, { capture: true, passive: true });
       window.addEventListener('resize', this.reposition, { passive: true });
     }
@@ -93,6 +94,7 @@ export class Overlay {
     if (!this.visible) return;
     this.visible = false;
     this.pill.classList.remove('visible');
+    this.host?.removeAttribute('data-visible');
     window.removeEventListener('scroll', this.reposition, { capture: true });
     window.removeEventListener('resize', this.reposition);
   }
