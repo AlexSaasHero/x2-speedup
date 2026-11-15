@@ -45,6 +45,13 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 - URL che non devono cambiare: `/privacy.html` (linkata dallo Store e da `docs/STORE_LISTING.md`) e la home (linkata dall'estensione in `src/shared/links.ts`). Non rinominare né spostare la cartella `landing-page/`.
 - Comandi: nessuna build. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
 
+## Branch `landing-rebrand`: prima di unirlo a `main`
+Il branch va online solo con la 1.9.1 approvata sullo Store (nuovo nome) e il dominio nuovo. Prima del merge:
+- Sostituire `[DOMAIN]` (canonical, `og:url`, `og:image`, `twitter:image`) con il dominio definitivo, es. `https://lectureflow.app`.
+- Sostituire `[BRAND]` con il nome definitivo.
+- Rifare `og-image.png` con il nome: sorgente `docs/landing-assets/og-image.html`, comando `node docs/landing-assets/make-og.mjs`.
+- Favicon (`favicon-32.png`, `favicon-128.png`, `apple-touch-icon.png`) dall'icona nuova dell'estensione.
+
 ## Regole
 - Lingua del sito: inglese. Codice e commenti: inglese.
 - Mobile first: molti studenti arrivano da Reddit su telefono.

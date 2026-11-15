@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>og-image</title>
+<!-- Social preview image for the landing page (1200×630), rendered by make-og.mjs.
+     Provisional text without the product name: redo it with the final brand at the rebrand.
+     Original artwork only: no third-party logos or player UI. -->
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: radial-gradient(circle at 85% 15%, #1e1b4b 0%, #020617 55%);
+    color: #f1f5f9; display: flex; align-items: center; gap: 56px; padding: 0 72px; overflow: hidden;
+  }
+  .text { flex: 1.05; }
+  .badge { display: inline-block; font-size: 20px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: #93c5fd; border: 2px solid rgba(59,130,246,.35); background: rgba(59,130,246,.12); border-radius: 999px; padding: 8px 20px; }
+  h1 { font-size: 76px; line-height: 1.04; font-weight: 800; letter-spacing: -0.025em; margin-top: 28px; }
+  h1 span { background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  p { font-size: 28px; color: #94a3b8; margin-top: 26px; line-height: 1.35; }
+  .card { flex: .95; position: relative; }
+  .player { border: 2px solid #1e293b; background: #0f172a; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
+  .top { display: flex; gap: 8px; align-items: center; padding: 14px 18px; border-bottom: 2px solid #1e293b; color: #64748b; font-size: 16px; }
+  .top i { width: 11px; height: 11px; border-radius: 50%; background: #334155; display: inline-block; }
+  .top span { margin-left: 8px; }
+  .screen { position: relative; aspect-ratio: 16 / 9; background: linear-gradient(135deg, #1e293b, #0f172a 55%, #1e1b4b); display: flex; align-items: center; justify-content: center; }
+  .lines { width: 72%; }
+  .lines div { height: 12px; border-radius: 6px; background: rgba(71,85,105,.75); margin-top: 14px; }
+  .lines div:first-child { height: 18px; width: 62%; margin-top: 0; }
+  .pill { position: absolute; top: 18px; left: 18px; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.82);
+    border-radius: 999px; padding: 6px; font-size: 26px; font-weight: 800; box-shadow: 0 0 26px rgba(139,92,246,.6); }
+  .pill b { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+  .pill span { padding: 0 8px; }
+  .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: #334155; }
+  .progress i { display: block; height: 100%; width: 40%; background: #3b82f6; }
+  .saved { position: absolute; right: -22px; bottom: -34px; background: rgba(15,23,42,.97); border: 2px solid #1e293b; border-radius: 20px; padding: 16px 24px; box-shadow: 0 20px 40px rgba(0,0,0,.5); }
+  .saved small { display: block; font-size: 17px; color: #94a3b8; }
+  .saved strong { display: block; font-size: 36px; font-weight: 900; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="text">
+    <div class="badge">🎓 Free Chrome extension</div>
+    <h1>Study recorded lectures in <span>half the time</span>.</h1>
+    <p>No more 2x cap on your lecture player.</p>
+  </div>
+  <div class="card">
+    <div class="player">
+      <div class="top"><i></i><i></i><i></i><span>BIO 101 · Week 3 · Lecture recording</span></div>
+      <div class="screen">
+        <div class="lines"><div></div><div></div><div style="width:85%"></div><div style="width:68%"></div></div>
+        <div class="pill"><b>−</b><span>2.5x</span><b>+</b></div>
+        <div class="progress"><i></i></div>
+      </div>
+    </div>
+    <div class="saved"><small>This week you saved</small><strong>3 h 12 min</strong></div>
+  </div>
+</body>
+</html>
