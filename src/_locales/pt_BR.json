@@ -245,5 +245,6 @@
   "site_access_button": "Permitir em todos os sites",
   "site_access_granted": "✓ Acesso concedido. Atalhos e overlay agora funcionam em todos os sites.",
   "site_access_popup": "O SpeedUp precisa de acesso aos sites para controlar os vídeos.",
-  "lecture_toast": "Velocidade controlada pelo SpeedUp — use D/S ou o popup"
+  "lecture_toast": "Velocidade controlada pelo SpeedUp — use D/S ou o popup",
+  "beta": "Beta"
 }

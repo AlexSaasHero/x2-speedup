@@ -245,5 +245,6 @@
   "site_access_button": "Permitir en todos los sitios",
   "site_access_granted": "✓ Acceso concedido. Los atajos y la superposición ya funcionan en todos los sitios.",
   "site_access_popup": "SpeedUp necesita acceso a los sitios para controlar sus vídeos.",
-  "lecture_toast": "Velocidad controlada por SpeedUp — usa D/S o el popup"
+  "lecture_toast": "Velocidad controlada por SpeedUp — usa D/S o el popup",
+  "beta": "Beta"
 }

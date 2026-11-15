@@ -66,3 +66,9 @@ select, input[type=text] { background: rgba(15, 23, 42, 0.9); color: var(--text)
 /* Free plan: default shortcuts shown read-only (custom shortcuts are Pro). */
 .hk-locked-note { display: block; width: 100%; margin: 0 0 8px; padding: 8px 10px; border-radius: 10px; border: 1px dashed currentColor; background: transparent; color: inherit; font: inherit; font-size: 12px; text-align: left; opacity: 0.85; cursor: pointer; }
 .hk-locked .hotkey-capture-btn { cursor: pointer; opacity: 0.75; }
+
+.beta-tag {
+  display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; vertical-align: middle;
+  color: #b45309; background: rgba(245, 158, 11, .15); border: 1px solid rgba(245, 158, 11, .45);
+}

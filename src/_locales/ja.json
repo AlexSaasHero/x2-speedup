@@ -245,5 +245,6 @@
   "site_access_button": "すべてのサイトで許可",
   "site_access_granted": "✓ アクセスを許可しました。ショートカットとオーバーレイがすべてのサイトで使えます。",
   "site_access_popup": "動画を操作するには、SpeedUp にサイトへのアクセスを許可してください。",
-  "lecture_toast": "速度は SpeedUp が管理しています — D/S キーかポップアップを使ってください"
+  "lecture_toast": "速度は SpeedUp が管理しています — D/S キーかポップアップを使ってください",
+  "beta": "ベータ"
 }

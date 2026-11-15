@@ -4,6 +4,7 @@ import { upsertRule, type ChannelInfo, type Rule } from '../shared/rules';
 import { t } from '../shared/i18n';
 import { formatShortcut, type Shortcut } from '../shared/shortcuts';
 import { STATS_BUFFER_KEY, STATS_KEY, applyBuffer, formatDuration, summarize, validateStats } from '../shared/stats';
+import { quirksFor } from '../content/quirks';
 import type { SkipSilenceSettings } from '../shared/storage';
 
 export interface SmartDeps {
@@ -71,6 +72,9 @@ export function mountSmart(deps: SmartDeps) {
   async function refreshPage() {
     const ctx = await deps.sendToTab({ action: 'GET_PAGE_CONTEXT' });
     page = ctx ? { host: ctx.host, url: ctx.url, channel: ctx.channel ?? null, activeRule: ctx.activeRule ?? null } : null;
+    // Skip silence (Beta) is not offered on lecture platforms until it is verified there (CORS).
+    const ssCard = document.querySelector<HTMLElement>('[data-feature="skipSilence"]');
+    if (ssCard) ssCard.style.display = page && quirksFor(page.host).noSkipSilence ? 'none' : '';
     renderRules();
   }
 

@@ -39,6 +39,11 @@ export interface SiteQuirks {
    * not shown on hover and hides after at most 2 s; it reappears when the speed changes.
    */
   quietOverlay: boolean;
+  /**
+   * Skip silence (Pro, Beta) stays off: Web Audio on these players' cross-origin/HLS media is not
+   * verified yet (CORS), and a failed hookup can mute the lecture. Hidden in the popup too.
+   */
+  noSkipSilence: boolean;
 }
 
 export function lecturePlatform(host: string): LecturePlatform | null {
@@ -56,6 +61,7 @@ export function quirksFor(host: string): SiteQuirks {
     noDirectSeek: /(^|\.)netflix\.com$/.test(h),
     allStreams: platform !== null,
     extensionOwnsRate: platform !== null,
-    quietOverlay: platform !== null
+    quietOverlay: platform !== null,
+    noSkipSilence: platform !== null
   };
 }

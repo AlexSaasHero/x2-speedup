@@ -245,5 +245,6 @@
   "site_access_button": "Auf allen Websites erlauben",
   "site_access_granted": "✓ Zugriff erteilt. Tastenkürzel und Overlay funktionieren jetzt auf jeder Website.",
   "site_access_popup": "SpeedUp braucht Zugriff auf Websites, um deren Videos zu steuern.",
-  "lecture_toast": "Geschwindigkeit wird von SpeedUp gesteuert — nutze D/S oder das Popup"
+  "lecture_toast": "Geschwindigkeit wird von SpeedUp gesteuert — nutze D/S oder das Popup",
+  "beta": "Beta"
 }

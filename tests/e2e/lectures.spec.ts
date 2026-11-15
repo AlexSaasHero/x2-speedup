@@ -1,7 +1,7 @@
 // Lecture-platform quirks (src/content/quirks.ts) against local fixtures served on the platforms'
 // host names: the content script decides by the host of its own frame.
 import type { BrowserContext, Frame, Page } from '@playwright/test';
-import { expect, sendToTabs, test } from './harness';
+import { expect, sendToTabs, setPro, test } from './harness';
 
 const PANOPTO = 'https://uni.hosted.panopto.com';
 const ECHO360 = 'https://test.echo360.org';
@@ -191,5 +191,18 @@ test.describe('lecture platforms', () => {
     await page.hover('#screen');
     await page.mouse.move(300, 200);
     await expect.poll(() => overlayVisible(page)).toBe(true);
+  });
+
+  test('skip silence (Beta) never starts on lecture platforms, even when enabled', async ({ context, sw, origin }) => {
+    const ss = { enabled: true, thresholdDb: -42, minSilenceMs: 300, silenceSpeed: 4, minSpeechMs: 200 };
+    await setPro(sw, { skipSilence: ss });
+    await serveAs(context, PANOPTO, origin);
+    const page = await context.newPage();
+    await page.goto(`${PANOPTO}/silence.html`);
+    await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo ?? false)).toBe(true);
+    await page.locator('#a').evaluate((a: HTMLAudioElement) => a.play());
+    await page.waitForTimeout(3000);
+    expect((await sendToTabs(sw, { action: 'GET_VIDEO_STATUS' })).skipSilence).toBeUndefined();
+    expect(await page.evaluate(() => (window as any).rates as number[])).not.toContain(4);
   });
 });

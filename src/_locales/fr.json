@@ -245,5 +245,6 @@
   "site_access_button": "Autoriser sur tous les sites",
   "site_access_granted": "✓ Accès accordé. Les raccourcis et l'overlay fonctionnent désormais sur tous les sites.",
   "site_access_popup": "SpeedUp a besoin d'accéder aux sites pour contrôler leurs vidéos.",
-  "lecture_toast": "Vitesse contrôlée par SpeedUp — utilisez D/S ou le popup"
+  "lecture_toast": "Vitesse contrôlée par SpeedUp — utilisez D/S ou le popup",
+  "beta": "Bêta"
 }

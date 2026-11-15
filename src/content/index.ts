@@ -117,7 +117,7 @@ const proApi: ProApi = {
 function syncProModules(): void {
   const s = getSettings();
   const wanted: [ProModuleName, boolean][] = [
-    ['skip-silence', can('skipSilence') && s.skipSilence.enabled]
+    ['skip-silence', can('skipSilence') && s.skipSilence.enabled && !quirks.noSkipSilence]
   ];
   for (const [name, on] of wanted) {
     if (on) loadProModule(name, proApi).then((m) => m?.update());
