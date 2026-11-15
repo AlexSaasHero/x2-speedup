@@ -1,0 +1,4 @@
+/* Tailwind entry for the landing page. Build: `npm run landing:css`. Not published (.vercelignore). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

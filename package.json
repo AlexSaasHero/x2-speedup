@@ -15,7 +15,8 @@
     "check": "npm run typecheck && npm run test && npm run build",
     "test:e2e": "npm run build && PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1 playwright test",
     "test:coverage": "vitest run --coverage",
-    "qa:live": "npm run build && PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1 playwright test -c playwright.live.config.ts"
+    "qa:live": "npm run build && PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1 playwright test -c playwright.live.config.ts",
+    "landing:css": "tailwindcss -c landing-page/tailwind.config.cjs -i landing-page/tailwind.input.css -o landing-page/styles.css --minify"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
@@ -24,6 +25,7 @@
     "@vitest/coverage-v8": "^2.1.9",
     "esbuild": "^0.24.2",
     "happy-dom": "^15.11.7",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "vitest": "^2.1.9"
   }

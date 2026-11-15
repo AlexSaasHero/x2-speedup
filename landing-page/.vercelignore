@@ -1,2 +1,4 @@
 # Files in this folder that must not be published on the website.
 CLAUDE.md
+tailwind.config.cjs
+tailwind.input.css

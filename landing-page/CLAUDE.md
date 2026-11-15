@@ -38,12 +38,14 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 
 ## Stack
 - **HTML statico**, niente framework e niente build: `index.html` (home), `privacy.html` (privacy policy), `terms.html` (termini dell'abbonamento), `thanks.html` (dopo il pagamento, `noindex`). Codice condiviso: `site.js` (interruttore Pro, rilevamento mobile, "Copy link"; caricato nell'head senza `defer`) e `site.css`. I due video demo della vecchia home sono stati spostati in `_to_delete/landing-page/` (2026-11-15).
-- Styling: **Tailwind dal CDN** (`cdn.tailwindcss.com`, versione "play": comoda ma pesante e sconsigliata in produzione) + CSS inline.
+- Styling: **Tailwind 3.4.17 compilato** in `styles.css` (19 KB, ~4 KB gzip; dal 2026-11-15 al posto del CDN da 126 KB) + `site.css` + CSS inline.
+  - **Dopo ogni modifica alle classi Tailwind** (HTML o `site.js`): `npm run landing:css` dalla root del repo, poi committa anche `styles.css`. Senza, le classi nuove non hanno stile.
+  - Config: `landing-page/tailwind.config.cjs` + `tailwind.input.css` (esclusi dal sito in `.vercelignore`). Su Vercel nessuna build: serve i file così come sono.
 - Script esterni: Lemon Squeezy `lemon.js` (solo con il checkout Pro attivo, vedi sopra). Statistiche del sito: **Vercel Web Analytics** (`/_vercel/insights/script.js`, senza cookie, dal 2026-11-15; GA4 e Clarity rimossi). Da attivare nel pannello Vercel → progetto → Analytics. Riguardano **solo il sito**, mai l'estensione, e sono dichiarate in `privacy.html`. Lo script dà 404 in anteprima locale: è normale.
 - Deploy: **Vercel**, dominio `x2-speedup.vercel.app`. Non c'è nessun backend: l'estensione verifica le licenze direttamente con Lemon Squeezy (`/api/validate-license` non è mai esistito).
   ⚠️ Da verificare nel pannello Vercel quale repo/cartella pubblica il sito (Root Directory = `landing-page`?) e da quale branch.
 - URL che non devono cambiare: `/privacy.html` (linkata dallo Store e da `docs/STORE_LISTING.md`) e la home (linkata dall'estensione in `src/shared/links.ts`). Non rinominare né spostare la cartella `landing-page/`.
-- Comandi: nessuna build. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
+- Comandi: nessuna build su Vercel; in locale solo `npm run landing:css` per il CSS. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
 
 ## Branch `landing-rebrand`: prima di unirlo a `main`
 Il branch va online solo con la 1.9.1 approvata sullo Store (nuovo nome) e il dominio nuovo. Prima del merge:
