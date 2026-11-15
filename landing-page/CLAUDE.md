@@ -17,16 +17,27 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 
 ## Messaggio e contenuti
 - **Hero:** titolo orientato al risultato ("Finish your lecture recordings in half the time"), sottotitolo con le piattaforme supportate, CTA "Add to Chrome, it's free".
-- **Piattaforme supportate:** solo quelle testate a mano: Panopto ed Echo360, "including lectures embedded in Canvas or Moodle" (test di Alex, 1.9.0). Sulle lezioni non promettere il 16x: "no more 2x cap". Disclaimer "Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle".
+- **Piattaforme supportate:** solo quelle testate a mano: Panopto ed Echo360, "including lectures embedded in Canvas or Moodle" (test di Alex, 1.9.0). Sulle lezioni non promettere il 16x: "no more 2x cap". Disclaimer generico, senza marchi: "This extension is an independent project and is not affiliated with any lecture or video platform." (footer di tutte le pagine).
 - **Free vs Pro:**
   - Free: velocità fino a 16x ovunque, scorciatoie, contatore del tempo risparmiato
   - Pro: memoria per piattaforma, salto dei silenzi, statistiche, checkpoint con note, frame per frame, loop A-B
 - **Prezzo Pro:** abbonamento annuale, 7 giorni gratis, poi **$4.99 l'anno** (confermato da Alex il 2026-11-14). Non cambiare il prezzo senza conferma di Alex.
-- **Pagamenti:** checkout Lemon Squeezy (overlay `lemon.js` o link), nessun dato di pagamento gestito da noi.
+- **Pagamenti:** checkout Lemon Squeezy (overlay `lemon.js`), nessun dato di pagamento gestito da noi. Dopo il pagamento si va su `thanks.html` (passi per attivare la licenza).
+
+## Checkout Pro: interruttore
+Dal 2026-11-15 l'acquisto è **spento** finché la 1.9.0 non è approvata sullo Store (lo Store distribuisce ancora la 1.5.1.8).
+- Interruttore unico: `PRO_CHECKOUT_ENABLED` in cima a `site.js`.
+- `false` (oggi): i bottoni Pro (`data-pro-cta`) mostrano "Pro launching soon" e portano alla sezione `#pricing`; `lemon.js` non viene caricato.
+- `true`: i bottoni prendono il testo di `data-pro-label` ("Try Pro free for 7 days") e aprono il checkout in overlay; dopo `Checkout.Success` redirect a `/thanks.html`.
+- **Per riattivarlo:** in `site.js` metti `const PRO_CHECKOUT_ENABLED = true;`, anteprima locale (clic sul bottone Pro → si apre l'overlay Lemon Squeezy), commit, push su `main`.
+- Nuovi bottoni Pro: `<a href="#pricing" data-pro-cta data-pro-label="Testo quando è attivo">Pro launching soon</a>`. Mai mettere il link di checkout direttamente nell'HTML.
+
+## Mobile: niente "Add to Chrome"
+Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mobile (classe `html.mobile-ua` messa da `site.js`), gli elementi `.desktop-only` (i CTA verso lo Store) spariscono e compaiono i `.mobile-only` ("Open this page on your computer" + bottone `data-copy-link`). Regole in `site.css`. Ogni nuovo CTA verso lo Store va affiancato dal blocco mobile.
 - **FAQ:** "Funziona sulla piattaforma della mia università?", "Raccogliete dati?", "Come attivo il Pro?", "Posso disdire?"
 
 ## Stack
-- **HTML statico**, niente framework e niente build: `index.html` (home), `privacy.html` (privacy policy), `terms.html` (termini dell'abbonamento). I due video demo della vecchia home sono stati spostati in `_to_delete/landing-page/` (2026-11-15).
+- **HTML statico**, niente framework e niente build: `index.html` (home), `privacy.html` (privacy policy), `terms.html` (termini dell'abbonamento), `thanks.html` (dopo il pagamento, `noindex`). Codice condiviso: `site.js` (interruttore Pro, rilevamento mobile, "Copy link"; caricato nell'head senza `defer`) e `site.css`. I due video demo della vecchia home sono stati spostati in `_to_delete/landing-page/` (2026-11-15).
 - Styling: **Tailwind dal CDN** (`cdn.tailwindcss.com`, versione "play": comoda ma pesante e sconsigliata in produzione) + CSS inline.
 - Script esterni: Google Analytics 4 (`G-1WMDCJ7HDC`), Microsoft Clarity, Lemon Squeezy `lemon.js`. Il tracciamento riguarda **solo il sito**, mai l'estensione, ed è dichiarato in `privacy.html`.
 - Deploy: **Vercel**, dominio `x2-speedup.vercel.app`. Non c'è nessun backend: l'estensione verifica le licenze direttamente con Lemon Squeezy (`/api/validate-license` non è mai esistito).
