@@ -157,6 +157,8 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 - **Category:** Education
 - **Website:** https://x2-speedup.vercel.app/
 - **Privacy policy:** https://x2-speedup.vercel.app/privacy.html
+- **Terms:** https://x2-speedup.vercel.app/terms.html
+- **Support email:** speedupvideopro.help@gmail.com
 - **Small promo tile (440×280):** logo + "Lecture Study Tool"
 
 ---
