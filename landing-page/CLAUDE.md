@@ -7,7 +7,7 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 - **Posizionamento:** strumento di studio per lezioni registrate. "Studia le lezioni registrate in metà tempo, su Panopto, Canvas, Moodle e Echo360."
 - **Target:** studenti universitari (in inglese, mercato globale), poi chi segue corsi su Udemy e Coursera.
 - **La velocità è un plus, non l'USP:** non presentare il prodotto come un "video speed controller" generico.
-- ⚠️ La pagina attuale è ancora quella vecchia (title "Universal Video Speed Controller", i prezzi sono già aggiornati a $4.99/anno): il resto va riscritto secondo questo documento.
+- La pagina è stata riscritta come study tool il 2026-11-15 (v1.9.0): stesso messaggio della scheda Store (`docs/STORE_LISTING.md`).
 
 ## Obiettivi della landing (in ordine)
 1. Far installare l'estensione: CTA principale "Add to Chrome", link al Chrome Web Store.
@@ -17,7 +17,7 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 
 ## Messaggio e contenuti
 - **Hero:** titolo orientato al risultato ("Finish your lecture recordings in half the time"), sottotitolo con le piattaforme supportate, CTA "Add to Chrome, it's free".
-- **Piattaforme supportate:** mostrare solo quelle realmente testate (oggi nessuna fra Panopto, Echo360, Canvas, Moodle: vedi `docs/QA.md`). Aggiungere il disclaimer "Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle".
+- **Piattaforme supportate:** solo quelle testate a mano: Panopto ed Echo360, "including lectures embedded in Canvas or Moodle" (test di Alex, 1.9.0). Sulle lezioni non promettere il 16x: "no more 2x cap". Disclaimer "Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle".
 - **Free vs Pro:**
   - Free: velocità fino a 16x ovunque, scorciatoie, contatore del tempo risparmiato
   - Pro: memoria per piattaforma, salto dei silenzi, statistiche, checkpoint con note, frame per frame, loop A-B
@@ -26,10 +26,10 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 - **FAQ:** "Funziona sulla piattaforma della mia università?", "Raccogliete dati?", "Come attivo il Pro?", "Posso disdire?"
 
 ## Stack
-- **HTML statico**, niente framework e niente build: `index.html` (home) e `privacy.html` (privacy policy), più due video demo (`bigbuckbunny.mp4` ~5 MB, `demo-abstract.mp4` ~3 MB).
+- **HTML statico**, niente framework e niente build: `index.html` (home), `privacy.html` (privacy policy), `terms.html` (termini dell'abbonamento). I due video demo (`bigbuckbunny.mp4`, `demo-abstract.mp4`) non sono più usati dalla home del 2026-11-15.
 - Styling: **Tailwind dal CDN** (`cdn.tailwindcss.com`, versione "play": comoda ma pesante e sconsigliata in produzione) + CSS inline.
 - Script esterni: Google Analytics 4 (`G-1WMDCJ7HDC`), Microsoft Clarity, Lemon Squeezy `lemon.js`. Il tracciamento riguarda **solo il sito**, mai l'estensione, ed è dichiarato in `privacy.html`.
-- Deploy: **Vercel**, dominio `x2-speedup.vercel.app`. Sullo stesso dominio gira `/api/validate-license`, che **non è in questo repo**.
+- Deploy: **Vercel**, dominio `x2-speedup.vercel.app`. Non c'è nessun backend: l'estensione verifica le licenze direttamente con Lemon Squeezy (`/api/validate-license` non è mai esistito).
   ⚠️ Da verificare nel pannello Vercel quale repo/cartella pubblica il sito (Root Directory = `landing-page`?) e da quale branch.
 - URL che non devono cambiare: `/privacy.html` (linkata dallo Store e da `docs/STORE_LISTING.md`) e la home (linkata dall'estensione in `src/shared/links.ts`). Non rinominare né spostare la cartella `landing-page/`.
 - Comandi: nessuna build. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
