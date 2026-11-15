@@ -24,6 +24,10 @@ Limiti: il Chromium di Playwright non decodifica H.264 (Twitch, Vimeo, gran part
 
 ### 0b. Piattaforme di lezioni — `tests/live/lectures.spec.ts`
 
+> **Sospesa dal 2026-11-15: non è più criterio di rilascio.** Nei run lunghi il browser di test (Chrome for Testing headless, WebGL software) si chiude o smette di riprodurre, anche senza interventi dell'estensione e quando il Mac va in stop, quindi i risultati non sono affidabili.
+> La registrazione Panopto pubblica dura ~3 min e non permette di misurare 2 minuti a ≥1,5x.
+> Criterio di rilascio della 1.9.0: test manuale di Alex su Panopto ed Echo360 in Chrome; il test resta nel repo per indagini mirate.
+
 **Criteri di rilascio 1.9.0** (dal 2026-11-14, a 1.5x, 2x, 2.5x, 3x): velocità effettiva entro ±10% per 2 minuti di riproduzione continua; mantenuta dopo seek, pausa/play, clic sul video, D/S; Echo360 anche all'apertura della lezione e alla lezione successiva. Il test li verifica tutti (`QA_SPEEDS`, `QA_SUSTAIN_MS` per ridurre la prova).
 
 **Run del 2026-11-14 (dopo #24): non conclusivo.**
