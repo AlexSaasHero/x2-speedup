@@ -1,6 +1,6 @@
 {
-  "extName": "SpeedUp Video Pro",
-  "extDescription": "録画講義を半分の時間で。あらゆる HTML5 動画をキーボードで最大16倍速に。100% ローカル、トラッキングなし。",
+  "extName": "SpeedUp Video Pro – Panopto・Echo360 の講義学習ツール",
+  "extDescription": "Panopto と Echo360 の録画講義を半分の時間で。Canvas・Moodle に埋め込まれた講義にも対応。2倍速の上限なし。トラッキングなし。",
   "actionTitle": "SpeedUp Video Pro",
   "close": "閉じる",
   "default": "既定",

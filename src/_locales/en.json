@@ -1,7 +1,7 @@
 {
   "// manifest": "",
-  "extName": "SpeedUp Video Pro",
-  "extDescription": "Study recorded lectures in half the time: keyboard speed control up to 16x for any HTML5 video. 100% local, zero tracking.",
+  "extName": "SpeedUp Video Pro – Lecture Study Tool for Panopto & Echo360",
+  "extDescription": "Study recorded lectures in half the time on Panopto and Echo360, even inside Canvas or Moodle. No more 2x cap. No tracking.",
   "actionTitle": "SpeedUp Video Pro",
   "// common": "",
   "close": "Close",
