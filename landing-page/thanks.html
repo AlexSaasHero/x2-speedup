@@ -8,6 +8,8 @@
   <!-- Post-checkout page: nothing to rank for. -->
   <meta name="robots" content="noindex">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
 
@@ -43,7 +45,11 @@
         <div class="min-w-0">
           <h2 class="font-bold text-white">Install the extension (if you haven't yet)</h2>
           <p class="text-slate-400 text-sm mt-1.5">Already installed? Skip to step 3.</p>
-          <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block mt-4 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition">Add to Chrome</a>
+          <div class="mobile-only rounded-xl border border-slate-700 bg-slate-900/80 p-4 text-center mt-4">
+          <p class="text-sm text-slate-300">💻 Chrome extensions install on desktop. Open this page on your computer.</p>
+          <button type="button" data-copy-link class="mt-3 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition">Copy link</button>
+        </div>
+          <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only inline-block mt-4 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition">Add to Chrome</a>
         </div>
       </li>
       <li class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 flex gap-4">

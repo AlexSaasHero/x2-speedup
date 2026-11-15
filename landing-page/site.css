@@ -1,0 +1,12 @@
+/* Shared styles that Tailwind classes don't cover. */
+
+/* Desktop vs mobile CTAs: Chrome extensions can't be installed from a phone, so on small
+   screens (< 768px, Tailwind's md) or mobile user agents (html.mobile-ua, set by site.js)
+   "Add to Chrome" is replaced by "open this page on your computer" + "Copy link". */
+.mobile-only { display: none; }
+@media (max-width: 767px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block; }
+}
+html.mobile-ua .desktop-only { display: none !important; }
+html.mobile-ua .mobile-only { display: block; }
