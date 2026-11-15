@@ -34,12 +34,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
   <script>
-    // After a successful checkout, send the buyer to the Chrome Web Store to install the extension.
+    // After a successful checkout, show the activation steps (license key, install, paste in the popup).
     window.createLemonSqueezy = function () {
       window.LemonSqueezy.Setup({
         eventHandler: (event) => {
           if (event.event === 'Checkout.Success') {
-            window.location.href = 'https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh';
+            window.location.href = '/thanks.html';
           }
         }
       });
