@@ -193,6 +193,117 @@ test.describe('lecture platforms', () => {
     await expect.poll(() => overlayVisible(page)).toBe(true);
   });
 
+  // ---- QA 2026-11-16: a player that fights back (BUGS #24), the off-screen <video>, the badge corner ----
+
+  /** The frame (page or LMS iframe) that runs the fixture on `host`. */
+  async function fixtureFrame(page: Page, host: string): Promise<Frame> {
+    let found: Frame | undefined;
+    await expect
+      .poll(async () => {
+        found = page.frames().find((f) => f.url().startsWith(host));
+        return found ? await found.evaluate(() => (document.getElementById('v') as HTMLMediaElement | null)?.readyState ?? 0).catch(() => 0) : 0;
+      }, { timeout: 20_000 })
+      .toBeGreaterThan(0);
+    return found!;
+  }
+
+  /** Effective speed (video seconds / real seconds while playing, seeks excluded) and the 1x dips seen by the page. */
+  async function measure(f: Frame, want: number) {
+    const log = (await f.evaluate(() => (window as any).rateLog)) as [number, number, number][];
+    let video = 0;
+    let real = 0;
+    for (let i = 1; i < log.length; i++) {
+      const dt = (log[i][0] - log[i - 1][0]) / 1000;
+      const dv = log[i][2] - log[i - 1][2];
+      if (dt > 0 && dt < 0.25 && dv >= 0 && dv < 1.5) {
+        video += dv;
+        real += dt;
+      }
+    }
+    const off = log.filter(([, r]) => Math.abs(r - want) > 0.001);
+    return { pace: video / real, real, frames: log.length, offFrames: off.length, offRates: [...new Set(off.map(([, r]) => r))] };
+  }
+
+  for (const [label, host, embedded] of [['Echo360', ECHO360, false], ['Panopto inside an LMS iframe', PANOPTO, true]] as const) {
+    test(`${label}: a player that writes its own speed and fights back keeps 2.6x through play, pause/play and a seek (BUGS #24)`, async ({ context, sw, origin }) => {
+      await serveAs(context, host, origin);
+      const page = await context.newPage();
+      await page.goto(embedded ? `${origin}/lms.html?src=${encodeURIComponent(`${host}/echo360-live.html`)}` : `${host}/echo360-live.html`);
+      const f = await fixtureFrame(page, host);
+      await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 2.6 }).then((r) => r?.speed)).toBe(2.6);
+
+      const click = (sel: string) => f.click(sel);
+      await click('#play');
+      await page.waitForTimeout(800);
+      await f.evaluate(() => { (window as any).rateLog = []; });
+      // ≥ 10 s of playback: 2 pause/play cycles and a seek on the bar.
+      await page.waitForTimeout(2500);
+      await click('#pause'); await page.waitForTimeout(400); await click('#play');
+      await page.waitForTimeout(2500);
+      await f.evaluate(() => { (document.getElementById('v') as HTMLMediaElement).currentTime = 5; });
+      await page.waitForTimeout(2500);
+      await click('#pause'); await page.waitForTimeout(400); await click('#play');
+      await page.waitForTimeout(2800);
+
+      const m = await measure(f, 2.6);
+      console.log(`${label}: pace ${m.pace.toFixed(2)}x over ${m.real.toFixed(1)} s of playback, ${m.offFrames}/${m.frames} frames off 2.6x`, m.offRates);
+      expect(await f.evaluate(() => (window as any).writes)).toBeGreaterThan(10); // the player did keep writing 1x
+      expect(m.real).toBeGreaterThan(9.5);
+      expect(m.pace).toBeGreaterThan(2.45);
+      expect(m.offFrames).toBe(0); // no frame at 1x, not even for < 250 ms after pause/play
+      expect(await f.evaluate(() => (document.getElementById('v') as HTMLMediaElement).playbackRate)).toBe(2.6);
+    });
+  }
+
+  const overlayXY = (f: Frame | Page) =>
+    f.locator('[data-speedup-overlay]').evaluate((h) => {
+      const x = h.getAttribute('data-x');
+      const y = h.getAttribute('data-y');
+      return { x: x === null ? NaN : Number(x), y: y === null ? NaN : Number(y) };
+    });
+
+  test('Echo360: the badge appears on screen (real <video> off screen), with the remembered speed and with D/S', async ({ context, sw, origin }) => {
+    await sw.evaluate(() => chrome.storage.local.set({ defaultSpeed: 2.6, rememberSpeed: true }));
+    await serveAs(context, ECHO360, origin);
+    const page = await context.newPage();
+    await page.goto(`${ECHO360}/echo360-live.html`);
+    await expect.poll(() => sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }).then((r) => r?.hasVideo ?? false)).toBe(true);
+    const screen = await page.locator('#screen').boundingBox();
+    const onScreen = async () => {
+      const { x, y } = await overlayXY(page);
+      return x >= screen!.x && x <= screen!.x + screen!.width && y >= screen!.y && y <= screen!.y + screen!.height;
+    };
+
+    // The extension applies the remembered speed: the badge shows it when playback starts.
+    await page.click('#play');
+    await expect.poll(() => overlayVisible(page)).toBe(true);
+    expect(await onScreen()).toBe(true);
+    await expect.poll(() => page.evaluate(() => (document.getElementById('v') as HTMLMediaElement).playbackRate)).toBe(2.6);
+
+    // D / S: the badge comes back, on screen.
+    await page.waitForTimeout(2600);
+    expect(await overlayVisible(page)).toBe(false);
+    await page.keyboard.press('d');
+    await expect.poll(() => overlayVisible(page)).toBe(true);
+    expect(await onScreen()).toBe(true);
+    await expect.poll(() => page.evaluate(() => (document.getElementById('v') as HTMLMediaElement).playbackRate)).toBe(2.7);
+    await page.keyboard.press('s');
+    await expect.poll(() => page.evaluate(() => (document.getElementById('v') as HTMLMediaElement).playbackRate)).toBe(2.6);
+  });
+
+  test('Panopto: the badge sits top-right of the video, away from the logo (QA 2026-11-16)', async ({ context, sw, origin }) => {
+    await serveAs(context, PANOPTO, origin);
+    const page = await context.newPage();
+    await page.goto(`${PANOPTO}/panopto.html`);
+    const f = await playerFrame(page);
+    await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 2 }).then((r) => r?.speed)).toBe(2);
+    await expect.poll(() => overlayVisible(f)).toBe(true);
+    const screen = await f.locator('#screen').boundingBox();
+    const { x, y } = await overlayXY(f);
+    expect(x).toBeGreaterThan(screen!.x + screen!.width / 2); // right half
+    expect(y).toBeLessThan(screen!.y + screen!.height / 2); // top half
+  });
+
   test('skip silence (Beta) never starts on lecture platforms, even when enabled', async ({ context, sw, origin }) => {
     const ss = { enabled: true, thresholdDb: -42, minSilenceMs: 300, silenceSpeed: 4, minSpeechMs: 200 };
     await setPro(sw, { skipSilence: ss });

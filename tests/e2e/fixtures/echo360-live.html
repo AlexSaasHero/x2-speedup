@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fixture: Echo360-like player as seen in QA 2026-11-16</title>
+<style>
+  body { margin: 40px; }
+  /* Like a dual-stream player: the real <video> is off screen and a canvas shows the picture. */
+  #v { position: absolute; left: -10000px; top: 0; width: 640px; height: 360px; }
+  #screen { display: block; width: 640px; height: 360px; background: #224; }
+</style></head>
+  <body>
+    <div id="player">
+      <video id="v" src="/media.wav" muted preload="auto"></video>
+      <canvas id="screen" width="640" height="360"></canvas>
+      <div id="controls">
+        <button id="play" type="button">Play</button>
+        <button id="pause" type="button">Pause</button>
+        <button id="speed" type="button">1x</button>
+      </div>
+    </div>
+    <script>
+      // The player's speed menu is React state (1x) written back to the element:
+      // - 300 ms after its Play button, and on play / playing / seeked;
+      // - about once a second while playing;
+      // - after each of those it re-syncs for ~600 ms, writing on every animation frame (dozens of
+      //   writes a second): this is what exhausted the extension's anti-loop budget (8/s, then 3 s
+      //   left at 1x) and gave ~2.0x with 2.6x set in the QA of 2026-11-16;
+      // - and right after any ratechange it did not make (it "fights back").
+      window.menuRate = 1;
+      window.writes = 0;
+      const v = document.getElementById('v');
+      let syncUntil = 0;
+      const write = () => { window.writes++; v.playbackRate = window.menuRate; syncUntil = performance.now() + 600; };
+      const sync = () => { if (performance.now() < syncUntil) { window.writes++; v.playbackRate = window.menuRate; } requestAnimationFrame(sync); };
+      requestAnimationFrame(sync);
+      document.getElementById('play').onclick = () => { v.play(); setTimeout(write, 300); };
+      document.getElementById('pause').onclick = () => v.pause();
+      for (const type of ['play', 'playing', 'seeked']) v.addEventListener(type, write);
+      v.addEventListener('ratechange', () => { if (v.playbackRate !== window.menuRate) Promise.resolve().then(write); });
+      setInterval(() => { if (!v.paused) write(); }, 1000);
+
+      // Test probe (page world): every animation frame while playing, record the rate the page sees.
+      window.rateLog = [];
+      const probe = () => {
+        // Only while it can actually play (readyState ≥ 3): buffering is not a speed problem.
+        if (!v.paused && !v.seeking && v.readyState >= 3) window.rateLog.push([performance.now(), v.playbackRate, v.currentTime]);
+        requestAnimationFrame(probe);
+      };
+      requestAnimationFrame(probe);
+    </script>
+  </body>
+</html>
