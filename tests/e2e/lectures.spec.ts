@@ -299,6 +299,9 @@ test.describe('lecture platforms', () => {
     await page.click('#play');
     await expect.poll(() => overlayVisible(page)).toBe(true);
     expect(await onScreen()).toBe(true);
+    const { x, y } = await overlayXY(page); // top-right, away from the player's title
+    expect(x).toBeGreaterThan(screen!.x + screen!.width / 2);
+    expect(y).toBeLessThan(screen!.y + screen!.height / 2);
     await expect.poll(() => page.evaluate(() => (document.getElementById('v') as HTMLMediaElement).playbackRate)).toBe(2.6);
 
     // D / S: the badge comes back, on screen.

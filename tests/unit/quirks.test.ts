@@ -24,9 +24,9 @@ describe('lecture platforms', () => {
     expect(quirksFor('echo360.org.uk').extensionOwnsRate).toBe(true);
     expect(quirksFor('uni.hosted.panopto.com').extensionOwnsRate).toBe(true);
     expect(quirksFor('www.youtube.com').extensionOwnsRate).toBe(false);
-    // Panopto's logo and title sit top-left of the video: the badge goes top-right there.
+    // Lecture players keep their logo and title top-left of the video: the badge goes top-right.
     expect(quirksFor('uni.hosted.panopto.com').overlayCorner).toBe('top-right');
-    expect(quirksFor('echo360.org').overlayCorner).toBe('top-left');
+    expect(quirksFor('echo360.org').overlayCorner).toBe('top-right');
     expect(quirksFor('www.youtube.com').overlayCorner).toBe('top-left');
   });
 

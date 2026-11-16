@@ -45,8 +45,8 @@ export interface SiteQuirks {
    */
   noSkipSilence: boolean;
   /**
-   * Default corner of the speed badge. Panopto's viewer has its logo and title in the top-left of the
-   * video (QA 2026-11-16): the badge goes top-right there.
+   * Default corner of the speed badge. Lecture players put their logo and title in the top-left of the
+   * video (Panopto's logo, QA 2026-11-16; Echo360's title): the badge goes top-right on both.
    */
   overlayCorner: 'top-left' | 'top-right';
 }
@@ -68,6 +68,6 @@ export function quirksFor(host: string): SiteQuirks {
     extensionOwnsRate: platform !== null,
     quietOverlay: platform !== null,
     noSkipSilence: platform !== null,
-    overlayCorner: platform === 'panopto' ? 'top-right' : 'top-left'
+    overlayCorner: platform !== null ? 'top-right' : 'top-left'
   };
 }

@@ -102,7 +102,7 @@ Su `dist/` aggiornata (`npm run build`, poi "Aggiorna" in `chrome://extensions`)
 
 **Rilascio (BUGS #31):** imposta 1x dall'estensione (R o popup): il menu velocità del player deve tornare a funzionare. Disattiva l'estensione in `chrome://extensions` con la lezione aperta: entro 2 s il player deve poter cambiare velocità di nuovo.
 
-**Criterio:** velocità reale ≥ 2.45x e 0 campioni non a 2.6x; il badge compare (in alto a destra su Panopto, mai sopra il logo); il pulsante "1x" del player Echo360 può restare a 1x (BUGS #30). Primo Play dopo un reload: annotare se non parte (BUGS #29).
+**Criterio:** velocità reale ≥ 2.45x e 0 campioni non a 2.6x; il badge compare in alto a destra (Panopto ed Echo360), mai sopra logo o titolo; il pulsante "1x" del player Echo360 può restare a 1x (BUGS #30). Primo Play dopo un reload: annotare se non parte (BUGS #29).
 
 ## 1. Checklist per sito (manuale)
 
