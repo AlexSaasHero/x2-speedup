@@ -83,7 +83,7 @@ test('onboarding page: localized, shortcut demo reacts to the user keys, no erro
   const page = await context.newPage();
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`chrome-extension://${extensionId}/onboarding/onboarding.html`);
-  await expect(page.locator('h1')).toHaveText('Welcome to SpeedUp Video Pro');
+  await expect(page.locator('h1')).toHaveText('Welcome to LectureSpeed');
   await expect(page.locator('#demoKeys li')).toHaveCount(6);
   await page.click('#demoPlay');
   await page.keyboard.press('d');

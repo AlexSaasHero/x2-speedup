@@ -118,7 +118,7 @@ test.describe('lecture platforms', () => {
     await page.waitForTimeout(500);
     expect(await staysAt(page, 2)).toBe(2);
     expect((await sendToTabs(sw, { action: 'GET_VIDEO_STATUS' }))?.currentSpeed).toBe(2);
-    // The "Speed controlled by SpeedUp" toast was shown, and only once for the browser session.
+    // The "Speed controlled by LectureSpeed" toast was shown, and only once for the browser session.
     expect(await sw.evaluate(() => chrome.storage.session.get('lectureToastShown').then((r) => r.lectureToastShown))).toBe(true);
   });
 
