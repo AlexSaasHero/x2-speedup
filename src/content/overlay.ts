@@ -24,22 +24,23 @@ const CSS = `
 .pill {
   position: fixed; display: flex; align-items: center; gap: 4px;
   padding: 3px 6px; border-radius: 999px;
-  background: rgba(11, 15, 25, 0.82); color: #f8fafc;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  background: rgba(27, 30, 60, 0.92); color: #F5F7FB;
+  border: 0;
+  /* LectureSpeed: yellow ring, same as the speed pill on the landing page. */
+  box-shadow: 0 0 0 2.5px rgba(255, 225, 77, 0.75), 0 4px 12px rgba(0, 0, 0, 0.35);
   font: 700 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   pointer-events: auto; user-select: none; touch-action: none; cursor: grab;
   opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility 0s linear .2s;
 }
 .pill.visible { opacity: 1; visibility: visible; transition: opacity .15s ease; }
 .pill.dragging { cursor: grabbing; }
-.label { min-width: 42px; text-align: center; padding: 0 2px; }
+.label { min-width: 42px; text-align: center; padding: 0 2px; font-variant-numeric: tabular-nums; }
 button {
   all: unset; box-sizing: border-box; width: 20px; height: 20px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255, 255, 255, 0.12); color: inherit; cursor: pointer; font-size: 13px;
+  background: rgba(245, 247, 251, 0.14); color: inherit; cursor: pointer; font-size: 13px;
 }
-button:hover { background: rgba(255, 255, 255, 0.28); }
+button:hover { background: #FFE14D; color: #1B1E3C; }
 `;
 
 export class Overlay {
