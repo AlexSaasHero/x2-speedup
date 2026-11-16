@@ -1,5 +1,5 @@
 // External URLs used by the UI (the only network destinations besides license validation).
-export const LANDING_PAGE_URL = 'https://x2-speedup.vercel.app/';
+export const LANDING_PAGE_URL = 'https://lecturespeed.vercel.app/';
 
 /** Store review page for the current browser, or null when unknown. */
 export function reviewUrl(extensionId: string, target: 'chrome' | 'firefox', userAgent: string): string | null {
