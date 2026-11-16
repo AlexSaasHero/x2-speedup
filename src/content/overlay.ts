@@ -14,9 +14,16 @@ export interface OverlayDeps {
   position(): OverlayPosition | null;
   savePosition(p: OverlayPosition): void;
   step(direction: 1 | -1): void;
+  /** Default corner of the video (before the user drags the badge). Panopto: top-right, over no logo. */
+  corner?(): OverlayCorner;
 }
 
+export type OverlayCorner = 'top-left' | 'top-right';
+
 const DEFAULT_OFFSET_PX = 12;
+/** Below this size an element is not "the video the student is watching". */
+const MIN_ANCHOR_W = 160;
+const MIN_ANCHOR_H = 90;
 const FLASH_MS = 1000;
 
 const CSS = `
@@ -179,15 +186,18 @@ export class Overlay {
 
   private place(): void {
     if (!this.host || this.drag) return;
-    const r = this.anchor?.getBoundingClientRect();
-    if (!r || r.width < 40 || r.height < 30) {
-      this.setXY(DEFAULT_OFFSET_PX, DEFAULT_OFFSET_PX);
+    const pw = this.pill.offsetWidth || 110;
+    const ph = this.pill.offsetHeight || 26;
+    const right = this.deps.corner?.() === 'top-right';
+    // The rectangle the student actually sees: the anchor, or a visible stand-in (see visibleRect).
+    const r = visibleRect(this.anchor);
+    if (!r) {
+      const vw = document.documentElement.clientWidth || window.innerWidth;
+      this.setXY(right ? vw - pw - DEFAULT_OFFSET_PX : DEFAULT_OFFSET_PX, DEFAULT_OFFSET_PX);
       return;
     }
     const pos = this.deps.position();
-    const pw = this.pill.offsetWidth || 110;
-    const ph = this.pill.offsetHeight || 26;
-    const x = pos ? r.left + pos.x * r.width : r.left + DEFAULT_OFFSET_PX;
+    const x = pos ? r.left + pos.x * r.width : right ? r.right - pw - DEFAULT_OFFSET_PX : r.left + DEFAULT_OFFSET_PX;
     const y = pos ? r.top + pos.y * r.height : r.top + DEFAULT_OFFSET_PX;
     this.setXY(clamp(x, r.left, r.right - pw), clamp(y, r.top, r.bottom - ph));
   }
@@ -195,6 +205,9 @@ export class Overlay {
   private setXY(x: number, y: number): void {
     this.pill.style.left = `${Math.round(x)}px`;
     this.pill.style.top = `${Math.round(y)}px`;
+    // For tests (the shadow root is closed), like data-visible.
+    this.host?.setAttribute('data-x', String(Math.round(x)));
+    this.host?.setAttribute('data-y', String(Math.round(y)));
   }
 
   private scheduleHide(): void {
@@ -235,6 +248,36 @@ export class Overlay {
     this.place();
     this.scheduleHide();
   }
+}
+
+/**
+ * Where to draw the badge. Some lecture players keep the real <video> off screen, transparent or under
+ * a canvas that composes the streams (Echo360: the badge never appeared, QA 2026-11-16): anchoring to
+ * it put the badge out of sight. Then use the largest visible video/canvas of the frame, or null
+ * (viewport corner).
+ */
+function visibleRect(anchor: HTMLVideoElement | null): DOMRect | null {
+  if (anchor && isShown(anchor)) return anchor.getBoundingClientRect();
+  let best: DOMRect | null = null;
+  for (const el of document.querySelectorAll('video, canvas')) {
+    if (!isShown(el)) continue;
+    const r = el.getBoundingClientRect();
+    if (!best || r.width * r.height > best.width * best.height) best = r;
+  }
+  return best;
+}
+
+/** Big enough, rendered, not transparent, and mostly inside the viewport. */
+function isShown(el: Element): boolean {
+  const r = el.getBoundingClientRect();
+  if (r.width < MIN_ANCHOR_W || r.height < MIN_ANCHOR_H) return false;
+  const check = (el as Element & { checkVisibility?(o: object): boolean }).checkVisibility;
+  if (check && !check.call(el, { opacityProperty: true, visibilityProperty: true })) return false;
+  const vw = document.documentElement.clientWidth || window.innerWidth;
+  const vh = document.documentElement.clientHeight || window.innerHeight;
+  const w = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
+  const h = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+  return w * h >= 0.5 * r.width * r.height;
 }
 
 function clamp(v: number, min: number, max: number): number {

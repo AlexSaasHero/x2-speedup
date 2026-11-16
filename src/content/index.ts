@@ -51,7 +51,8 @@ const overlay = new Overlay({
     if (!settings) return;
     chrome.storage.local.set({ overlayPositions: { ...settings.overlayPositions, [host]: p } }).catch(() => {});
   },
-  step: (dir) => controller.step(dir)
+  step: (dir) => controller.step(dir),
+  corner: () => quirks.overlayCorner
 });
 
 const mediaListeners = new Set<(m: Media) => void>();
