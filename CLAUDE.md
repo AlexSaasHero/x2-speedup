@@ -26,7 +26,7 @@ None of 1–3 is tested yet (no fixtures, not in `docs/QA.md`); add quirks to `s
 - Output: `dist/` (Chrome/Edge, load unpacked from here), `dist-firefox/`, `release/*.zip` (upload to the Store). All git-ignored.
 - Tests: Vitest + happy-dom (unit), Playwright (e2e/live). CI: `.github/workflows/ci.yml`.
 - Key files: `public/manifest.json` (manifest + version of record) · `scripts/build.mjs` (build/zip, `--dev`, `--target=firefox`) · `scripts/firefox.mjs` (manifest rewrite for Firefox) · `scripts/locales.mjs` (`src/_locales/*.json` → `_locales/*/messages.json`, fails on missing keys) · `public/{popup,options,onboarding}/` (HTML/CSS, JS comes from `src/`).
-- Not in this repo: license backend (`/api/validate-license` on x2-speedup.vercel.app). `landing-page/` is static HTML deployed to Vercel — don't move or rename it.
+- No license backend: the extension verifies keys directly with Lemon Squeezy (`/api/validate-license` never existed). `landing-page/` is static HTML deployed to Vercel at **https://lecturespeed.vercel.app** (x2-speedup.vercel.app redirects there) — don't move or rename the folder.
 - Local-only folders (git-ignored): `_archive/release/` (old Store zips, keep), `_to_delete/` (Alex reviews and deletes by hand).
 
 ## Rules

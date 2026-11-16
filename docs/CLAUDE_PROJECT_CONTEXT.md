@@ -12,7 +12,7 @@
 - **Stato**: ~350 download, 6 utenti attivi. Priorità: **attivazione e compatibilità**, poi monetizzazione.
 - **Privacy**: "100% locale, zero tracciamento". L'unica chiamata di rete dell'estensione è la verifica della licenza (invia solo la chiave).
 - **Repo**: github.com/AlexSaasHero/x2-speedup (privato), cartella locale `~/Documents/Saas/Saas X2`.
-- **Landing**: `landing-page/` (HTML statico + Tailwind CDN) su x2-speedup.vercel.app. Contiene Google Analytics 4 e Microsoft Clarity (il sito, non l'estensione).
+- **Landing**: `landing-page/` (HTML statico + Tailwind CDN) su https://lecturespeed.vercel.app (dal 2026-11-16; x2-speedup.vercel.app fa redirect). Contiene Google Analytics 4 e Microsoft Clarity (il sito, non l'estensione).
 
 ## 2. Modello di business (decisioni prese)
 
@@ -52,7 +52,7 @@
 
 Comandi principali: `npm run build:dev` (master key DEV attiva solo qui), `npm run check`, `npm run test:e2e`, `npm run qa:live`, `npm run zip`, `npm run build -- --target=firefox`.
 
-Permessi finali: `storage`, `activeTab`, `alarms`; host `x2-speedup.vercel.app` e `api.lemonsqueezy.com` (solo licenza); content script su `<all_urls>`; `web_accessible_resources` solo `pro/*.js`.
+Permessi finali: `storage`, `activeTab`, `alarms`; host solo `api.lemonsqueezy.com` (solo licenza); content script su `<all_urls>`; `web_accessible_resources` solo `pro/*.js`.
 
 ## 5. Stato attuale
 

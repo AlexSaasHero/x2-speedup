@@ -157,9 +157,11 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 ## Other fields
 
 - **Category:** Education
-- **Website:** https://x2-speedup.vercel.app/
-- **Privacy policy:** https://x2-speedup.vercel.app/privacy.html
-- **Terms:** https://x2-speedup.vercel.app/terms.html
+- **Homepage URL:** https://lecturespeed.vercel.app/
+- **Support URL:** https://lecturespeed.vercel.app/#faq (contact: speedupvideopro.help@gmail.com)
+- **Privacy policy:** https://lecturespeed.vercel.app/privacy.html
+- **Terms:** https://lecturespeed.vercel.app/terms.html
+- Since 2026-11-16 the site lives at **lecturespeed.vercel.app**; x2-speedup.vercel.app redirects there. Update these URLs in the Store dashboard with the next upload.
 - **Support email:** speedupvideopro.help@gmail.com
 - **Small promo tile (440×280):** logo + "Lecture Study Tool"
 
@@ -183,7 +185,7 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 
 **Data usage disclosure:** The extension does not collect or transmit user data. The license key the user enters is sent to Lemon Squeezy for verification. Nothing is sold or shared; no analytics.
 
-**Privacy policy URL:** https://x2-speedup.vercel.app/privacy.html — updated for 1.9.0: separates the extension (zero tracking, only license verification with Lemon Squeezy) from the website (cookie-free Vercel Web Analytics since 2026-11-15; GA4 and Clarity removed).
+**Privacy policy URL:** https://lecturespeed.vercel.app/privacy.html — updated for 1.9.0: separates the extension (zero tracking, only license verification with Lemon Squeezy) from the website (cookie-free Vercel Web Analytics since 2026-11-15; GA4 and Clarity removed).
 
 ## Publishing checklist
 
