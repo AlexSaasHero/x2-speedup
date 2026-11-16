@@ -42,7 +42,7 @@ test.describe('license', () => {
     await expect(page.locator('#statusMsg')).toHaveText('Invalid license key.');
     await page.fill('#input-license-key', 'GOOD-KEY');
     await page.click('#activateBtn');
-    await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active ✨');
+    await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active');
     const license = await sw.evaluate(() => chrome.storage.local.get('license').then((r) => r.license));
     expect(license).toMatchObject({ key: 'GOOD-KEY', status: 'active' });
   });
