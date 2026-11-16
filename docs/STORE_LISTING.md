@@ -1,5 +1,7 @@
-# Store listing — SpeedUp Video Pro (v1.9.0)
+# Store listing — LectureSpeed (v1.9.1, formerly SpeedUp Video Pro)
 
+> **v1.9.1 (in preparation, branch `release-1.9.1`):** rename to **LectureSpeed**, new icon, popup in the landing palette. Same Store item (same ID): only the listing text, icon and screenshots change. Plan: `docs/PLAN_1.9.1.md`.
+>
 > **Status: v1.9.0 is published on the Chrome Web Store (approved 2026-11-16)**, after a first rejection for excessive keywords in the description (platform list + 6-brand disclaimer), fixed by rewriting it in prose.
 
 > Source: Alex's draft (`chrome-store-listing.md`, 2026-11-15), corrected against the 1.9.0 code.
@@ -13,23 +15,23 @@
 
 ## English
 
-**Name (≤ 75 chars, 60):** SpeedUp Video Pro – Lecture Study Tool for Panopto & Echo360
+**Name (≤ 75 chars, 53):** LectureSpeed – Watch Recorded Lectures Faster Than 2x
 
-**Short description (≤ 132 chars, 123):**
-Study recorded lectures in half the time on Panopto and Echo360, even inside Canvas or Moodle. No more 2x cap. No tracking.
+**Short description (≤ 132 chars, 128):**
+Watch recorded lectures faster than 2x on Panopto and Echo360, even inside Canvas or Moodle. Bookmark what matters. No tracking.
 
 **Detailed description:**
 
-Finish your lecture recordings in half the time — and actually remember them.
+Lectures at your speed, not your player's.
 
-SpeedUp Video Pro is a study tool for students who watch recorded lectures. It works on the lecture platforms your university uses, even when their player stops at 2x.
+LectureSpeed is a study tool for students who watch recorded lectures. It works on the lecture platforms your university uses, even when their player stops at 2x.
 
 ━━━━━━━━━━━━━━━━━━
 🎓 WORKS WHERE YOU STUDY
 ━━━━━━━━━━━━━━━━━━
 • Panopto — including lectures embedded in Canvas or Moodle
 • Echo360 — including lectures embedded in Canvas or Moodle
-• No more 2x cap on lecture players: SpeedUp keeps your speed through play, pause, seek and the next lecture
+• No more 2x cap on lecture players: LectureSpeed keeps your speed through play, pause, seek and the next lecture
 • Also works on YouTube and most HTML5 video players
 
 ━━━━━━━━━━━━━━━━━━
@@ -69,7 +71,7 @@ HOW TO USE
 FAQ
 ━━━━━━━━━━━━━━━━━━
 The player still shows 1x?
-Normal: SpeedUp controls the speed, use D/S or the popup.
+Normal: LectureSpeed controls the speed, use D/S or the popup.
 
 Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle.
 
@@ -80,23 +82,23 @@ Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle.
 
 ## Italiano
 
-**Nome (≤ 75, 59):** SpeedUp Video Pro – Studia le lezioni su Panopto ed Echo360
+**Nome (≤ 75, 55):** LectureSpeed – Guarda le lezioni registrate oltre il 2x
 
-**Descrizione breve (≤ 132, 131):**
-Studia le lezioni registrate in metà tempo su Panopto ed Echo360, anche dentro Canvas o Moodle. Niente limite di 2x. Zero tracking.
+**Descrizione breve (≤ 132, 129):**
+Guarda le lezioni registrate oltre il 2x su Panopto ed Echo360, anche in Canvas o Moodle. Segna ciò che conta. Zero tracciamento.
 
 **Descrizione dettagliata:**
 
-Finisci le lezioni registrate in metà tempo — e ricordale davvero.
+Le lezioni alla tua velocità, non a quella del player.
 
-SpeedUp Video Pro è uno strumento di studio per chi segue lezioni registrate. Funziona sulle piattaforme della tua università, anche quando il loro player si ferma a 2x.
+LectureSpeed è uno strumento di studio per chi segue lezioni registrate. Funziona sulle piattaforme della tua università, anche quando il loro player si ferma a 2x.
 
 ━━━━━━━━━━━━━━━━━━
 🎓 FUNZIONA DOVE STUDI
 ━━━━━━━━━━━━━━━━━━
 • Panopto — anche le lezioni incorporate in Canvas o Moodle
 • Echo360 — anche le lezioni incorporate in Canvas o Moodle
-• Niente più limite di 2x sui player delle lezioni: SpeedUp mantiene la tua velocità dopo play, pausa, salti e alla lezione successiva
+• Niente più limite di 2x sui player delle lezioni: LectureSpeed mantiene la tua velocità dopo play, pausa, salti e alla lezione successiva
 • Funziona anche su YouTube e sulla maggior parte dei player video HTML5
 
 ━━━━━━━━━━━━━━━━━━
@@ -136,7 +138,7 @@ COME SI USA
 FAQ
 ━━━━━━━━━━━━━━━━━━
 Il player segna ancora 1x?
-È normale: la velocità la gestisce SpeedUp, usa D/S o il popup.
+È normale: la velocità la gestisce LectureSpeed, usa D/S o il popup.
 
 Non affiliato con Panopto, Echo360, Instructure (Canvas) o Moodle.
 
@@ -185,7 +187,19 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 
 **Privacy policy URL:** https://x2-speedup.vercel.app/privacy.html — updated for 1.9.0: separates the extension (zero tracking, only license verification with Lemon Squeezy) from the website (cookie-free Vercel Web Analytics since 2026-11-15; GA4 and Clarity removed).
 
-## Publishing checklist
+## Publishing checklist — 1.9.1 (LectureSpeed)
+
+- [x] `extName` / `extDescription` / `actionTitle` and the 15 strings with the old name updated in 7 languages (`src/_locales/*.json`)
+- [x] `version` 1.9.1 in `public/manifest.json` and `package.json`
+- [x] New icons 16/32/48/128 (`node scripts/make-icons.mjs`; 128 has 16 px transparent padding)
+- [x] Popup, options and onboarding in the landing palette; fonts bundled (no network)
+- [ ] Store screenshots 1280×800 + promo tile with the new popup and name
+- [ ] Manual QA (`docs/QA.md`): Panopto, Echo360, Panopto in Canvas/Moodle, YouTube; Free and Pro popup; onboarding; import of a 1.9.0 backup
+- [ ] `npm run zip` → upload `release/LectureSpeed_v1.9.1.zip`; in the dashboard: name/description (EN + IT), new icon, screenshots
+- [ ] After approval: `RENAME_NOTICE = false` in `landing-page/site.js`, regenerate the landing screenshots, push
+- [ ] Lemon Squeezy (by hand): product name "LectureSpeed Pro – Annual", store logo; AMO (Firefox): name and description
+
+## Publishing checklist — 1.9.0
 
 - [x] Tested by hand on Panopto (Viewer, Embed) and Echo360 — Alex, 2026-11-15
 - [x] `name` and `description` updated (`src/_locales/*.json`, manifest uses `__MSG_…__`)
