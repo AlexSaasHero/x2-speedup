@@ -12,6 +12,7 @@ import { debug } from './log';
 import { findShortcut, isModifierOnly } from '../shared/shortcuts';
 import { isEditableEvent } from './editable';
 import { quirksFor } from './quirks';
+import { BLOCKED_ATTR, OWNED_RATE_ATTR } from '../shared/rate-guard';
 import { isMedia, isVideo, type Media, type MediaRegistry } from './media-registry';
 import type { ContentSettings } from './settings';
 
@@ -22,6 +23,14 @@ const USER_GESTURE_WINDOW_MS = 1000;
 const LOAD_SETTLE_MS = 1500;
 const PLAYER_ANCESTOR_DEPTH = 8;
 const PERSIST_DEBOUNCE_MS = 300;
+/**
+ * Lecture platforms (extension owns the rate): media events after which the player may have written
+ * its own speed. We re-apply synchronously on each of them (BUGS #24). The page-world rate guard
+ * (src/shared/rate-guard.ts) already blocks most player writes; this is the safety net.
+ */
+const OWNED_RATE_EVENTS = ['play', 'playing', 'seeked', 'loadeddata', 'loadedmetadata'] as const;
+/** Anti-loop guard on lecture platforms: same limit, but a short pause instead of 3 s at the wrong speed. */
+const OWNED_RATE_BUDGET = { limit: 20, windowMs: 1000, cooldownMs: 300 } as const;
 
 /** Temporary speeds layered on top of the user's speed, highest priority first. */
 export type OverrideSource = 'hold' | 'silence';
@@ -52,6 +61,8 @@ export class RateController {
   private readonly wired = new WeakSet<Media>();
   private readonly handled = new WeakSet<Event>();
   private readonly loopedByUs = new WeakSet<Media>();
+  /** Lecture platforms: the remembered speed was already shown on this element since it (re)loaded. */
+  private readonly announced = new WeakSet<Media>();
   private readonly overrides = new WeakMap<Media, Partial<Record<OverrideSource, number>>>();
   private lastGesture: { t: number; path: EventTarget[]; keyboard: boolean } | null = null;
   private overrideNoticed = false;
@@ -98,17 +109,42 @@ export class RateController {
       // Per-element listeners: media events are not composed, so elements inside shadow roots
       // never reach the window-level capture listener.
       m.addEventListener('ratechange', (e) => this.onRateChange(e), true);
-      const reload = () => this.loadedAt.set(m, performance.now());
+      const reload = () => {
+        this.loadedAt.set(m, performance.now());
+        this.announced.delete(m); // next lecture: show the speed again when it starts
+      };
       m.addEventListener('loadstart', reload);
       m.addEventListener('emptied', reload);
       for (const type of ['loadstart', 'loadedmetadata', 'play', 'emptied'] as const) {
         m.addEventListener(type, () => this.apply(m));
       }
       if (this.quirks.extensionOwnsRate) {
+        // Re-apply synchronously after every event where the player may write its own speed.
+        for (const type of OWNED_RATE_EVENTS) {
+          m.addEventListener(type, () => {
+            if (!sameSpeed(m.playbackRate, this.speedOf(m))) this.reapply(m);
+          });
+        }
+        // A new source (next lecture, quality switch) without a load event we would notice; and the
+        // page-world guard flagging that it blocked the player's own speed (first-time notice).
+        new MutationObserver((records) => {
+          for (const r of records) {
+            if (r.attributeName === 'src') this.apply(m);
+            else if (r.attributeName === BLOCKED_ATTR) this.noticePlayerOverride(m);
+          }
+        }).observe(m, { attributes: true, attributeFilter: ['src', BLOCKED_ATTR] });
         // A player that writes the same value again fires no ratechange: if a reset slipped
         // through (back-off, element swap), catch it while playing (~4 checks per second, cheap).
         m.addEventListener('timeupdate', () => {
           if (!sameSpeed(m.playbackRate, this.speedOf(m))) this.reapply(m);
+        });
+        // The speed badge also appears when the extension applies the remembered speed (quiet badge
+        // otherwise: only on speed changes).
+        m.addEventListener('playing', () => {
+          if (this.announced.has(m)) return;
+          this.announced.add(m);
+          const want = this.speedOf(m);
+          if (!sameSpeed(want, 1)) this.feedback.flash(formatSpeed(want), m);
         });
       }
     }
@@ -229,6 +265,10 @@ export class RateController {
     const s = this.settings();
     const want = this.speedOf(m);
     try {
+      // Lecture platforms: tell the page-world rate guard which speed this element must keep.
+      if (this.quirks.extensionOwnsRate && m.getAttribute(OWNED_RATE_ATTR) !== String(want)) {
+        m.setAttribute(OWNED_RATE_ATTR, String(want));
+      }
       if (!sameSpeed(m.playbackRate, want)) m.playbackRate = want;
       if (!sameSpeed(m.defaultPlaybackRate, want)) m.defaultPlaybackRate = want;
       if (m.preservesPitch !== s.preservesPitch) m.preservesPitch = s.preservesPitch;
@@ -256,7 +296,9 @@ export class RateController {
     const rate = m.playbackRate;
 
     if (sameSpeed(rate, want)) {
-      if (want > PAGE_NATIVE_MAX_SPEED) e.stopImmediatePropagation();
+      // Hide >2x from players that clamp it (YouTube). Not on lecture platforms: their players keep
+      // internal state in ratechange listeners, and the rate guard already protects the speed.
+      if (want > PAGE_NATIVE_MAX_SPEED && !this.quirks.extensionOwnsRate) e.stopImmediatePropagation();
       this.feedback.speedChanged(m);
       return;
     }
@@ -278,7 +320,7 @@ export class RateController {
       return;
     }
 
-    if (this.reapply(m)) e.stopImmediatePropagation();
+    if (this.reapply(m) && !this.quirks.extensionOwnsRate) e.stopImmediatePropagation();
   }
 
   /** Undo a speed change made by the player, within the anti-loop budget. */
@@ -293,16 +335,24 @@ export class RateController {
       return false;
     }
     this.apply(m);
-    if (this.quirks.extensionOwnsRate && !this.overrideNoticed) {
-      this.overrideNoticed = true;
-      this.feedback.playerOverridden?.(m);
-    }
+    if (this.quirks.extensionOwnsRate) this.noticePlayerOverride(m);
     return true;
+  }
+
+  /** First time in this frame the player tried to set its own speed: explain once (lecture toast). */
+  private noticePlayerOverride(m: Media): void {
+    if (this.overrideNoticed) return;
+    this.overrideNoticed = true;
+    this.feedback.playerOverridden?.(m);
   }
 
   private budgetFor(m: Media): ReapplyBudget {
     let budget = this.budgets.get(m);
-    if (!budget) this.budgets.set(m, (budget = new ReapplyBudget()));
+    if (!budget) {
+      const b = this.quirks.extensionOwnsRate ? OWNED_RATE_BUDGET : null;
+      budget = b ? new ReapplyBudget(b.limit, b.windowMs, b.cooldownMs) : new ReapplyBudget();
+      this.budgets.set(m, budget);
+    }
     return budget;
   }
 

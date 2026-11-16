@@ -40,6 +40,24 @@
       "all_frames": true,
       "match_about_blank": true,
       "match_origin_as_fallback": true
+    },
+    {
+      "matches": [
+        "*://*.panopto.com/*",
+        "*://*.panopto.eu/*",
+        "*://*.echo360.org/*",
+        "*://*.echo360.org.uk/*",
+        "*://*.echo360.org.au/*",
+        "*://*.echo360.ca/*",
+        "*://*.echo360.net.au/*",
+        "*://*.echo360.com/*"
+      ],
+      "js": [
+        "content/main-world.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
     }
   ],
   "background": {

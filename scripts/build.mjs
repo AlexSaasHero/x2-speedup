@@ -57,7 +57,8 @@ const options = {
 /** @type {esbuild.BuildOptions} */
 const contentOptions = {
   ...options,
-  entryPoints: { 'content/content': 'src/content/index.ts' },
+  // content/main-world: page-world rate guard, lecture-platform domains only (src/shared/rate-guard.ts).
+  entryPoints: { 'content/content': 'src/content/index.ts', 'content/main-world': 'src/content/main-world.ts' },
   minify: !isDev
 };
 
