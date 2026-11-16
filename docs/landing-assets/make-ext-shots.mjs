@@ -59,9 +59,9 @@ await lecture.bringToFront();
 await lecture.mouse.move(700, 400);
 await lecture.mouse.move(720, 420);
 await sleep(600);
-// The badge sits in the video's top-left corner: crop that area of the real player.
+// The badge sits in the video's top-left corner: crop just the badge (no half-cut slide text).
 const v = await lecture.evaluate(() => { const r = document.getElementById('v').getBoundingClientRect(); return { x: r.x, y: r.y }; });
-const badgePng = await lecture.screenshot({ clip: { x: v.x, y: v.y, width: 250, height: 120 } });
+const badgePng = await lecture.screenshot({ clip: { x: v.x + 6, y: v.y + 8, width: 124, height: 40 } });
 
 // Popup opened as a tab: point its "active tab" at the lecture (same trick as the Store screenshots).
 const popup = await ctx.newPage();

@@ -45,7 +45,7 @@ SpeedUp Video Pro is a study tool for students who watch recorded lectures. It w
 🚀 PRO — BUILT FOR EXAM PREP
 ━━━━━━━━━━━━━━━━━━
 • Remembers your speed for each site, page or YouTube channel
-• Checkpoints with notes: bookmark key moments and jump back before the exam
+• Bookmarks with notes: save key moments and jump back before the exam
 • Frame-by-frame: freeze on slides, formulas and whiteboard notes
 • A-B loop: replay a hard explanation until it clicks
 • Detailed time-saved stats (today, this week, total, per page)
@@ -56,7 +56,7 @@ Pro: 7-day free trial, then $4.99/year. Cancel anytime.
 ━━━━━━━━━━━━━━━━━━
 🔒 PRIVACY
 ━━━━━━━━━━━━━━━━━━
-No account needed. We don't track what you watch: no analytics, no ads. Settings, stats and checkpoints stay in your browser. The only network request is the check of a Pro license key.
+No account needed. We don't track what you watch: no analytics, no ads. Settings, stats and bookmarks stay in your browser. The only network request is the check of a Pro license key.
 
 ━━━━━━━━━━━━━━━━━━
 HOW TO USE
@@ -112,7 +112,7 @@ SpeedUp Video Pro è uno strumento di studio per chi segue lezioni registrate. F
 🚀 PRO — PER PREPARARE GLI ESAMI
 ━━━━━━━━━━━━━━━━━━
 • Ricorda la tua velocità per ogni sito, pagina o canale YouTube
-• Checkpoint con note: segna i momenti chiave e ritrovali prima dell'esame
+• Segnalibri con note: salva i momenti chiave e ritrovali prima dell'esame
 • Fotogramma per fotogramma: fermati su slide, formule e appunti alla lavagna
 • Loop A-B: riascolta una spiegazione difficile finché non è chiara
 • Statistiche dettagliate del tempo risparmiato (oggi, settimana, totale, per pagina)
@@ -123,7 +123,7 @@ Pro: 7 giorni gratis, poi $4.99 l'anno. Disdici quando vuoi.
 ━━━━━━━━━━━━━━━━━━
 🔒 PRIVACY
 ━━━━━━━━━━━━━━━━━━
-Nessun account. Non tracciamo cosa guardi: niente analytics, niente pubblicità. Impostazioni, statistiche e checkpoint restano nel tuo browser. L'unica richiesta di rete è la verifica della chiave di licenza Pro.
+Nessun account. Non tracciamo cosa guardi: niente analytics, niente pubblicità. Impostazioni, statistiche e segnalibri restano nel tuo browser. L'unica richiesta di rete è la verifica della chiave di licenza Pro.
 
 ━━━━━━━━━━━━━━━━━━
 COME SI USA
@@ -149,7 +149,7 @@ Non affiliato con Panopto, Echo360, Instructure (Canvas) o Moodle.
 1. **Hero:** a Panopto lecture at 2.5x with the controller visible. Overlay text: "Finish lectures in half the time"
 2. **Platforms:** Panopto and Echo360 (one embedded in a Canvas/Moodle page). Text: "Works where you study"
 3. **Time saved:** popup with the counter. Text: "See the hours you get back"
-4. **Checkpoints:** bookmarks with notes. Text: "Bookmark key moments for exam prep"
+4. **Bookmarks:** with notes. Text: "Bookmark key moments for exam prep"
 5. **Free vs Pro:** comparison table
 
 Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC). No platform logos without permission.
@@ -174,7 +174,7 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 | Permission | Justification (EN) |
 |---|---|
 | storage | Saves the user's settings, shortcuts, speed rules, time-saved statistics and license status locally; settings (no personal data) can sync via the browser's own sync. |
-| activeTab | Reads the URL/title of the active tab only when the user opens the popup, to show checkpoints and create speed rules for that page. |
+| activeTab | Reads the URL/title of the active tab only when the user opens the popup, to show bookmarks and create speed rules for that page. |
 | alarms | Wakes the service worker at most once a day to re-check the license key, without keeping it running. |
 | Host permission (api.lemonsqueezy.com) | License key verification with our payment provider. Only the key is sent. |
 | Content script on all sites | Keyboard shortcuts, the speed controller and speed persistence must work on any site with HTML5 video (lecture players are often embedded in iframes of university sites) without the user opening the popup each time. The script only interacts with video/audio elements; it does not read or transmit page content. |
