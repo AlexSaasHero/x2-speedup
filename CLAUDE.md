@@ -5,7 +5,7 @@ Browser extension (Chrome/Edge MV3, Firefox build) that controls HTML5 video/aud
 ## Product
 - **Positioning (decided 2026-11-13):** a study tool for recorded lectures — "Study your recorded lectures in half the time, on Panopto, Canvas, Moodle and Echo360". Then Udemy and Coursera.
 - **Speed is a bonus, not the USP:** high speed is free (on generic sites we can't beat Video Speed Controller: free, 3M users).
-- **Status:** Chrome Web Store has **v1.5.1.8**; `main` is **v1.8.2** (not submitted). ~350 installs, 6 active users. Priority: **activation and compatibility** on the target platforms, then monetization.
+- **Status:** Chrome Web Store has **v1.9.0** (approved 2026-11-16, same as `main`). Pro checkout open on the landing since 2026-11-16. ~350 installs, 6 active users. Priority: **activation and compatibility** on the target platforms, then monetization.
 
 ## Free vs Pro
 - **Free:** 0.1x–16x on every site, basic shortcuts, basic time-saved counter.
