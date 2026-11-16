@@ -47,18 +47,11 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 - URL che non devono cambiare: `/privacy.html` (linkata dallo Store e da `docs/STORE_LISTING.md`) e la home (linkata dall'estensione in `src/shared/links.ts`). Non rinominare né spostare la cartella `landing-page/`.
 - Comandi: nessuna build su Vercel; in locale solo `npm run landing:css` per il CSS. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
 
-## Branch `landing-rebrand`: prima di unirlo a `main`
-Il branch va online solo con la 1.9.1 approvata sullo Store (nuovo nome) e il dominio nuovo. Prima del merge:
-- Sostituire `[DOMAIN]` (canonical, `og:url`, `og:image`, `twitter:image`) con il dominio definitivo, es. `https://lectureflow.app`.
-- Rifare gli screenshot dell'estensione (il popup mostra il vecchio nome): `npm run build && node docs/landing-assets/make-ext-shots.mjs`.
-
-## Design (redesign 2026-11-16, branch `landing-rebrand`)
-- Piano: `docs/LANDING_DESIGN_PLAN.md`; brief: `docs/landing-redesign-brief.md`; registro dei giri di revisione: `docs/LANDING_ITERATIONS.md`.
-- Palette (token Tailwind in `tailwind.config.cjs`): `ink` #1B1E3C, `paper` #F5F7FB, `highlighter` #FFE14D (CTA, testo sempre ink), `timeline` #3D5AFE (su ink: `timeline-light` #8C9EFF), `graphite` #5A6278 (su ink: `mist` #B4BAD0), `saved` #14A870 solo su ink / `saved-ink` #0B7A50 su paper.
-- Font self-hosted in `fonts/` (niente Google Fonts): Bricolage Grotesque 700–800 per titoli, numeri (`.num`, cifre tabellari) e righe brevi in grassetto; Atkinson Hyperlegible 400/700 per il testo. Le cifre dentro il testo vengono da un sottoinsieme di Bricolage (Atkinson ha lo zero barrato).
-- `home.js`: demo della lezione (si comanda anche con D/S/R) e calcolatore (`ore × (1 − 1/velocità) × 15`).
-- Marchio: `img/logo-mark.svg` (fondi chiari: quadrato ink, due chevron highlighter, il secondo oltre una linea tratteggiata "2x"), `img/logo-mark-dark.svg` (fondi scuri: quadrato highlighter, chevron ink), `img/logo-mark-16.svg` (disegnato per 16 px, senza linea). Nome "LectureSpeed" in Bricolage 800 come testo HTML accanto al marchio. `favicon.svg` cambia variante col tema scuro del browser; PNG 16/32/128/180 con `node docs/landing-assets/logo/make-icons.mjs`. og-image: `node docs/landing-assets/make-og.mjs`.
-- Immagini vere dell'estensione in `img/` (WebP): `npm run build && node docs/landing-assets/make-ext-shots.mjs`. Badge ufficiale dello Store: `img/cws-badge-border.png`, da non modificare (solo ridimensionare), sempre linkato alla scheda.
+## Nota di rinomina (flag)
+La landing con il nome LectureSpeed è online dal 2026-11-16, **prima** della 1.9.1: lo Store mostra ancora "SpeedUp Video Pro".
+- Interruttore: `RENAME_NOTICE` in cima a `site.js`. `true` (oggi) → sotto i CTA "Add to Chrome" (hero e finale, desktop) compare "On the Chrome Web Store it's still listed as SpeedUp Video Pro while we update the name." (elementi `.rename-notice`, regola in `site.css`).
+- **Quando la 1.9.1 è approvata sullo Store:** `const RENAME_NOTICE = false;`, rigenera gli screenshot dell'estensione (`npm run build && node docs/landing-assets/make-ext-shots.mjs`), anteprima, commit, push su `main`.
+- Dominio: canonical, `og:url` e `og:image` puntano a `https://x2-speedup.vercel.app` finché non c'è il dominio proprio; al cambio sostituirli tutti (index, privacy, terms).
 
 ## Regole
 - Lingua del sito: inglese. Codice e commenti: inglese.

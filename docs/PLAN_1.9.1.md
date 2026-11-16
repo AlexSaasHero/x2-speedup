@@ -5,7 +5,9 @@
 Stato: **da approvare, non implementato**. Data: 2026-11-16. Base: 1.9.0 pubblicata sul Chrome Web Store.
 Obiettivo: stesso prodotto, stesso ID dello Store e di Firefox, nuovo nome, popup con la palette e i font della landing, nuove icone, nuovi testi e screenshot. Nessuna nuova funzione, nessun cambio a Free/Pro o prezzi.
 
-## 0. Decisione da prendere prima: il titolo nello Store
+## 0. Titolo nello Store — DECISO (2026-11-16): **"LectureSpeed – Watch Recorded Lectures Faster Than 2x"** (opzione B)
+
+Panopto ed Echo360 restano nella descrizione breve e lunga, in frasi naturali. Analisi che ha portato alla scelta:
 
 Il titolo nello Store **è** il `name` del manifest (`extName`, max 75 caratteri). Il titolo proposto, "LectureSpeed – Watch Panopto & Echo360 Lectures Faster Than 2x" (63 caratteri), mette due marchi di terzi nel nome del prodotto. Rischi:
 - la 1.9.0 è già stata rifiutata una volta per "keyword spam" legato ai nomi delle piattaforme (nella descrizione);
@@ -16,13 +18,15 @@ Opzioni:
 - **A (proposta di Alex):** "LectureSpeed – Watch Panopto & Echo360 Lectures Faster Than 2x". Massima pertinenza nella ricerca dello Store, rischio di rifiuto o di richiesta di modifica.
 - **B (consigliata):** "LectureSpeed – Watch Recorded Lectures Faster Than 2x" (53 caratteri). Panopto ed Echo360 restano nella descrizione breve e lunga, in frasi naturali ("works on Panopto and Echo360").
 
-Il piano funziona con entrambe; cambia solo la stringa `extName`. **Se scegli A**, conviene avere pronta la B per un reinvio rapido.
+
+
+> **Landing pubblicata prima della 1.9.1** (2026-11-16): finché lo Store mostra il vecchio nome, sotto i CTA c'è la nota "On the Chrome Web Store it's still listed as SpeedUp Video Pro…" (`RENAME_NOTICE` in `landing-page/site.js`). **Dopo l'approvazione della 1.9.1: `RENAME_NOTICE = false`**, rigenerare gli screenshot della landing, push.
 
 ## 1. Nome, manifest e lingue
 
 | Cosa | Dove | Valore |
 |---|---|---|
-| Nome / titolo Store | `extName` in `src/_locales/*.json` (7 lingue: en, it, es, fr, de, pt_BR, ja) | Marchio "LectureSpeed" invariato in tutte le lingue (non si traduce) + slogan tradotto (A o B) |
+| Nome / titolo Store | `extName` in `src/_locales/*.json` (7 lingue: en, it, es, fr, de, pt_BR, ja) | "LectureSpeed – " + "Watch Recorded Lectures Faster Than 2x" tradotto (il marchio non si traduce) |
 | Descrizione breve (max 132 caratteri) | `extDescription` × 7 | Es. EN: "Watch recorded lectures faster than 2x on Panopto and Echo360, even inside Canvas or Moodle. Bookmark what matters. No tracking." |
 | Tooltip dell'icona | `actionTitle` × 7 | "LectureSpeed" |
 | Altre stringhe con il nome | 15 chiavi per lingua (es. `pro_modal_active`, `review_text`, `opt_title`, `onb_title`, `onb_welcome`, `onb_pin_body`, `site_access_*`, `lecture_toast`, `opt_import_*`) | "SpeedUp" / "SpeedUp Video Pro" → "LectureSpeed" |
@@ -56,7 +60,7 @@ Il piano funziona con entrambe; cambia solo la stringa `extName`. **Se scegli A*
 
 ## 4. Testi dello Store
 
-- `docs/STORE_LISTING.md`: nuovo titolo (A o B), descrizione breve, descrizione lunga in prosa con il nuovo nome e "Bookmarks" (già fatto). Niente elenchi di marchi; disclaimer generico "not affiliated with any lecture or video platform".
+- `docs/STORE_LISTING.md`: nuovo titolo "LectureSpeed – Watch Recorded Lectures Faster Than 2x", descrizione breve, descrizione lunga in prosa con il nuovo nome e "Bookmarks" (già fatto). Niente elenchi di marchi; disclaimer generico "not affiliated with any lecture or video platform".
 - Traduzioni della descrizione lunga per le 6 lingue non inglesi (se pubblicate nello Store).
 - Privacy policy: già aggiornata sulla landing (branch `landing-rebrand`), URL invariato `/privacy.html`.
 - Lemon Squeezy (a mano, Alex): nome prodotto "LectureSpeed Pro – Annual", logo del negozio, testo dell'email di ricevuta. Gli ID non cambiano.

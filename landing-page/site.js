@@ -5,6 +5,13 @@
 // On since 2026-11-16 (v1.9.0 live on the Chrome Web Store). See landing-page/CLAUDE.md.
 const PRO_CHECKOUT_ENABLED = true;
 const PRO_CHECKOUT_URL = 'https://speedup-videopro.lemonsqueezy.com/checkout/buy/69ea0406-3835-48e7-b03c-301a23d775cf?embed=1';
+
+// ═══ RENAME NOTICE ══════════════════════════════════════════════════════════════════════
+// true  → under the "Add to Chrome" buttons: "On the Chrome Web Store it's still listed as
+//         SpeedUp Video Pro while we update the name." (elements with class .rename-notice)
+// false → hidden. Set to false when v1.9.1 (LectureSpeed) is live on the Store.
+const RENAME_NOTICE = true;
+if (RENAME_NOTICE) document.documentElement.classList.add('show-rename-notice');
 // ════════════════════════════════════════════════════════════════════════════════════════
 
 // Shared script for the landing pages. Loaded in <head> WITHOUT defer, so the mobile class
