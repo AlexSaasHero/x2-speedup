@@ -4,58 +4,50 @@
 <meta charset="utf-8">
 <title>og-image</title>
 <!-- Social preview image for the landing page (1200×630), rendered by make-og.mjs.
-     Provisional text without the product name: redo it with the final brand at the rebrand.
-     Original artwork only: no third-party logos or player UI. -->
+     No product name yet: redo it with the final brand at the rebrand.
+     Original artwork only: no third-party logos or player UI. Same palette and fonts as the site. -->
 <style>
+  @font-face { font-family: 'Bricolage Grotesque'; font-weight: 700 800; src: url(../../landing-page/fonts/bricolage-grotesque-700-800-latin.woff2) format('woff2'); }
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 400; src: url(../../landing-page/fonts/atkinson-hyperlegible-400-latin.woff2) format('woff2'); }
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 700; src: url(../../landing-page/fonts/atkinson-hyperlegible-700-latin.woff2) format('woff2'); }
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 1200px; height: 630px; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-    background: radial-gradient(circle at 85% 15%, #1e1b4b 0%, #020617 55%);
-    color: #f1f5f9; display: flex; align-items: center; gap: 56px; padding: 0 72px; overflow: hidden;
-  }
-  .text { flex: 1.05; }
-  .badge { display: inline-block; font-size: 20px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-    color: #93c5fd; border: 2px solid rgba(59,130,246,.35); background: rgba(59,130,246,.12); border-radius: 999px; padding: 8px 20px; }
-  h1 { font-size: 76px; line-height: 1.04; font-weight: 800; letter-spacing: -0.025em; margin-top: 28px; }
-  h1 span { background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  p { font-size: 28px; color: #94a3b8; margin-top: 26px; line-height: 1.35; }
-  .card { flex: .95; position: relative; }
-  .player { border: 2px solid #1e293b; background: #0f172a; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
-  .top { display: flex; gap: 8px; align-items: center; padding: 14px 18px; border-bottom: 2px solid #1e293b; color: #64748b; font-size: 16px; }
-  .top i { width: 11px; height: 11px; border-radius: 50%; background: #334155; display: inline-block; }
-  .top span { margin-left: 8px; }
-  .screen { position: relative; aspect-ratio: 16 / 9; background: linear-gradient(135deg, #1e293b, #0f172a 55%, #1e1b4b); display: flex; align-items: center; justify-content: center; }
-  .lines { width: 72%; }
-  .lines div { height: 12px; border-radius: 6px; background: rgba(71,85,105,.75); margin-top: 14px; }
-  .lines div:first-child { height: 18px; width: 62%; margin-top: 0; }
-  .pill { position: absolute; top: 18px; left: 18px; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.82);
-    border-radius: 999px; padding: 6px; font-size: 26px; font-weight: 800; box-shadow: 0 0 26px rgba(139,92,246,.6); }
-  .pill b { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-weight: 600; }
-  .pill span { padding: 0 8px; }
-  .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: #334155; }
-  .progress i { display: block; height: 100%; width: 40%; background: #3b82f6; }
-  .saved { position: absolute; right: -22px; bottom: -34px; background: rgba(15,23,42,.97); border: 2px solid #1e293b; border-radius: 20px; padding: 16px 24px; box-shadow: 0 20px 40px rgba(0,0,0,.5); }
-  .saved small { display: block; font-size: 17px; color: #94a3b8; }
-  .saved strong { display: block; font-size: 36px; font-weight: 900; margin-top: 2px; }
+  body { font-family: 'Atkinson Hyperlegible', sans-serif; background: #F5F7FB; color: #1B1E3C; display: flex; align-items: center; gap: 56px; padding: 0 72px; overflow: hidden; }
+  .text { flex: 1.1; }
+  h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 80px; line-height: 1.0; font-weight: 800; letter-spacing: -0.025em; }
+  p { font-size: 28px; color: #5A6278; margin-top: 28px; line-height: 1.35; }
+  .tag { display: inline-block; margin-top: 30px; font-size: 24px; font-weight: 700; background: #FFE14D; padding: 10px 22px; border-radius: 12px; box-shadow: 0 3px 0 #1B1E3C; }
+  .card { flex: .9; border: 2px solid rgba(27,30,60,.15); background: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(27,30,60,.45); }
+  .top { padding: 14px 18px; border-bottom: 2px solid rgba(27,30,60,.1); color: #5A6278; font-size: 17px; display: flex; gap: 8px; align-items: center; }
+  .top i { width: 11px; height: 11px; border-radius: 50%; background: rgba(27,30,60,.15); display: inline-block; }
+  .screen { position: relative; aspect-ratio: 16/9; background-color: #fff;
+    background-image: linear-gradient(rgba(61,90,254,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(61,90,254,.08) 1px, transparent 1px); background-size: 20px 20px; }
+  .pill { position: absolute; top: 16px; left: 16px; background: rgba(27,30,60,.92); color: #F5F7FB; font-weight: 700; font-size: 26px; padding: 6px 18px; border-radius: 999px; box-shadow: 0 0 0 4px rgba(255,225,77,.6); }
+  .slide { position: absolute; left: 9%; top: 26%; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; }
+  svg { position: absolute; left: 12%; right: 12%; bottom: 14%; width: 76%; }
+  .bar { background: #1B1E3C; height: 44px; display: flex; align-items: center; gap: 12px; padding: 0 18px; }
+  .bar span { flex: 1; height: 7px; border-radius: 4px; background: rgba(245,247,251,.2); position: relative; }
+  .bar span b { position: absolute; inset: 0 60% 0 0; background: #8C9EFF; border-radius: 4px; }
+  .len { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 20px; color: #5A6278; font-size: 20px; }
+  .len strong { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 44px; color: #1B1E3C; position: relative; z-index: 0; }
+  .len strong::before { content: ''; position: absolute; z-index: -1; inset: 10% -8% 0 -8%; background: #FFE14D; transform: rotate(-1.5deg); border-radius: 4px; }
 </style>
 </head>
 <body>
   <div class="text">
-    <div class="badge">🎓 Free Chrome extension</div>
-    <h1>Study recorded lectures in <span>half the time</span>.</h1>
-    <p>No more 2x cap on your lecture player.</p>
+    <h1>Lectures at your speed. Not your player's.</h1>
+    <p>Go past the 2x limit on what you already know,<br>slow down on what matters.</p>
+    <span class="tag">Free Chrome extension</span>
   </div>
   <div class="card">
-    <div class="player">
-      <div class="top"><i></i><i></i><i></i><span>BIO 101 · Week 3 · Lecture recording</span></div>
-      <div class="screen">
-        <div class="lines"><div></div><div></div><div style="width:85%"></div><div style="width:68%"></div></div>
-        <div class="pill"><b>−</b><span>2.5x</span><b>+</b></div>
-        <div class="progress"><i></i></div>
-      </div>
+    <div class="top"><i></i><i></i><i></i><span>Intro to Statistics – Lecture 4</span></div>
+    <div class="screen">
+      <span class="pill">2.5x</span>
+      <span class="slide">The Normal Distribution</span>
+      <svg viewBox="0 0 300 90"><path d="M10 85 C 70 85, 95 8, 150 8 S 230 85, 290 85" fill="none" stroke="#3D5AFE" stroke-width="4" stroke-linecap="round"/></svg>
     </div>
-    <div class="saved"><small>This week you saved</small><strong>3 h 12 min</strong></div>
+    <div class="bar"><span><b></b></span></div>
+    <div class="len">This 75-minute lecture takes <strong>30:00</strong></div>
   </div>
 </body>
 </html>

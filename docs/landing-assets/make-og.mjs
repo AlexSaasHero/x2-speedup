@@ -10,6 +10,7 @@ const out = path.resolve(here, '../../landing-page/og-image.png');
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 await page.goto(pathToFileURL(path.join(here, 'og-image.html')).href);
+await page.evaluate(() => document.fonts.ready);
 await page.screenshot({ path: out, type: 'png' });
 await browser.close();
 console.log('Wrote', out);
