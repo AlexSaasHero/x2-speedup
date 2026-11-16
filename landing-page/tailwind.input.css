@@ -26,6 +26,26 @@
   src: url(/fonts/atkinson-hyperlegible-700-latin.woff2) format('woff2');
 }
 
+/* Digits inside body text come from Bricolage too (Atkinson's zero is slashed: "Echo36Ø").
+   Same family name and weights as the Atkinson faces above, declared after them and limited to
+   U+0030–0039, so the browser takes only the digits from this file. */
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/bricolage-grotesque-digits-400-800.woff2) format('woff2');
+  unicode-range: U+0030-0039;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/bricolage-grotesque-digits-400-800.woff2) format('woff2');
+  unicode-range: U+0030-0039;
+}
+
 @layer base {
   body { @apply bg-paper text-ink font-sans antialiased; }
   h1, h2, h3 { @apply font-display; letter-spacing: -0.02em; }
@@ -33,6 +53,8 @@
   :focus-visible { outline: 3px solid theme('colors.timeline.DEFAULT'); outline-offset: 3px; border-radius: 6px; }
   .on-ink :focus-visible { outline-color: theme('colors.timeline.light'); }
   .tnum { font-variant-numeric: tabular-nums; }
+  /* Numbers and timers: Bricolage, fixed-width digits so they don't jump while animating. */
+  .num { @apply font-display; font-variant-numeric: tabular-nums; }
 }
 
 @layer components {
@@ -54,13 +76,13 @@
   }
 
   /* Speed badge, same look as the extension's on-video controller. */
-  .speed-pill { @apply inline-flex items-center rounded-full bg-ink/90 text-paper font-bold tnum px-3 py-1 text-sm; box-shadow: 0 0 0 3px rgba(255, 225, 77, 0.55); }
+  .speed-pill { @apply inline-flex items-center rounded-full bg-ink/90 text-paper font-display font-bold px-3 py-1 text-sm; box-shadow: 0 0 0 3px rgba(255, 225, 77, 0.55); }
 
   /* Segmented control (radio buttons). */
   .seg { @apply flex flex-wrap gap-1.5; }
   .seg label { @apply relative; }
   .seg input { @apply absolute opacity-0 inset-0 cursor-pointer; }
-  .seg span { @apply block min-w-[3.25rem] text-center rounded-lg border border-ink/15 bg-white px-3 py-2.5 font-bold tnum text-ink transition-colors; }
+  .seg span { @apply block min-w-[3.25rem] text-center rounded-lg border border-ink/15 bg-white px-3 py-2.5 font-display font-bold text-ink transition-colors; }
   .seg input:checked + span { @apply bg-ink text-paper border-ink; }
   .seg input:focus-visible + span { outline: 3px solid theme('colors.timeline.DEFAULT'); outline-offset: 2px; }
   .seg label:hover span { @apply border-ink/40; }

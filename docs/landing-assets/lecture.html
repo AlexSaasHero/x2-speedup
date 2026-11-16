@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Intro to Statistics – Lecture 4</title>
+<!-- Demo lecture for store screenshots: generic course page and player, no third-party branding or
+     video. The video is generated here: slides drawn on a canvas and recorded with MediaRecorder. -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+  header { height: 52px; background: #1e293b; color: #e2e8f0; display: flex; align-items: center; padding: 0 28px; gap: 14px; font-size: 14px; }
+  header .logo { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #64748b, #334155); }
+  header b { color: #fff; }
+  main { display: flex; }
+  nav { width: 210px; padding: 22px 20px; font-size: 13px; color: #475569; line-height: 2.1; }
+  nav .on { color: #0f172a; font-weight: 700; }
+  section { flex: 1; padding: 20px 28px 0 8px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { font-size: 13px; color: #64748b; margin-bottom: 14px; }
+  .player { width: 960px; background: #0b1220; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(15, 23, 42, .25); }
+  .player video { display: block; width: 960px; height: 540px; background: #fff; }
+  .bar { height: 44px; display: flex; align-items: center; gap: 14px; padding: 0 16px; color: #cbd5e1; font-size: 13px; }
+  .bar .play { width: 0; height: 0; border-left: 12px solid #e2e8f0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+  .bar .track { flex: 1; height: 4px; background: #334155; border-radius: 2px; position: relative; }
+  .bar .track i { position: absolute; inset: 0 62% 0 0; background: #60a5fa; border-radius: 2px; }
+</style>
+</head>
+<body>
+  <header><span class="logo"></span><b>University Learning Portal</b><span>· STAT 101 — Introductory Statistics</span></header>
+  <main>
+    <nav>
+      <div>Home</div><div>Syllabus</div><div class="on">Lecture recordings</div><div>Assignments</div><div>Grades</div>
+    </nav>
+    <section>
+      <h1>Week 4 · Intro to Statistics – Lecture 4</h1>
+      <div class="sub">The Normal Distribution · Recorded lecture · 52:14</div>
+      <div class="player">
+        <video id="v" muted loop playsinline></video>
+        <div class="bar"><span class="play"></span><span>19:48 / 52:14</span><span class="track"><i></i></span><span>CC</span><span>⛶</span></div>
+      </div>
+    </section>
+  </main>
+<script>
+  const W = 1280, H = 720;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const pdf = (x) => Math.exp(-x * x / 2);
+
+  function draw(t) {
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#1d4ed8'; g.fillRect(0, 0, W, 10);
+    g.fillStyle = '#0f172a'; g.font = '700 54px Helvetica, Arial, sans-serif';
+    g.fillText('Intro to Statistics – Lecture 4', 80, 120);
+    g.fillStyle = '#475569'; g.font = '400 32px Helvetica, Arial, sans-serif';
+    g.fillText('The Normal Distribution', 80, 172);
+    g.fillStyle = '#0f172a'; g.font = '400 28px Helvetica, Arial, sans-serif';
+    ['Bell-shaped and symmetric around the mean μ', 'About 68% of values within μ ± 1σ', 'About 95% within μ ± 2σ', 'z = (x − μ) / σ'].forEach((s, i) => {
+      g.fillStyle = '#1d4ed8'; g.fillText('•', 80, 270 + i * 62);
+      g.fillStyle = '#0f172a'; g.fillText(s, 112, 270 + i * 62);
+    });
+    // bell curve with the ±1σ area shaded
+    const ox = 760, oy = 560, sx = 70, sy = 300;
+    g.fillStyle = 'rgba(37, 99, 235, .14)';
+    g.beginPath(); g.moveTo(ox - sx, oy);
+    for (let x = -1; x <= 1.0001; x += 0.02) g.lineTo(ox + x * sx, oy - pdf(x) * sy);
+    g.lineTo(ox + sx, oy); g.closePath(); g.fill();
+    g.strokeStyle = '#1d4ed8'; g.lineWidth = 5; g.beginPath();
+    for (let x = -3.2; x <= 3.2; x += 0.02) { const px = ox + x * sx, py = oy - pdf(x) * sy; x <= -3.19 ? g.moveTo(px, py) : g.lineTo(px, py); }
+    g.stroke();
+    g.strokeStyle = '#94a3b8'; g.lineWidth = 2; g.beginPath(); g.moveTo(ox - 240, oy); g.lineTo(ox + 240, oy); g.stroke();
+    g.fillStyle = '#334155'; g.font = '400 24px Helvetica, Arial, sans-serif';
+    [['−σ', -1], ['μ', 0], ['+σ', 1]].forEach(([s, x]) => g.fillText(s, ox + x * sx - 10, oy + 34));
+    g.fillStyle = '#1d4ed8'; g.font = '700 26px Helvetica, Arial, sans-serif'; g.fillText('68%', ox - 26, oy - 110);
+    // moving pointer, so the video is not a still image
+    const x = Math.sin(t / 900) * 2.6;
+    g.fillStyle = '#ef4444'; g.beginPath(); g.arc(ox + x * sx, oy - pdf(x) * sy, 9, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#94a3b8'; g.font = '400 20px Helvetica, Arial, sans-serif'; g.fillText('STAT 101 · Slide 12 / 31', 80, H - 40);
+  }
+
+  (async () => {
+    let raf;
+    const loop = (t) => { draw(t); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    const rec = new MediaRecorder(c.captureStream(30), { mimeType: 'video/webm;codecs=vp8' });
+    const chunks = [];
+    rec.ondataavailable = (e) => chunks.push(e.data);
+    const done = new Promise((r) => (rec.onstop = r));
+    rec.start();
+    await new Promise((r) => setTimeout(r, 6000));
+    rec.stop();
+    await done;
+    cancelAnimationFrame(raf);
+    const v = document.getElementById('v');
+    v.src = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' }));
+    await v.play().catch(() => {});
+    document.body.dataset.ready = '1';
+  })();
+</script>
+</body>
+</html>
