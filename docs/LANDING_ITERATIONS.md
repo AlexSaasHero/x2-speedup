@@ -150,3 +150,44 @@ Non ancora tutti i criteri ≥ 9. Ostacoli principali:
 
 ### Da fare con la 1.9.1 (nota di Alex)
 - Rifare lo stile del popup sulla palette della landing (blu notte + giallo), poi rigenerare gli screenshot con `npm run build && node docs/landing-assets/make-ext-shots.mjs`. Questo risolve anche il nome vecchio nel popup e dovrebbe alzare Identità visiva e Fiducia.
+
+---
+
+## Giro 4 — 2026-11-16 (nome definitivo: SpeedUniversity)
+
+Prima del giro (commit `440cbdb`, piano estensione `cff9c6a`):
+- `[BRAND]` → **SpeedUniversity** in tutte le pagine, meta, Open Graph, dati strutturati e og-image (con il wordmark; sottotitolo "Panopto and Echo360 lectures, faster than 2x."). Pagine legali: "SpeedUniversity" con "(formerly SpeedUp Video Pro)" una volta in privacy e terms. Title della home: "Panopto & Echo360 lectures faster than 2x · SpeedUniversity" (59 caratteri).
+- **Marchio:** quadrato ink con due chevron gialli, il secondo oltre una linea tratteggiata (il limite dei 2x superato); nome in Bricolage 800 come testo. Nessun riferimento accademico (niente stemmi, scudi, toghe). `favicon.svg` + PNG 32/128 + apple-touch-icon 180.
+- **"SpeedUniversity is a browser extension, not a university or course provider."** nel footer di tutte le pagine e come seconda domanda della FAQ (anche nei dati strutturati).
+
+### Voti (versione `440cbdb`, prima delle modifiche del giro)
+
+| # | Criterio | S | C | A | Motivo principale |
+|---|---|---|---|---|---|
+| 1 | Chiarezza in 5 s | 9 | 9 | 8 | Il nome potrebbe far pensare a un corso; il sottotitolo (Panopto, Echo360, faster than 2x) e la riga "Free Chrome extension" lo chiariscono subito. |
+| 2 | Prova | 8 | 8 | 9 | Demo + screenshot veri; a 2x il "Try 2.5x" è solo testo. |
+| 3 | Desiderio | 8 | 8 | 8 | |
+| 4 | Obiezioni | 9 | 9 | 8 | "È un'università?" risposto in FAQ e footer. |
+| 5 | Fiducia | 7 | 7 | 7 | Nome vero + marchio coerente aiutano; senza recensioni non sale; il popup mostra ancora il vecchio nome (si risolve con la 1.9.1). |
+| 6 | Pro | 8 | 8 | 8 | |
+| 7 | Identità visiva | 9 | 8 | 9 | Il marchio (chevron oltre la linea) riprende il motivo della pagina: memorabile e non da template. |
+| 8 | Tipografia e ritmo | 8 | 8 | 8 | |
+| 9 | Mobile | 7 | 8 | 7 | **Bug:** nel CTA finale il riquadro "Copy link" toccava i bordi dello schermo (un `</div>` di troppo lasciato al giro 3). Pagina a 7 062 px, sopra l'obiettivo. |
+| 10 | Prestazioni e accessibilità | 9 | 9 | 9 | |
+| | **Media** | **8.2** | **8.2** | **8.1** | **Media generale 8.2** (giro 3: 8.1) |
+
+### Le 5 modifiche con più impatto (applicate)
+
+1. **CTA finale su mobile:** tolto il `</div>` di troppo; il riquadro ha di nuovo i margini. → criteri 9, 8.
+2. **"Try 2.5x" cliccabile:** a 2x l'invito sotto la demo è un bottone che porta la demo a 2.5x (37:30 → 30:00). → criteri 2, 3.
+3. **Nota sotto il bottone Pro** senza ripetere i rimborsi (già nella sezione fiducia): una riga in meno su mobile. → criterio 9.
+4. **Intro della sezione Pro** in una riga: "Pro helps you come back to what matters." → criteri 8, 9.
+5. **FAQ:** "Already have a lifetime license?" (una riga invece di due), risposta riscritta in positivo. → criteri 8, 9.
+
+Pagina mobile dopo il giro: **6 986 px a 390** (7 227 a 360, 7 744 a 320); nessuno scroll orizzontale da 320 a 1280 su tutte e quattro le pagine.
+
+### Provato e scartato
+- Link "FAQ" anche nella barra mobile: con il wordmark completo non ci sta a 320 px senza ridurre il nome.
+
+### Stato rispetto all'obiettivo
+Media 8.2. Restano sotto 9: **Fiducia** (serve prova sociale vera) e, fino alla 1.9.1, la coerenza tra popup (vecchio nome e colori) e pagina. Piano dell'estensione: `docs/PLAN_1.9.1.md`.

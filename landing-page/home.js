@@ -70,7 +70,8 @@
       speed = next;
       pill.textContent = label(speed);
       radios.forEach((r) => { r.checked = Number(r.value) === speed; });
-      beyond.textContent = speed > 2 ? "Your lecture player stops at 2x. This doesn't." : "That's where your lecture player stops. Try 2.5x.";
+      if (speed > 2) beyond.textContent = "Your lecture player stops at 2x. This doesn't.";
+      else beyond.innerHTML = 'That\'s where your lecture player stops. <button type="button" data-try class="underline underline-offset-4 decoration-2 decoration-timeline hover:text-timeline">Try 2.5x</button>';
       beyond.classList.toggle('invisible', speed < 2);
       animateLength(LECTURE / speed);
       lengthSr.textContent = `This 75-minute lecture takes ${clock(LECTURE / speed)} at ${label(speed)}.`;
@@ -105,6 +106,7 @@
     }
 
     radios.forEach((r) => r.addEventListener('change', () => setSpeed(Number(r.value))));
+    beyond.addEventListener('click', (e) => { if (e.target.closest('[data-try]')) setSpeed(2.5); });
     playBtn.addEventListener('click', () => { interacted = true; setPlaying(!playing); });
 
     // D / S / R on the page, like the extension (ignored while typing or with modifiers).
