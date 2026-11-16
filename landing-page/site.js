@@ -2,8 +2,8 @@
 // false → every Pro button ([data-pro-cta]) says "Pro launching soon" and links to the Pro
 //         features; lemon.js is not even loaded, so nothing can be bought.
 // true  → the buttons become the Lemon Squeezy checkout (overlay) with their data-pro-label.
-// Turn it on only when v1.9.0 is live on the Chrome Web Store. See landing-page/CLAUDE.md.
-const PRO_CHECKOUT_ENABLED = false;
+// On since 2026-11-16 (v1.9.0 live on the Chrome Web Store). See landing-page/CLAUDE.md.
+const PRO_CHECKOUT_ENABLED = true;
 const PRO_CHECKOUT_URL = 'https://speedup-videopro.lemonsqueezy.com/checkout/buy/69ea0406-3835-48e7-b03c-301a23d775cf?embed=1';
 // ════════════════════════════════════════════════════════════════════════════════════════
 
