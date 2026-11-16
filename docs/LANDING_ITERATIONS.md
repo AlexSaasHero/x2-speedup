@@ -100,3 +100,53 @@ Prima del giro ho applicato le 6 richieste di Alex (commit `48867ae`):
 ### Limiti che non posso risolvere io
 - Prova sociale: come al giro 1.
 - `[BRAND]` e nome nel popup: dopo il rebrand rifare gli screenshot con `npm run build && node docs/landing-assets/make-ext-shots.mjs`.
+
+---
+
+## Giro 3 — 2026-11-16
+
+Prima del giro ho applicato le richieste di Alex (commit `dc9b031`):
+- sottotitolo dell'hero: "Watch Panopto and Echo360 lectures faster than 2x. Slow down and bookmark the parts that matter for the exam."; title, meta description, Open Graph, Twitter e dati strutturati allineati;
+- "Bookmarks" al posto di "checkpoints" in landing, FAQ (anche nei dati strutturati) e `docs/STORE_LISTING.md` (EN e IT: "Segnalibri"). L'estensione non è toccata; la descrizione dello Store va aggiornata a mano nella dashboard alla prossima modifica;
+- badge reale: ritaglio stretto della sola pillola del controllo (124×40), niente testo tagliato;
+- funzioni Pro: card grande con la scheda Precision vera + lista compatta con titoli in linea (Frame-by-frame, A-B loop, Remembers your speed con il badge vero, Study stats, Custom shortcuts); niente card semivuote;
+- badge del Chrome Web Store solo nell'hero: Google non fornisce una variante per sfondi scuri (solo "white" e "with border"), quindi tolto dal CTA finale;
+- pagina mobile sotto i 7.000 px: FAQ tutte chiuse (la piattaforma è già sotto la demo), popup più piccoli su mobile senza didascalia, lista Pro dei prezzi di 5 righe, spaziature verticali ridotte solo sotto i 640 px, alcune frasi accorciate dove andavano a capo per una parola. Risultato: **6 983 px a 390** (era 8 838); 7 156 a 360.
+
+### Voti (versione `dc9b031`, prima delle modifiche del giro)
+
+| # | Criterio | S | C | A | Motivo principale |
+|---|---|---|---|---|---|
+| 1 | Chiarezza in 5 s | 9 | 9 | 8 | Il sottotitolo nomina Panopto, Echo360 e "faster than 2x": si capisce subito per chi è. |
+| 2 | Prova | 8 | 8 | 9 | Demo + tre screenshot veri. |
+| 3 | Desiderio | 8 | 8 | 8 | Calcolatore e demo; la pagina più corta arriva prima ai prezzi. |
+| 4 | Obiezioni | 9 | 8 | 8 | La riga delle piattaforme sotto la demo è grigia e piccola: risponde all'obiezione n.1 ma si perde. |
+| 5 | Fiducia | 7 | 6 | 7 | Badge dello Store e screenshot veri; senza recensioni non sale oltre. |
+| 6 | Pro | 8 | 8 | 8 | Card grande + lista: chiaro cosa si compra. |
+| 7 | Identità visiva | 8 | 8 | 8 | Coerente; nessun elemento da template. |
+| 8 | Tipografia e ritmo | 8 | 8 | 7 | Su desktop il titolo della card Pro va a capo in una colonna stretta; diversi titoli con una parola sola sull'ultima riga ("No account. No / tracking.", "player's."). |
+| 9 | Mobile | 8 | 8 | 8 | 6 983 px, nessuno scroll orizzontale, demo nella prima schermata. |
+| 10 | Prestazioni e accessibilità | 9 | 9 | 9 | Invariate rispetto al giro 2. |
+| | **Media** | **8.2** | **8.0** | **8.0** | **Media generale 8.1** (giro 2: 7.8, giro 1: 7.0) |
+
+### Le 5 modifiche con più impatto (applicate)
+
+1. **Card Pro su desktop:** colonna dello screenshot a 220 px e titolo a 28 px, così "Bookmarks with notes" sta su una riga. → criterio 8.
+2. **Riga delle piattaforme:** in Bricolage grassetto con un segno ✓ verde: si legge come un fatto, non come una nota. → criteri 4, 1.
+3. **Titoli bilanciati:** `text-wrap: balance` su H1–H3, niente più parola sola sull'ultima riga. → criterio 8.
+4. **Badge vero nella lista Pro** leggermente più grande (99×32) e allineato al titolo. → criteri 2, 8.
+5. **CTA finale (desktop):** sotto il bottone la stessa rassicurazione dell'hero, "Works in Chrome and Edge. No account needed." Nessuna altezza in più su mobile. → criteri 3, 4.
+
+Pagina mobile dopo il giro: 6 981 px a 390.
+
+### Provato e scartato
+- Titolo "Also in Pro" sopra la lista: scartato, avrebbe riportato la pagina mobile sopra i 7 000 px senza aggiungere informazione (il titolo della sezione lo dice già).
+- Badge dello Store nel CTA scuro: Google non ha una variante per sfondi scuri.
+
+### Stato rispetto all'obiettivo
+Non ancora tutti i criteri ≥ 9. Ostacoli principali:
+- **Fiducia (6–7):** serve prova sociale vera (recensioni sullo Store). Non dipende dalla pagina.
+- **Tipografia e Identità (8):** il popup dell'estensione ha ancora il vecchio stile (viola/blu scuro) accanto alla palette della landing.
+
+### Da fare con la 1.9.1 (nota di Alex)
+- Rifare lo stile del popup sulla palette della landing (blu notte + giallo), poi rigenerare gli screenshot con `npm run build && node docs/landing-assets/make-ext-shots.mjs`. Questo risolve anche il nome vecchio nel popup e dovrebbe alzare Identità visiva e Fiducia.

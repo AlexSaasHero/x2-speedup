@@ -48,7 +48,7 @@
 
 @layer base {
   body { @apply bg-paper text-ink font-sans antialiased; }
-  h1, h2, h3 { @apply font-display; letter-spacing: -0.02em; }
+  h1, h2, h3 { @apply font-display; letter-spacing: -0.02em; text-wrap: balance; }
   ::selection { @apply bg-highlighter text-ink; }
   :focus-visible { outline: 3px solid theme('colors.timeline.DEFAULT'); outline-offset: 3px; border-radius: 6px; }
   .on-ink :focus-visible { outline-color: theme('colors.timeline.light'); }

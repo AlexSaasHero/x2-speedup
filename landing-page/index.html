@@ -148,7 +148,7 @@
       </div>
 
       <div class="lg:col-start-2 -mt-3 lg:-mt-8 text-center space-y-1.5">
-        <p class="text-[15px]">Tested on Panopto and Echo360, also inside Canvas or Moodle.</p>
+        <p class="font-display font-bold text-[15px]"><span class="text-saved-ink" aria-hidden="true">✓</span> Tested on Panopto and Echo360, also inside Canvas or Moodle.</p>
         <p class="desktop-only text-sm text-graphite">Try it: press <kbd class="font-bold bg-white border border-ink/20 rounded px-1.5">D</kbd> to go faster, <kbd class="font-bold bg-white border border-ink/20 rounded px-1.5">S</kbd> to slow down, like in the extension.</p>
       </div>
 
@@ -259,12 +259,12 @@
 
         <div class="mt-6 sm:mt-12 grid lg:grid-cols-[1.55fr_1fr] gap-8 lg:gap-12 items-start">
           <!-- Large: bookmarks, with the real Precision tab -->
-          <article class="rounded-2xl bg-paper p-6 sm:p-8 grid sm:grid-cols-[1fr_240px] gap-6 sm:gap-8 items-center">
+          <article class="rounded-2xl bg-paper p-6 sm:p-8 grid sm:grid-cols-[1fr_220px] gap-6 sm:gap-8 items-center">
             <div>
-              <h3 class="text-2xl sm:text-3xl font-bold">Bookmarks with notes</h3>
+              <h3 class="text-2xl sm:text-[28px] font-bold leading-tight">Bookmarks with notes</h3>
               <p class="mt-2 text-graphite max-w-prose">Bookmark the moment the professor says "this will be on the exam". Jump back in one click.</p>
             </div>
-            <figure class="mx-auto w-full max-w-[200px] sm:max-w-[240px]">
+            <figure class="mx-auto w-full max-w-[200px] sm:max-w-[220px]">
               <img src="/img/popup-checkpoints.webp" width="350" height="542" loading="lazy" decoding="async" class="w-full h-auto rounded-xl shadow-[0_20px_40px_-20px_rgba(27,30,60,0.55)]" alt="The extension's Precision tab: frame-by-frame buttons, A-B repeat and three saved bookmarks at 12:04, 31:47 and 48:10.">
               <figcaption class="hidden sm:block mt-2 text-sm text-graphite text-center">The real Precision tab (Pro).</figcaption>
             </figure>
@@ -274,7 +274,7 @@
           <ul class="divide-y divide-ink/10 border-y border-ink/10">
             <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Frame-by-frame.</h3> Freeze on the exact slide, formula or whiteboard sketch.</li>
             <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">A-B loop.</h3> Replay the explanation that didn't click, until it does.</li>
-            <li class="py-3 sm:py-4 text-graphite"><img src="/img/badge-on-video.webp" width="87" height="28" loading="lazy" decoding="async" class="float-right ml-3 mt-0.5" alt="The extension's real speed badge, set to 2.5x."><h3 class="inline font-display text-lg font-bold text-ink">Remembers your speed.</h3> Set 2.5x once. Every lecture on that site starts there.</li>
+            <li class="py-3 sm:py-4 text-graphite"><img src="/img/badge-on-video.webp" width="99" height="32" loading="lazy" decoding="async" class="float-right ml-3 -mt-0.5" alt="The extension's real speed badge, set to 2.5x."><h3 class="inline font-display text-lg font-bold text-ink">Remembers your speed.</h3> Set 2.5x once. Every lecture on that site starts there.</li>
             <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Your study stats.</h3> The hours you saved today, this week, in total and per page.</li>
             <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Custom shortcuts.</h3> Your keys, your way.</li>
           </ul>
@@ -377,7 +377,10 @@
     <section class="on-ink bg-ink text-paper">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-24 text-center">
         <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Your next lecture is already waiting.</h2>
-        <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only mt-10 inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl">Add to Chrome, it's free</a>
+        <div class="desktop-only mt-10">
+          <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl">Add to Chrome, it's free</a>
+          <p class="mt-3 text-sm text-mist">Works in Chrome and Edge. No account needed.</p>
+        </div>
         </div>
         <div class="mobile-only mt-6 rounded-xl border border-paper/20 bg-paper/5 p-4 text-center">
           <p class="text-[15px] text-mist">💻 Chrome extensions install on desktop. Open this page on your computer.</p>
