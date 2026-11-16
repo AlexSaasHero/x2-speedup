@@ -255,6 +255,27 @@ test.describe('lecture platforms', () => {
     });
   }
 
+  const ownedAttr = (page: Page) => page.evaluate(() => document.getElementById('v')!.getAttribute('data-lecturespeed-rate'));
+
+  test('Echo360: at 1x the extension releases the player (no guard, its own menu works again)', async ({ context, sw, origin }) => {
+    const page = await openEcho360(context, sw, origin);
+    await page.click('#play');
+    await page.waitForTimeout(500);
+    await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 2 }).then((r) => r?.speed)).toBe(2);
+    expect(await ownedAttr(page)).toBe('2');
+    await page.click('#speed-1-5'); // blocked: the extension owns the speed
+    expect(await staysAt(page, 2, 1500)).toBe(2);
+
+    await expect.poll(() => sendToTabs(sw, { action: 'SET_SPEED', speed: 1 }).then((r) => r?.speed)).toBe(1);
+    await expect.poll(() => ownedAttr(page)).toBeNull();
+    expect(await rate(page)).toBe(1);
+    await page.click('#speed-1-5'); // the player's menu works again, and keeps working
+    await expect.poll(() => rate(page)).toBe(1.5);
+    expect(await staysAt(page, 1.5, 2000)).toBe(1.5);
+    // The player's choice is not taken as the student's speed.
+    expect(await sw.evaluate(() => chrome.storage.local.get('defaultSpeed').then((r) => r.defaultSpeed))).toBe(1);
+  });
+
   const overlayXY = (f: Frame | Page) =>
     f.locator('[data-speedup-overlay]').evaluate((h) => {
       const x = h.getAttribute('data-x');
