@@ -17,8 +17,8 @@
 
 **Name (≤ 75 chars, 53):** LectureSpeed – Watch Recorded Lectures Faster Than 2x
 
-**Short description (≤ 132 chars, 128):**
-Watch recorded lectures faster than 2x on Panopto and Echo360, even inside Canvas or Moodle. Bookmark what matters. No tracking.
+**Short description (≤ 132 chars, 111):**
+Watch recorded lectures faster than 2x on Panopto and Echo360. Bookmark what matters for the exam. No tracking.
 
 **Detailed description:** (prose, no lists of platforms: the 1.9.0 was rejected once for keyword spam)
 
@@ -45,8 +45,8 @@ LectureSpeed is an independent project and is not affiliated with any lecture or
 
 **Nome (≤ 75, 55):** LectureSpeed – Guarda le lezioni registrate oltre il 2x
 
-**Descrizione breve (≤ 132, 129):**
-Guarda le lezioni registrate oltre il 2x su Panopto ed Echo360, anche in Canvas o Moodle. Segna ciò che conta. Zero tracciamento.
+**Descrizione breve (≤ 132, 115):**
+Guarda le lezioni registrate oltre il 2x su Panopto ed Echo360. Segna ciò che conta per l'esame. Zero tracciamento.
 
 **Descrizione dettagliata:** (in prosa, senza elenchi di piattaforme)
 

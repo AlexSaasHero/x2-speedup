@@ -1,6 +1,6 @@
 {
   "extName": "LectureSpeed – 録画講義を2倍速以上で視聴",
-  "extDescription": "Panopto や Echo360 の録画講義を2倍速以上で視聴。Canvas や Moodle 内でも動作。大事な場面をブックマーク。トラッキングなし。",
+  "extDescription": "Panopto や Echo360 の録画講義を2倍速以上で視聴。試験に大事な場面をブックマーク。トラッキングなし。",
   "actionTitle": "LectureSpeed",
   "close": "閉じる",
   "default": "既定",
