@@ -191,3 +191,42 @@ Pagina mobile dopo il giro: **6 986 px a 390** (7 227 a 360, 7 744 a 320); nessu
 
 ### Stato rispetto all'obiettivo
 Media 8.2. Restano sotto 9: **Fiducia** (serve prova sociale vera) e, fino alla 1.9.1, la coerenza tra popup (vecchio nome e colori) e pagina. Piano dell'estensione: `docs/PLAN_1.9.1.md`.
+
+---
+
+## Giro 5 — 2026-11-16 (nome definitivo: LectureSpeed)
+
+Il nome SpeedUniversity del giro 4 è stato scartato da Alex. Prima del giro (commit `72ff2e1`):
+- SpeedUniversity → **LectureSpeed** in tutte le pagine, meta, Open Graph, dati strutturati e og-image; privacy e terms: "LectureSpeed (formerly SpeedUp Video Pro)". Title della home: "Panopto & Echo360 lectures faster than 2x · LectureSpeed" (56 caratteri).
+- Tolta la domanda FAQ "Is SpeedUniversity a university?" e la frase "not a university" dal footer: servivano solo per l'equivoco del nome precedente. Il footer torna al disclaimer generico.
+- **Marchio:** stesso simbolo (chevron oltre la linea dei 2x) in tre varianti: `logo-mark.svg` per fondi chiari, `logo-mark-dark.svg` (quadrato giallo, chevron ink) per fondi scuri, `logo-mark-16.svg` disegnato per 16 px (senza linea tratteggiata, chevron più spessi). `favicon.svg` passa alla variante gialla quando il browser è in tema scuro. PNG 16/32/128 e apple-touch-icon 180.
+- Piano dell'estensione aggiornato a LectureSpeed (`docs/PLAN_1.9.1.md`).
+
+### Voti (versione `72ff2e1`, prima delle modifiche del giro)
+
+| # | Criterio | S | C | A | Motivo principale |
+|---|---|---|---|---|---|
+| 1 | Chiarezza in 5 s | 9 | 9 | 9 | "LectureSpeed" spiega il prodotto da solo e fa eco al titolo "Lectures at your speed". Niente più equivoco "università". |
+| 2 | Prova | 9 | 8 | 9 | Demo con "Try 2.5x" cliccabile + screenshot veri. |
+| 3 | Desiderio | 8 | 8 | 8 | |
+| 4 | Obiezioni | 9 | 8 | 8 | Su mobile la FAQ è raggiungibile solo scorrendo (nella barra c'è solo "Pricing"). |
+| 5 | Fiducia | 7 | 7 | 7 | Nome e marchio coerenti; senza recensioni non sale; popup col vecchio nome fino alla 1.9.1. |
+| 6 | Pro | 8 | 8 | 8 | |
+| 7 | Identità visiva | 9 | 8 | 8 | Il marchio compare solo in alto e nel footer; la variante scura non è mai usata sulla pagina. |
+| 8 | Tipografia e ritmo | 8 | 8 | 8 | |
+| 9 | Mobile | 8 | 8 | 8 | 6 905 px, nessuno scroll orizzontale; la barra del browser resta chiara in tema scuro. |
+| 10 | Prestazioni e accessibilità | 9 | 9 | 9 | |
+| | **Media** | **8.4** | **8.1** | **8.2** | **Media generale 8.2** |
+
+### Le 5 modifiche con più impatto (applicate)
+
+1. **Dati strutturati:** `alternateName: "SpeedUp Video Pro"`, così chi cerca il vecchio nome trova la pagina nuova. → SEO, criterio 5.
+2. **CTA finale:** il marchio in variante scura sopra "Your next lecture is already waiting.": il nome torna al momento della decisione. → criterio 7.
+3. **Barra mobile:** link "FAQ" accanto a "Pricing" da 360 px in su (a 320 non ci sta). → criteri 4, 9.
+4. **Pagina thanks:** l'icona vera accanto a "Click the LectureSpeed icon", per trovarla nella barra di Chrome dopo l'acquisto. → attivazione, criterio 4.
+5. **`theme-color` per il tema scuro** (#1B1E3C) su tutte le pagine: su telefono in tema scuro la barra del browser si accorda alla pagina. → criterio 9.
+
+Pagina mobile dopo il giro: **6 969 px a 390** (7 190 a 360, 7 699 a 320); nessuno scroll orizzontale su tutte e quattro le pagine da 320 a 1280.
+
+### Stato rispetto all'obiettivo
+Media 8.2–8.4. Sotto 9 restano: **Fiducia** (serve prova sociale vera: recensioni sullo Store) e la coerenza col popup, che con la 1.9.1 prende nome, colori, font e marchio della landing (`docs/PLAN_1.9.1.md`).

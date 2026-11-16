@@ -10,7 +10,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
   <link rel="icon" type="image/png" sizes="128x128" href="/favicon-128.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <meta name="theme-color" content="#F5F7FB">
+  <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1E3C" media="(prefers-color-scheme: dark)">
   <link rel="canonical" href="https://[DOMAIN]/">
   <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website">
@@ -46,6 +47,7 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "LectureSpeed",
+    "alternateName": "SpeedUp Video Pro",
     "applicationCategory": "BrowserApplication",
     "operatingSystem": "Chrome, Edge",
     "description": "A Chrome extension to watch Panopto and Echo360 lectures faster than 2x, bookmark moments with notes and review them before the exam.",
@@ -80,10 +82,10 @@
   <header class="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-ink/10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       <a href="/" class="flex items-center gap-2 font-display font-extrabold text-xl tracking-tight" aria-label="LectureSpeed home"><img src="/img/logo-mark.svg" width="30" height="30" alt=""><span>LectureSpeed</span></a>
-      <nav class="flex items-center gap-5 text-[15px]" aria-label="Main">
+      <nav class="flex items-center gap-3 sm:gap-5 text-[15px]" aria-label="Main">
         <a href="#how" class="hidden md:inline text-graphite hover:text-ink">How it works</a>
         <a href="#pricing" class="text-graphite hover:text-ink py-3 px-1">Pricing</a>
-        <a href="#faq" class="hidden md:inline text-graphite hover:text-ink">FAQ</a>
+        <a href="#faq" class="hidden min-[360px]:inline text-graphite hover:text-ink py-3 px-1">FAQ</a>
         <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only bg-highlighter hover:brightness-95 text-ink font-bold px-4 py-2 rounded-lg">Add to Chrome</a>
       </nav>
     </div>
@@ -378,6 +380,7 @@
     <!-- Final CTA -->
     <section class="on-ink bg-ink text-paper">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-24 text-center">
+        <img src="/img/logo-mark-dark.svg" width="44" height="44" loading="lazy" alt="" class="mx-auto mb-5">
         <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Your next lecture is already waiting.</h2>
         <div class="desktop-only mt-10">
           <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl">Add to Chrome, it's free</a>
