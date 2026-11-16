@@ -20,7 +20,7 @@
 - **Contatto:** speedupvideopro.help@gmail.com
 
 ## 3. Stato attuale
-- **Landing:** HTML statico in `landing-page/` (Tailwind, Vercel Web Analytics senza cookie; GA4 e Clarity rimossi il 2026-11-15), online su https://x2-speedup.vercel.app. Il deploy parte da solo a ogni push su `main` di GitHub (AlexSaasHero/x2-speedup).
+- **Landing:** HTML statico in `landing-page/` (Tailwind, Vercel Web Analytics senza cookie; GA4 e Clarity rimossi il 2026-11-15), online su https://lecturespeed.vercel.app. Il deploy parte da solo a ogni push su `main` di GitHub (AlexSaasHero/x2-speedup).
 - **Già fatto:** home riscritta come study tool, `privacy.html` aggiornata alla 1.9.0, `terms.html` creata, `.vercelignore` che esclude CLAUDE.md, video demo rimossi.
 - **Chrome Web Store:** la **1.9.0 è approvata e pubblicata** (2026-11-16), dopo un primo rifiuto per parole chiave in eccesso nella descrizione (elenco di piattaforme e disclaimer con 6 marchi), risolto riscrivendola in prosa.
 - **Checkout Pro attivo** sulla landing dal 2026-11-16 (`PRO_CHECKOUT_ENABLED = true` in `landing-page/site.js`); dopo il pagamento si arriva su `thanks.html`.
@@ -29,7 +29,7 @@
 - Il nome "SpeedUp Video Pro" verrà sostituito. Candidati: **LectureFlow** (preferito) o **University Flow**.
 - Finché non è deciso, usa **`[BRAND]`** nei testi nuovi.
 - **Piano di uscita:** la landing con il nuovo nome si prepara su un branch separato e va online solo quando la versione 1.9.1 dell'estensione (con il nuovo nome) è approvata sullo Store. Sito e Store cambiano nome insieme.
-- È previsto anche un dominio proprio (es. `lectureflow.app`) al posto di `x2-speedup.vercel.app`.
+- Indirizzo ufficiale dal 2026-11-16: **https://lecturespeed.vercel.app** (`x2-speedup.vercel.app` fa redirect). Nome definitivo: LectureSpeed.
 
 ## 5. Regole per questa fase
 - **Lavora sul branch `landing-rebrand`** (`git checkout -b landing-rebrand` se non esiste). **Nessun push su `main`**: il push su main pubblica il sito.

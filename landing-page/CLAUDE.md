@@ -42,7 +42,7 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
   - **Dopo ogni modifica alle classi Tailwind** (HTML o `site.js`): `npm run landing:css` dalla root del repo, poi committa anche `styles.css`. Senza, le classi nuove non hanno stile.
   - Config: `landing-page/tailwind.config.cjs` + `tailwind.input.css` (esclusi dal sito in `.vercelignore`). Su Vercel nessuna build: serve i file così come sono.
 - Script esterni: Lemon Squeezy `lemon.js` (solo con il checkout Pro attivo, vedi sopra). Statistiche del sito: **Vercel Web Analytics** (`/_vercel/insights/script.js`, senza cookie, dal 2026-11-15; GA4 e Clarity rimossi). Da attivare nel pannello Vercel → progetto → Analytics. Riguardano **solo il sito**, mai l'estensione, e sono dichiarate in `privacy.html`. Lo script dà 404 in anteprima locale: è normale.
-- Deploy: **Vercel**, dominio `x2-speedup.vercel.app`. Non c'è nessun backend: l'estensione verifica le licenze direttamente con Lemon Squeezy (`/api/validate-license` non è mai esistito).
+- Deploy: **Vercel**, indirizzo ufficiale **`lecturespeed.vercel.app`** dal 2026-11-16 (`x2-speedup.vercel.app` diventa un redirect). Non c'è nessun backend: l'estensione verifica le licenze direttamente con Lemon Squeezy (`/api/validate-license` non è mai esistito).
   ⚠️ Da verificare nel pannello Vercel quale repo/cartella pubblica il sito (Root Directory = `landing-page`?) e da quale branch.
 - URL che non devono cambiare: `/privacy.html` (linkata dallo Store e da `docs/STORE_LISTING.md`) e la home (linkata dall'estensione in `src/shared/links.ts`). Non rinominare né spostare la cartella `landing-page/`.
 - Comandi: nessuna build su Vercel; in locale solo `npm run landing:css` per il CSS. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
@@ -51,7 +51,7 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 La landing con il nome LectureSpeed è online dal 2026-11-16, **prima** della 1.9.1: lo Store mostra ancora "SpeedUp Video Pro".
 - Interruttore: `RENAME_NOTICE` in cima a `site.js`. `true` (oggi) → sotto i CTA "Add to Chrome" (hero e finale, desktop) compare "On the Chrome Web Store it's still listed as SpeedUp Video Pro while we update the name." (elementi `.rename-notice`, regola in `site.css`).
 - **Quando la 1.9.1 è approvata sullo Store:** `const RENAME_NOTICE = false;`, rigenera gli screenshot dell'estensione (`npm run build && node docs/landing-assets/make-ext-shots.mjs`), anteprima, commit, push su `main`.
-- Dominio: canonical, `og:url` e `og:image` puntano a `https://x2-speedup.vercel.app` finché non c'è il dominio proprio; al cambio sostituirli tutti (index, privacy, terms).
+- Indirizzo: canonical, `og:url`, `og:image`, `twitter:image` e dati strutturati usano `https://lecturespeed.vercel.app`. Se arriva un dominio proprio, sostituirli tutti (index, privacy, terms) e aggiornare `src/shared/links.ts` nell'estensione.
 
 ## Regole
 - Lingua del sito: inglese. Codice e commenti: inglese.
