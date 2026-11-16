@@ -1,9 +1,10 @@
-# CLAUDE.md: SpeedUp Video Pro (landing page)
+# CLAUDE.md: SpeedUniversity (landing page)
 
 Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estensione). Qui solo ciò che riguarda il sito.
 
 ## Prodotto
-- Landing page dell'estensione Chrome **SpeedUp Video Pro**.
+- Landing page dell'estensione Chrome **SpeedUniversity** (una parola, S e U maiuscole; prima "SpeedUp Video Pro", rinominata con la 1.9.1). Titolo Store: "SpeedUniversity – Watch Panopto & Echo360 Lectures Faster Than 2x".
+- È un **browser extension, non un'università**: footer e FAQ lo dicono ("SpeedUniversity is a browser extension, not a university or course provider."). Niente stemmi, scudi, toghe o linguaggio da ateneo.
 - **Posizionamento:** strumento di studio per lezioni registrate. "Studia le lezioni registrate in metà tempo, su Panopto, Canvas, Moodle e Echo360."
 - **Target:** studenti universitari (in inglese, mercato globale), poi chi segue corsi su Udemy e Coursera.
 - **La velocità è un plus, non l'USP:** non presentare il prodotto come un "video speed controller" generico.
@@ -50,9 +51,6 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 ## Branch `landing-rebrand`: prima di unirlo a `main`
 Il branch va online solo con la 1.9.1 approvata sullo Store (nuovo nome) e il dominio nuovo. Prima del merge:
 - Sostituire `[DOMAIN]` (canonical, `og:url`, `og:image`, `twitter:image`) con il dominio definitivo, es. `https://lectureflow.app`.
-- Sostituire `[BRAND]` con il nome definitivo.
-- Rifare `og-image.png` con il nome: sorgente `docs/landing-assets/og-image.html`, comando `node docs/landing-assets/make-og.mjs`.
-- Favicon (`favicon-32.png`, `favicon-128.png`, `apple-touch-icon.png`) dall'icona nuova dell'estensione.
 - Rifare gli screenshot dell'estensione (il popup mostra il vecchio nome): `npm run build && node docs/landing-assets/make-ext-shots.mjs`.
 
 ## Design (redesign 2026-11-16, branch `landing-rebrand`)
@@ -60,6 +58,7 @@ Il branch va online solo con la 1.9.1 approvata sullo Store (nuovo nome) e il do
 - Palette (token Tailwind in `tailwind.config.cjs`): `ink` #1B1E3C, `paper` #F5F7FB, `highlighter` #FFE14D (CTA, testo sempre ink), `timeline` #3D5AFE (su ink: `timeline-light` #8C9EFF), `graphite` #5A6278 (su ink: `mist` #B4BAD0), `saved` #14A870 solo su ink / `saved-ink` #0B7A50 su paper.
 - Font self-hosted in `fonts/` (niente Google Fonts): Bricolage Grotesque 700–800 per titoli, numeri (`.num`, cifre tabellari) e righe brevi in grassetto; Atkinson Hyperlegible 400/700 per il testo. Le cifre dentro il testo vengono da un sottoinsieme di Bricolage (Atkinson ha lo zero barrato).
 - `home.js`: demo della lezione (si comanda anche con D/S/R) e calcolatore (`ore × (1 − 1/velocità) × 15`).
+- Marchio: `img/logo-mark.svg` (quadrato ink, due chevron highlighter, il secondo oltre una linea tratteggiata "2x") + nome "SpeedUniversity" in Bricolage 800 come testo HTML. `favicon.svg` = stesso SVG; PNG con `node docs/landing-assets/logo/make-icons.mjs`. og-image: `node docs/landing-assets/make-og.mjs`.
 - Immagini vere dell'estensione in `img/` (WebP): `npm run build && node docs/landing-assets/make-ext-shots.mjs`. Badge ufficiale dello Store: `img/cws-badge-border.png`, da non modificare (solo ridimensionare), sempre linkato alla scheda.
 
 ## Regole

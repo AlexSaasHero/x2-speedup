@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SpeedUniversity">
+  <!-- SpeedUniversity mark: two forward chevrons, the second one past a dashed "2x" line. -->
+  <rect width="64" height="64" rx="15" fill="#1B1E3C"/>
+  <line x1="32" y1="11" x2="32" y2="53" stroke="#F5F7FB" stroke-opacity=".45" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/>
+  <polyline points="13,19 24,32 13,45" fill="none" stroke="#FFE14D" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="40,19 51,32 40,45" fill="none" stroke="#FFE14D" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -4,17 +4,21 @@
 <meta charset="utf-8">
 <title>og-image</title>
 <!-- Social preview image for the landing page (1200×630), rendered by make-og.mjs.
-     No product name yet: redo it with the final brand at the rebrand.
      Original artwork only: no third-party logos or player UI. Same palette and fonts as the site. -->
 <style>
   @font-face { font-family: 'Bricolage Grotesque'; font-weight: 700 800; src: url(../../landing-page/fonts/bricolage-grotesque-700-800-latin.woff2) format('woff2'); }
   @font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 400; src: url(../../landing-page/fonts/atkinson-hyperlegible-400-latin.woff2) format('woff2'); }
   @font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 700; src: url(../../landing-page/fonts/atkinson-hyperlegible-700-latin.woff2) format('woff2'); }
+  /* Digits from Bricolage, as on the site (Atkinson's zero is slashed). */
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 400; src: url(../../landing-page/fonts/bricolage-grotesque-digits-400-800.woff2) format('woff2'); unicode-range: U+0030-0039; }
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 700; src: url(../../landing-page/fonts/bricolage-grotesque-digits-400-800.woff2) format('woff2'); unicode-range: U+0030-0039; }
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 1200px; height: 630px; }
   body { font-family: 'Atkinson Hyperlegible', sans-serif; background: #F5F7FB; color: #1B1E3C; display: flex; align-items: center; gap: 56px; padding: 0 72px; overflow: hidden; }
-  .text { flex: 1.1; }
-  h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 80px; line-height: 1.0; font-weight: 800; letter-spacing: -0.025em; }
+  .brand { position: absolute; top: 40px; left: 72px; display: flex; align-items: center; gap: 12px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em; }
+  .brand img { width: 42px; height: 42px; }
+  .text { flex: 1.1; padding-top: 40px; }
+  h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 74px; line-height: 1.0; font-weight: 800; letter-spacing: -0.025em; }
   p { font-size: 28px; color: #5A6278; margin-top: 28px; line-height: 1.35; }
   .tag { display: inline-block; margin-top: 30px; font-size: 24px; font-weight: 700; background: #FFE14D; padding: 10px 22px; border-radius: 12px; box-shadow: 0 3px 0 #1B1E3C; }
   .card { flex: .9; border: 2px solid rgba(27,30,60,.15); background: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(27,30,60,.45); }
@@ -34,9 +38,10 @@
 </style>
 </head>
 <body>
+  <div class="brand"><img src="../../landing-page/img/logo-mark.svg" alt="">SpeedUniversity</div>
   <div class="text">
     <h1>Lectures at your speed. Not your player's.</h1>
-    <p>Past 2x on what you already know.<br>Slow down on what matters.</p>
+    <p>Panopto and Echo360 lectures,<br>faster than 2x.</p>
     <span class="tag">Free Chrome extension</span>
   </div>
   <div class="card">
