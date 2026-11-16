@@ -1,4 +1,4 @@
-// SpeedUp Video Pro - Popup Controller (Manifest V3)
+// LectureSpeed - Popup Controller (Manifest V3)
 import {
   ABSOLUTE_MAX_SPEED,
   ABSOLUTE_MIN_SPEED,
@@ -159,7 +159,7 @@ function initPopup() {
         chrome.tabs.sendMessage(tabId, message, (response) => {
           clearTimeout(timer);
           if (chrome.runtime.lastError) {
-            console.warn('SpeedUP: content script not ready or error', chrome.runtime.lastError);
+            console.warn('LectureSpeed: content script not ready or error', chrome.runtime.lastError);
             resolve(null);
           } else {
             resolve(response);
@@ -809,7 +809,7 @@ function initPopup() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'STEP_FRAME', direction }, (res) => {
       if (chrome.runtime.lastError) {
-        console.warn('SpeedUP: STEP_FRAME error', chrome.runtime.lastError);
+        console.warn('LectureSpeed: STEP_FRAME error', chrome.runtime.lastError);
         return;
       }
       isPlaying = false;
@@ -830,7 +830,7 @@ function initPopup() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'SKIP_TIME', seconds }, (res) => {
       if (chrome.runtime.lastError) {
-        console.warn('SpeedUP: SKIP_TIME error', chrome.runtime.lastError);
+        console.warn('LectureSpeed: SKIP_TIME error', chrome.runtime.lastError);
         return;
       }
       if (res && res.currentTime !== undefined && precisionTimeBadge) {
@@ -845,7 +845,7 @@ function initPopup() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'SEEK_TO', time: Number(targetSeconds) }, (res) => {
       if (chrome.runtime.lastError) {
-        console.warn('SpeedUP: SEEK_TO error', chrome.runtime.lastError);
+        console.warn('LectureSpeed: SEEK_TO error', chrome.runtime.lastError);
         return;
       }
       if (res && res.currentTime !== undefined && precisionTimeBadge) {

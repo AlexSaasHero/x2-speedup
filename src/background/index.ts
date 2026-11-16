@@ -1,4 +1,4 @@
-// SpeedUp Video Pro - Background Service Worker (Manifest V3)
+// LectureSpeed - Background Service Worker (Manifest V3)
 // Stateless: everything persistent lives in chrome.storage.
 import { migrate } from '../shared/migrations';
 import { isFeatureUpdate } from '../shared/version';
@@ -113,7 +113,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
   if (message?.action === 'LECTURE_TOAST_ONCE') {
-    // "Speed controlled by SpeedUp" toast on lecture platforms: once per browser session.
+    // "Speed controlled by LectureSpeed" toast on lecture platforms: once per browser session.
     chrome.storage.session
       .get(LECTURE_TOAST_KEY)
       .then((r) => (r[LECTURE_TOAST_KEY] ? false : chrome.storage.session.set({ [LECTURE_TOAST_KEY]: true }).then(() => true)))

@@ -113,7 +113,7 @@ function initBackup(raw: Record<string, unknown>) {
     const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `speedup-video-pro-settings-${file.exportedAt.slice(0, 10)}.json`;
+    a.download = `lecturespeed-settings-${file.exportedAt.slice(0, 10)}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });

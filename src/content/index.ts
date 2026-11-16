@@ -1,4 +1,4 @@
-// SpeedUp Video Pro — content script entry (runs at document_start in every frame).
+// LectureSpeed — content script entry (runs at document_start in every frame).
 //
 // Cost model: this script is injected into every frame of every page (ad iframes included), so
 // it stays dormant until a <video>/<audio> actually appears: before that it only keeps a
