@@ -20,60 +20,21 @@
 **Short description (≤ 132 chars, 128):**
 Watch recorded lectures faster than 2x on Panopto and Echo360, even inside Canvas or Moodle. Bookmark what matters. No tracking.
 
-**Detailed description:**
+**Detailed description:** (prose, no lists of platforms: the 1.9.0 was rejected once for keyword spam)
 
 Lectures at your speed, not your player's.
 
-LectureSpeed is a study tool for students who watch recorded lectures. It works on the lecture platforms your university uses, even when their player stops at 2x.
+LectureSpeed helps you study recorded lectures in less time. Lecture players usually stop at 2x and reset your speed when you press play or open the next video. LectureSpeed takes over the speed in your browser: go past 2x on the parts you already know, slow down for the hard ones, and keep your speed through pause, seek and the next lecture. It works on Panopto and Echo360, including lectures embedded in your Canvas or Moodle course page, and on most other HTML5 video players.
 
-━━━━━━━━━━━━━━━━━━
-🎓 WORKS WHERE YOU STUDY
-━━━━━━━━━━━━━━━━━━
-• Panopto — including lectures embedded in Canvas or Moodle
-• Echo360 — including lectures embedded in Canvas or Moodle
-• No more 2x cap on lecture players: LectureSpeed keeps your speed through play, pause, seek and the next lecture
-• Also works on YouTube and most HTML5 video players
+It's free, with no account: any speed from 0.1x to 16x, a small on-video controller and keyboard shortcuts (D faster, S slower, R reset, and a few more) that never fire while you type. A counter shows how much time you saved this week, and your settings sync across your devices.
 
-━━━━━━━━━━━━━━━━━━
-⚡ FREE FOREVER
-━━━━━━━━━━━━━━━━━━
-• Speed up to 16x (from 0.1x), with a small on-video controller
-• Keyboard shortcuts: S slower · D faster · R reset · G preferred speed · Z/X back/forward 10 s · V show/hide the controller — never triggered while you type
-• Hold Shift+F for a temporary speed boost
-• Time-saved counter: see how many hours you got back this week
-• Settings sync across your devices; import your Video Speed Controller settings
+LectureSpeed Pro is built for the week before the exam. Bookmarks with notes let you mark the moment the professor says "this will be on the exam" and jump back in one click. Frame-by-frame freezes on the exact slide or formula, and the A-B loop replays an explanation until it clicks. Pro also remembers your speed on each site, shows detailed study stats (today, this week, total and per page) and lets you choose your own shortcuts. Pro starts with a 7-day free trial, then costs $4.99 a year. Cancel anytime.
 
-━━━━━━━━━━━━━━━━━━
-🚀 PRO — BUILT FOR EXAM PREP
-━━━━━━━━━━━━━━━━━━
-• Remembers your speed for each site, page or YouTube channel
-• Bookmarks with notes: save key moments and jump back before the exam
-• Frame-by-frame: freeze on slides, formulas and whiteboard notes
-• A-B loop: replay a hard explanation until it clicks
-• Detailed time-saved stats (today, this week, total, per page)
-• Custom keyboard shortcuts
+Your privacy: LectureSpeed doesn't track what you watch. There are no analytics and no ads; settings, stats and bookmarks stay in your browser. The only network request is the check of a Pro license key.
 
-Pro: 7-day free trial, then $4.99/year. Cancel anytime.
+To start, pin the extension, open a lecture recording and press D. If the player's own menu still shows 1x, that's normal: LectureSpeed is controlling the speed.
 
-━━━━━━━━━━━━━━━━━━
-🔒 PRIVACY
-━━━━━━━━━━━━━━━━━━
-No account needed. We don't track what you watch: no analytics, no ads. Settings, stats and bookmarks stay in your browser. The only network request is the check of a Pro license key.
-
-━━━━━━━━━━━━━━━━━━
-HOW TO USE
-━━━━━━━━━━━━━━━━━━
-1. Install and pin the extension
-2. Open a lecture recording
-3. Press D / S, or use the popup or the on-screen controller
-
-━━━━━━━━━━━━━━━━━━
-FAQ
-━━━━━━━━━━━━━━━━━━
-The player still shows 1x?
-Normal: LectureSpeed controls the speed, use D/S or the popup.
-
-Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle.
+LectureSpeed is an independent project and is not affiliated with any lecture or video platform.
 
 **Category:** Education
 **Language:** English (the extension UI is also in Italiano, Español, Deutsch, Français, Português (Brasil) and 日本語)
@@ -87,66 +48,31 @@ Not affiliated with Panopto, Echo360, Instructure (Canvas) or Moodle.
 **Descrizione breve (≤ 132, 129):**
 Guarda le lezioni registrate oltre il 2x su Panopto ed Echo360, anche in Canvas o Moodle. Segna ciò che conta. Zero tracciamento.
 
-**Descrizione dettagliata:**
+**Descrizione dettagliata:** (in prosa, senza elenchi di piattaforme)
 
 Le lezioni alla tua velocità, non a quella del player.
 
-LectureSpeed è uno strumento di studio per chi segue lezioni registrate. Funziona sulle piattaforme della tua università, anche quando il loro player si ferma a 2x.
+LectureSpeed ti aiuta a studiare le lezioni registrate in meno tempo. I player delle lezioni di solito si fermano a 2x e riportano la velocità a 1x quando premi play o apri la lezione successiva. LectureSpeed gestisce la velocità nel tuo browser: vai oltre il 2x sulle parti che conosci già, rallenta su quelle difficili e mantieni la tua velocità dopo pausa, salti e alla lezione successiva. Funziona su Panopto ed Echo360, anche quando la lezione è incorporata nella pagina del tuo corso su Canvas o Moodle, e sulla maggior parte degli altri player video HTML5.
 
-━━━━━━━━━━━━━━━━━━
-🎓 FUNZIONA DOVE STUDI
-━━━━━━━━━━━━━━━━━━
-• Panopto — anche le lezioni incorporate in Canvas o Moodle
-• Echo360 — anche le lezioni incorporate in Canvas o Moodle
-• Niente più limite di 2x sui player delle lezioni: LectureSpeed mantiene la tua velocità dopo play, pausa, salti e alla lezione successiva
-• Funziona anche su YouTube e sulla maggior parte dei player video HTML5
+È gratis e senza account: qualsiasi velocità da 0.1x a 16x, un piccolo controllo sul video e scorciatoie da tastiera (D più veloce, S più lento, R reset e qualche altra) che non scattano mai mentre scrivi. Un contatore ti mostra quanto tempo hai risparmiato questa settimana, e le impostazioni si sincronizzano tra i tuoi dispositivi.
 
-━━━━━━━━━━━━━━━━━━
-⚡ GRATIS PER SEMPRE
-━━━━━━━━━━━━━━━━━━
-• Velocità fino a 16x (da 0.1x), con un piccolo controller sul video
-• Scorciatoie: S rallenta · D accelera · R reset · G velocità preferita · Z/X indietro/avanti 10 s · V mostra/nasconde il controller — mai attive mentre scrivi
-• Tieni premuto Shift+F per accelerare temporaneamente
-• Contatore del tempo risparmiato: vedi quante ore hai recuperato questa settimana
-• Impostazioni sincronizzate tra i dispositivi; importa le impostazioni di Video Speed Controller
+LectureSpeed Pro è pensato per la settimana prima dell'esame. I segnalibri con note ti fanno segnare il momento in cui il professore dice "questo sarà all'esame" e tornarci con un clic. Il fotogramma per fotogramma si ferma sulla slide o sulla formula giusta, e il loop A-B ripete una spiegazione finché non è chiara. Pro ricorda anche la tua velocità su ogni sito, mostra statistiche di studio dettagliate (oggi, settimana, totale e per pagina) e ti fa scegliere le tue scorciatoie. Pro parte con 7 giorni di prova gratuita, poi costa 4,99 $ all'anno. Disdici quando vuoi.
 
-━━━━━━━━━━━━━━━━━━
-🚀 PRO — PER PREPARARE GLI ESAMI
-━━━━━━━━━━━━━━━━━━
-• Ricorda la tua velocità per ogni sito, pagina o canale YouTube
-• Segnalibri con note: salva i momenti chiave e ritrovali prima dell'esame
-• Fotogramma per fotogramma: fermati su slide, formule e appunti alla lavagna
-• Loop A-B: riascolta una spiegazione difficile finché non è chiara
-• Statistiche dettagliate del tempo risparmiato (oggi, settimana, totale, per pagina)
-• Scorciatoie da tastiera personalizzate
+La tua privacy: LectureSpeed non traccia cosa guardi. Niente analytics e niente pubblicità; impostazioni, statistiche e segnalibri restano nel tuo browser. L'unica richiesta di rete è la verifica della chiave di licenza Pro.
 
-Pro: 7 giorni gratis, poi $4.99 l'anno. Disdici quando vuoi.
+Per iniziare, fissa l'estensione, apri una lezione registrata e premi D. Se il menu del player mostra ancora 1x è normale: la velocità la sta gestendo LectureSpeed.
 
-━━━━━━━━━━━━━━━━━━
-🔒 PRIVACY
-━━━━━━━━━━━━━━━━━━
-Nessun account. Non tracciamo cosa guardi: niente analytics, niente pubblicità. Impostazioni, statistiche e segnalibri restano nel tuo browser. L'unica richiesta di rete è la verifica della chiave di licenza Pro.
-
-━━━━━━━━━━━━━━━━━━
-COME SI USA
-━━━━━━━━━━━━━━━━━━
-1. Installa e fissa l'estensione
-2. Apri una lezione registrata
-3. Premi D / S, oppure usa il popup o il controller sul video
-
-━━━━━━━━━━━━━━━━━━
-FAQ
-━━━━━━━━━━━━━━━━━━
-Il player segna ancora 1x?
-È normale: la velocità la gestisce LectureSpeed, usa D/S o il popup.
-
-Non affiliato con Panopto, Echo360, Instructure (Canvas) o Moodle.
+LectureSpeed è un progetto indipendente e non è affiliato con nessuna piattaforma di lezioni o video.
 
 **Categoria:** Istruzione
 
 ---
 
-## Screenshots (1280×800, max 5) — from the draft
+## Screenshots (1280×800, max 5)
+
+1.9.1 assets: `docs/store-assets/1.9.1/` (5 screenshots, promo tile 440×280, marquee 1400×560), generated by `node docs/store-assets/source/make-shots.mjs` after `npm run build`. Icon: `public/icons/icon128.png`.
+
+Old list (1.9.0, from the draft):
 
 1. **Hero:** a Panopto lecture at 2.5x with the controller visible. Overlay text: "Finish lectures in half the time"
 2. **Platforms:** Panopto and Echo360 (one embedded in a Canvas/Moodle page). Text: "Works where you study"
@@ -195,7 +121,8 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 - [x] `version` 1.9.1 in `public/manifest.json` and `package.json`
 - [x] New icons 16/32/48/128 (`node scripts/make-icons.mjs`; 128 has 16 px transparent padding)
 - [x] Popup, options and onboarding in the landing palette; fonts bundled (no network)
-- [ ] Store screenshots 1280×800 + promo tile with the new popup and name
+- [x] Store screenshots 1280×800, promo tile 440×280 and marquee 1400×560 (`docs/store-assets/1.9.1/`)
+- [x] Long description rewritten in prose (EN + IT), "Bookmarks", generic disclaimer
 - [ ] Manual QA (`docs/QA.md`): Panopto, Echo360, Panopto in Canvas/Moodle, YouTube; Free and Pro popup; onboarding; import of a 1.9.0 backup
 - [ ] `npm run zip` → upload `release/LectureSpeed_v1.9.1.zip`; in the dashboard: name/description (EN + IT), new icon, screenshots
 - [ ] After approval: `RENAME_NOTICE = false` in `landing-page/site.js`, regenerate the landing screenshots, push
