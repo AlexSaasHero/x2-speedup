@@ -53,6 +53,14 @@ Il branch va online solo con la 1.9.1 approvata sullo Store (nuovo nome) e il do
 - Sostituire `[BRAND]` con il nome definitivo.
 - Rifare `og-image.png` con il nome: sorgente `docs/landing-assets/og-image.html`, comando `node docs/landing-assets/make-og.mjs`.
 - Favicon (`favicon-32.png`, `favicon-128.png`, `apple-touch-icon.png`) dall'icona nuova dell'estensione.
+- Rifare gli screenshot dell'estensione (il popup mostra il vecchio nome): `npm run build && node docs/landing-assets/make-ext-shots.mjs`.
+
+## Design (redesign 2026-11-16, branch `landing-rebrand`)
+- Piano: `docs/LANDING_DESIGN_PLAN.md`; brief: `docs/landing-redesign-brief.md`; registro dei giri di revisione: `docs/LANDING_ITERATIONS.md`.
+- Palette (token Tailwind in `tailwind.config.cjs`): `ink` #1B1E3C, `paper` #F5F7FB, `highlighter` #FFE14D (CTA, testo sempre ink), `timeline` #3D5AFE (su ink: `timeline-light` #8C9EFF), `graphite` #5A6278 (su ink: `mist` #B4BAD0), `saved` #14A870 solo su ink / `saved-ink` #0B7A50 su paper.
+- Font self-hosted in `fonts/` (niente Google Fonts): Bricolage Grotesque 700–800 per titoli, numeri (`.num`, cifre tabellari) e righe brevi in grassetto; Atkinson Hyperlegible 400/700 per il testo. Le cifre dentro il testo vengono da un sottoinsieme di Bricolage (Atkinson ha lo zero barrato).
+- `home.js`: demo della lezione (si comanda anche con D/S/R) e calcolatore (`ore × (1 − 1/velocità) × 15`).
+- Immagini vere dell'estensione in `img/` (WebP): `npm run build && node docs/landing-assets/make-ext-shots.mjs`. Badge ufficiale dello Store: `img/cws-badge-border.png`, da non modificare (solo ridimensionare), sempre linkato alla scheda.
 
 ## Regole
 - Lingua del sito: inglese. Codice e commenti: inglese.

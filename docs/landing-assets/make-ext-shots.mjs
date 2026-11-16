@@ -1,8 +1,9 @@
 // Real screenshots of the extension for the landing page (WebP), taken from the built extension.
 // Run from the repo root after `npm run build`:  node docs/landing-assets/make-ext-shots.mjs
-// Output: landing-page/img/popup-free.webp (popup, Free plan) and landing-page/img/badge-on-video.webp
-// (the on-video speed badge over our own demo lecture, lecture.html: no third-party content).
-// Demo stats live only in this throwaway browser profile.
+// Output: landing-page/img/popup-free.webp (popup, Free plan), popup-checkpoints.webp (Checkpoints tab,
+// demo Pro state) and badge-on-video.webp (the on-video speed badge over our own demo lecture,
+// lecture.html: no third-party content). Demo stats, checkpoints and the demo Pro license live only in
+// this throwaway browser profile.
 import { chromium } from '@playwright/test';
 import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -81,6 +82,20 @@ await sleep(2500);
 await popup.bringToFront(); // screenshots of a background tab never resolve
 const h = await popup.evaluate(() => Math.ceil(document.querySelector('.container, main, body > div')?.getBoundingClientRect().bottom ?? document.body.scrollHeight));
 const popupPng = await popup.screenshot({ clip: { x: 0, y: 0, width: 350, height: Math.min(h + 2, 900) }, fullPage: true });
+
+// Checkpoints tab (Pro): demo license and three checkpoints on the demo lecture.
+const cp = (time, label) => ({ id: `demo-${time}`, time, formattedTime: `${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`, label, pageTitle: 'Intro to Statistics – Lecture 4', url: LECTURE, createdAt: now });
+await sw.evaluate((d) => chrome.storage.local.set(d), {
+  license: { key: 'DEMO-PRO', status: 'active', source: 'lemonsqueezy', lastValidAt: now, lastCheckedAt: now, expiresAt: null },
+  videoCheckpoints: { [`localhost:${PORT}/lecture.html`]: [cp(724, 'Definition of standard deviation'), cp(1907, 'This will be on the exam'), cp(2890, 'Worked example, part 2')] }
+});
+await popup.reload();
+await sleep(2000);
+await popup.click('.tab-btn[data-tab="precision"]');
+await sleep(1200);
+await popup.bringToFront();
+const h2 = await popup.evaluate(() => Math.ceil(document.querySelector('.container, main, body > div')?.getBoundingClientRect().bottom ?? document.body.scrollHeight));
+const checkpointsPng = await popup.screenshot({ clip: { x: 0, y: 0, width: 350, height: Math.min(h2 + 2, 900) }, fullPage: true });
 await ctx.close();
 server.close();
 
@@ -102,4 +117,5 @@ async function toWebp(png, file) {
 }
 await toWebp(popupPng, 'popup-free.webp');
 await toWebp(badgePng, 'badge-on-video.webp');
+await toWebp(checkpointsPng, 'popup-checkpoints.webp');
 await browser.close();

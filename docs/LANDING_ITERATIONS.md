@@ -49,3 +49,54 @@ Versione valutata: redesign v1 (commit `042431f` + pagine legali `80e9031` + og-
 ### Limiti che non posso risolvere io
 - **Prova sociale (criteri 3 e 5):** non abbiamo recensioni né numeri da mostrare, e non vanno inventati. Come ottenerla: chiedere una recensione sullo Store ai 6 utenti attivi (popup dopo N ore risparmiate, già possibile nell'estensione con un link alla scheda), raccogliere commenti veri da Reddit/Discord con il permesso dell'autore. Con almeno 3 recensioni vere si aggiunge una riga sotto l'hero.
 - **`[BRAND]`:** pesa sulla fiducia negli screenshot; si risolve al rebrand.
+
+---
+
+## Giro 2 — 2026-11-16
+
+Prima del giro ho applicato le 6 richieste di Alex (commit `48867ae`):
+- popup vero (Free, 2.5x) nel passo 3 e badge vero sul video nel Pro, catturati dalla 1.9.0 in `dist/` sulla nostra lezione demo (`docs/landing-assets/make-ext-shots.mjs`), WebP con width/height;
+- numeri e timer in Bricolage con cifre tabellari (classe `.num`); le cifre dentro il testo Atkinson vengono da un sottoinsieme di Bricolage (10,8 KB), quindi niente più zero barrato; righe brevi in grassetto e domande della FAQ in Bricolage;
+- tolte le sezioni "One week of lectures" e "Where it works"; sotto la demo: "Tested on Panopto and Echo360, also inside Canvas or Moodle.";
+- badge ufficiale "Available in the Chrome Web Store" (asset di Google, versione con bordo, non modificato, 206×62, link alla scheda) accanto al CTA dell'hero e del CTA finale, solo desktop (su mobile non si può installare);
+- fiducia: tre punti con titolo grande e testo a 18 px.
+
+**Muro dei 2x: accorciato, non potenziato.** Motivo: il brief vuole un solo momento animato importante, e la demo dell'hero fa già vedere il limite dei 2x in modo interattivo ("That's where your lecture player stops. Try 2.5x."). Un secondo widget animato avrebbe ripetuto la stessa prova e allungato la pagina su mobile. La sezione ora è a metà altezza (py 48–64 px), un solo paragrafo e il visivo menu → linea tratteggiata → 2.5x/3x.
+
+### Voti (versione `48867ae`, prima delle modifiche del giro)
+
+| # | Criterio | S | C | A | Motivo principale |
+|---|---|---|---|---|---|
+| 1 | Chiarezza in 5 s | 8 | 8 | 8 | Su mobile ora la prima schermata dice "A free Chrome extension for your laptop" e i pulsanti della demo ci stanno (fondo a 832 px su 844). |
+| 2 | Prova | 8 | 8 | 9 | Demo + popup vero + badge vero. La funzione Pro principale (checkpoint) era ancora un mock-up HTML. |
+| 3 | Desiderio | 8 | 7 | 8 | Calcolatore efficace; "About" da solo sopra il numero si legge male. |
+| 4 | Obiezioni | 8 | 8 | 8 | Piattaforme subito sotto la demo; dubbio aperto su mobile: "posso iniziare la prova dal telefono?". |
+| 5 | Fiducia | 7 | 6 | 7 | Badge dello Store e screenshot veri aiutano; manca ancora prova sociale. Il popup dice "SpeedUP Video Pro" mentre la pagina dice `[BRAND]` (si risolve al rebrand). |
+| 6 | Pro | 7 | 7 | 8 | Prezzo chiaro; la prova di 7 giorni si vede solo sotto il bottone. |
+| 7 | Identità visiva | 8 | 8 | 8 | Ritmo più asciutto senza il prima/dopo; evidenziatore usato su 3 numeri. |
+| 8 | Tipografia e ritmo | 8 | 8 | 7 | Niente zero barrato. Restano: "$4.99" attaccato ad "a year", "About" orfano. |
+| 9 | Mobile | 7 | 7 | 8 | Nel calcolatore l'etichetta tocca "6 h"; bottone "Copy the link to install on your laptop" troppo lungo per la card Free. |
+| 10 | Prestazioni e accessibilità | 9 | 9 | 9 | Mobile con CPU 4× e 4G lenta: LCP 1,5–1,6 s (titolo H1), CLS 0,003, 198 KB in tutto. Bersagli piccoli solo nei link dentro il testo (esentati da WCAG 2.5.8). |
+| | **Media** | **7.8** | **7.7** | **8.0** | **Media generale 7.8** (giro 1: 7.0) |
+
+### Le 5 modifiche con più impatto (applicate)
+
+1. **Pro, prova vera:** nella card grande la scheda Precision vera del popup (frame-by-frame, A-B repeat, tre segnalibri), catturata in stato Pro dimostrativo nel profilo temporaneo; tolto il mock-up HTML. → criteri 2, 5, 6.
+2. **Calcolatore:** etichetta e valore non si toccano più su mobile; il risultato si legge come una frase: "You'd get back about **45 hours** this semester." → criteri 8, 9, 3.
+3. **Prezzi, tipografia e mobile:** spazio tra "$4.99" e "a year"; bottone mobile più corto, "Copy link for your laptop". → criteri 8, 9.
+4. **Pro, prova gratuita in vista:** etichetta gialla "7 days free" accanto al nome del piano. → criteri 6, 3.
+5. **Mobile, obiezione sulla prova:** sotto il bottone Pro, solo su mobile: "On your phone? Start the trial now: the license key arrives by email, ready for your laptop." → criteri 4, 9.
+
+### Provato e scartato
+- Secondo widget interattivo nel muro dei 2x: scartato (vedi sopra).
+- Badge dello Store anche su mobile: scartato, porterebbe a una pagina da cui non si può installare.
+- Ritaglio largo del badge sul video (420×236): il badge risultava minuscolo; ora 250×120.
+
+### Da affrontare al giro 3
+- Il popup chiama "Bookmarks" quello che la pagina chiama "checkpoints": decidere un nome unico (la UI dell'estensione o la landing).
+- Pagina mobile ancora lunga (≈ 8 800 px): valutare FAQ più corta o in due colonne su desktop.
+- Le tre icone disegnate a mano (frame-by-frame, A-B loop, scorciatoie) accanto agli screenshot veri sembrano più povere.
+
+### Limiti che non posso risolvere io
+- Prova sociale: come al giro 1.
+- `[BRAND]` e nome nel popup: dopo il rebrand rifare gli screenshot con `npm run build && node docs/landing-assets/make-ext-shots.mjs`.
