@@ -10,9 +10,13 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(path.join(root, 'landing-page/img', f), 'utf8');
-const mark = read('logo-mark.svg');
+// A thin light edge inside the ink square, so the icon also reads on dark backgrounds (Chrome Web
+// Store and chrome://extensions in dark mode, dark toolbar). Barely visible on light backgrounds.
+const edge = (svg, size, inset, r, w) =>
+  svg.replace('</svg>', `<rect x="${inset}" y="${inset}" width="${size - 2 * inset}" height="${size - 2 * inset}" rx="${r}" fill="none" stroke="#F5F7FB" stroke-opacity=".38" stroke-width="${w}"/></svg>`);
+const mark = edge(read('logo-mark.svg'), 64, 1, 14, 2);
 const jobs = [
-  ['icon16.png', 16, read('logo-mark-16.svg'), 0],
+  ['icon16.png', 16, edge(read('logo-mark-16.svg'), 16, 0.4, 3.1, 0.8), 0],
   ['icon32.png', 32, mark, 0],
   ['icon48.png', 48, mark, 0],
   ['icon128.png', 128, mark, 16]
