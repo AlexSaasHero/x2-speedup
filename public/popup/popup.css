@@ -1438,3 +1438,12 @@ input[type="range"]::-webkit-slider-thumb { background: #FFE14D; box-shadow: 0 0
 #btn-upgrade-pro:hover, #upgradeLifetimeBtn:hover, #btn-upgrade-pro:active, #upgradeLifetimeBtn:active { box-shadow: none; transform: none; filter: brightness(0.95); }
 #btn-upgrade-pro svg, #upgradeLifetimeBtn svg, .main-cta-btn svg { filter: none; }
 .logo-icon { box-shadow: none; }
+
+/* No glows: flat badges and status dots, like the landing page. */
+.tier-badge, .tier-free, .tier-trial, .tier-expired, .tier-pro, .status-badge { box-shadow: none; animation: none; }
+.tier-dot, .status-dot, .tier-free .tier-dot, .tier-trial .tier-dot, .tier-expired .tier-dot, .tier-pro .tier-dot, .status-online .status-dot { box-shadow: none; }
+.tier-free .tier-dot { background: #8C9EFF; }
+.tier-trial { background: rgba(255, 225, 77, 0.12); border-color: rgba(255, 225, 77, 0.45); color: #FFE14D; }
+.tier-trial .tier-dot { background: #FFE14D; }
+.tier-pro { background: rgba(20, 168, 112, 0.14); border-color: rgba(20, 168, 112, 0.5); color: #F5F7FB; }
+.tier-pro .tier-dot { background: #14A870; }
