@@ -185,7 +185,7 @@ export class RateController {
     if (speed === null) delete o[source];
     else o[source] = clampSpeed(speed, this.settings().pro);
     this.overrides.set(m, o);
-    this.apply(m);
+    this.apply(m, true);
     this.feedback.speedChanged(m);
   }
 
@@ -204,7 +204,7 @@ export class RateController {
     this.frameSpeed = next;
     for (const m of scope) {
       this.desired.set(m, next);
-      this.apply(m);
+      this.apply(m, true);
     }
     if (opts.persist !== false) this.persist(next);
     const anchor = scope[0] ?? this.registry.primary();
@@ -260,14 +260,38 @@ export class RateController {
 
   // ---- enforcement ----------------------------------------------------------------------------
 
-  private apply(m: Media): void {
+  /**
+   * Lecture platforms at 1x: the extension hands the speed back to the player. No guard attribute, no
+   * re-apply of the player's changes, the player's own menu works again. The 1x itself is still
+   * written once when the student picks it (`apply(m, true)`).
+   */
+  private released(m: Media): boolean {
+    return this.quirks.extensionOwnsRate && sameSpeed(this.speedOf(m), 1);
+  }
+
+  /** Stop owning anything in this frame: the extension was disabled, updated or removed (orphaned script). */
+  shutdown(): void {
+    if (!this.ready) return;
+    this.ready = false;
+    clearTimeout(this.persistTimer);
+    for (const m of this.registry.all()) m.removeAttribute(OWNED_RATE_ATTR);
+    debug('extension context gone: speed released');
+  }
+
+  /** `force`: the student just chose this speed (written even when it releases the player at 1x). */
+  private apply(m: Media, force = false): void {
     if (!this.ready) return;
     const s = this.settings();
     const want = this.speedOf(m);
     try {
-      // Lecture platforms: tell the page-world rate guard which speed this element must keep.
-      if (this.quirks.extensionOwnsRate && m.getAttribute(OWNED_RATE_ATTR) !== String(want)) {
-        m.setAttribute(OWNED_RATE_ATTR, String(want));
+      if (this.quirks.extensionOwnsRate) {
+        if (this.released(m)) {
+          if (m.hasAttribute(OWNED_RATE_ATTR)) m.removeAttribute(OWNED_RATE_ATTR);
+          if (!force) return;
+        } else if (m.getAttribute(OWNED_RATE_ATTR) !== String(want)) {
+          // Tell the page-world rate guard which speed this element must keep.
+          m.setAttribute(OWNED_RATE_ATTR, String(want));
+        }
       }
       if (!sameSpeed(m.playbackRate, want)) m.playbackRate = want;
       if (!sameSpeed(m.defaultPlaybackRate, want)) m.defaultPlaybackRate = want;
@@ -294,6 +318,12 @@ export class RateController {
 
     const want = this.speedOf(m);
     const rate = m.playbackRate;
+
+    // Lecture platform at 1x: the player (or the student, through it) is free to change the speed.
+    if (this.released(m)) {
+      this.feedback.speedChanged(m);
+      return;
+    }
 
     if (sameSpeed(rate, want)) {
       // Hide >2x from players that clamp it (YouTube). Not on lecture platforms: their players keep
@@ -325,6 +355,7 @@ export class RateController {
 
   /** Undo a speed change made by the player, within the anti-loop budget. */
   private reapply(m: Media): boolean {
+    if (!this.ready || this.released(m)) return false;
     const now = performance.now();
     if (!this.budgetFor(m).allow(now)) {
       // A player that keeps forcing: stop fighting for a few seconds instead of burning CPU.
