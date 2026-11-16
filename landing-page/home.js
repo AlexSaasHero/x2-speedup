@@ -70,7 +70,8 @@
       speed = next;
       pill.textContent = label(speed);
       radios.forEach((r) => { r.checked = Number(r.value) === speed; });
-      beyond.classList.toggle('invisible', speed <= 2);
+      beyond.textContent = speed > 2 ? "Your lecture player stops at 2x. This doesn't." : "That's where your lecture player stops. Try 2.5x.";
+      beyond.classList.toggle('invisible', speed < 2);
       animateLength(LECTURE / speed);
       lengthSr.textContent = `This 75-minute lecture takes ${clock(LECTURE / speed)} at ${label(speed)}.`;
     }

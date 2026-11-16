@@ -80,7 +80,7 @@
       <a href="/" class="font-display font-extrabold text-xl tracking-tight">[BRAND]</a>
       <nav class="flex items-center gap-5 text-[15px]" aria-label="Main">
         <a href="#how" class="hidden md:inline text-graphite hover:text-ink">How it works</a>
-        <a href="#pricing" class="text-graphite hover:text-ink">Pricing</a>
+        <a href="#pricing" class="text-graphite hover:text-ink py-3 px-1">Pricing</a>
         <a href="#faq" class="hidden md:inline text-graphite hover:text-ink">FAQ</a>
         <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only bg-highlighter hover:brightness-95 text-ink font-bold px-4 py-2 rounded-lg">Add to Chrome</a>
       </nav>
@@ -94,6 +94,7 @@
       <div>
         <h1 class="text-[40px] sm:text-6xl lg:text-[68px] font-extrabold leading-[1.02]">Lectures at your speed. Not your player's.</h1>
         <p class="mt-5 text-lg sm:text-xl text-graphite max-w-prose">Go past the 2x limit on the parts you already know. Slow down and bookmark the parts that matter for the exam.</p>
+        <p class="mobile-only mt-4 font-bold">A free Chrome extension for your laptop. No account needed.</p>
         <div class="desktop-only mt-8">
           <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl shadow-[0_2px_0_#1B1E3C]">Add to Chrome, it's free</a>
           <p class="mt-3 text-sm text-graphite">Works in Chrome and Edge. No account needed.</p>
@@ -117,7 +118,7 @@
           </p>
         </div>
         <div class="flex items-center gap-3 px-4 py-2.5 bg-ink text-paper">
-          <button id="demo-play" type="button" class="w-8 h-8 shrink-0 rounded-full bg-paper/10 hover:bg-paper/20 flex items-center justify-center" aria-label="Pause the demo">
+          <button id="demo-play" type="button" class="w-11 h-11 sm:w-9 sm:h-9 shrink-0 rounded-full bg-paper/10 hover:bg-paper/20 flex items-center justify-center" aria-label="Pause the demo">
             <svg id="demo-play-icon" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="8.5" y="1" width="3.5" height="12" rx="1" fill="currentColor"/></svg>
           </button>
           <div class="flex-1 h-1.5 rounded-full bg-paper/20 overflow-hidden"><div id="demo-progress" class="h-full bg-timeline-light" style="width:26%"></div></div>
@@ -159,23 +160,23 @@
           <p class="mt-6 text-lg text-mist max-w-prose">Five courses. Three hours of recordings a week. Exams in a month. You open the speed menu and it ends at 2x, so the parts you already know take as long as the parts you don't.</p>
           <p class="mt-4 text-lg text-mist max-w-prose">[BRAND] takes over the speed in your browser: past 2x when the lecture is easy, back to 1x when it isn't.</p>
         </div>
-        <div class="flex items-end justify-center gap-6 sm:gap-10" aria-hidden="true">
-          <div class="w-36 rounded-xl bg-paper/5 border border-paper/15 p-3 text-sm">
-            <p class="text-mist text-xs mb-2">Player speed</p>
-            <ul class="space-y-1 tnum">
-              <li class="px-2 py-1 text-mist">0.5x</li>
-              <li class="px-2 py-1 text-mist">1x</li>
-              <li class="px-2 py-1 text-mist">1.25x</li>
-              <li class="px-2 py-1 text-mist">1.5x</li>
-              <li class="px-2 py-1 rounded bg-paper/10 font-bold">2x</li>
-            </ul>
-            <p class="mt-2 pt-2 border-t-2 border-dashed border-paper/30 text-xs text-mist">That's the end of the menu.</p>
+        <div aria-hidden="true">
+          <div class="flex items-stretch">
+            <div class="flex-1 rounded-xl border border-paper/15 bg-paper/5 p-4">
+              <p class="text-sm text-mist">Your lecture player</p>
+              <div class="mt-3 flex flex-wrap gap-1.5 tnum text-[15px]">
+                <span class="px-2.5 py-1 rounded-full bg-paper/10 text-mist">1x</span>
+                <span class="px-2.5 py-1 rounded-full bg-paper/10 text-mist">1.5x</span>
+                <span class="px-2.5 py-1 rounded-full bg-paper/25 font-bold">2x</span>
+              </div>
+            </div>
+            <div class="mx-3 sm:mx-4 border-l-[3px] border-dashed border-highlighter"></div>
+            <div class="flex-1 py-4">
+              <p class="text-sm font-bold text-highlighter">[BRAND]</p>
+              <div class="mt-3 flex flex-wrap gap-1.5"><span class="speed-pill">2.5x</span><span class="speed-pill">3x</span></div>
+            </div>
           </div>
-          <div class="flex flex-col items-start gap-2 pb-1">
-            <span class="speed-pill">2.5x</span>
-            <span class="speed-pill">3x</span>
-            <span class="text-xs text-mist mt-1">[BRAND] keeps going.</span>
-          </div>
+          <p class="mt-4 text-mist">The speed menu ends at 2x. The extension doesn't.</p>
         </div>
       </div>
     </section>
@@ -208,10 +209,7 @@
           <p id="calc-beyond" class="mt-3 text-lg font-bold" hidden></p>
           <p class="mt-4 text-sm text-graphite">Compared with watching everything at 1x, over a 15-week semester.</p>
           <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only mt-8 inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl shadow-[0_2px_0_#1B1E3C]">Add to Chrome, it's free</a>
-          <div class="mobile-only mt-8 rounded-xl border border-ink/15 bg-white p-4 text-center">
-            <p class="text-[15px]">💻 Chrome extensions install on desktop. Open this page on your computer.</p>
-            <button type="button" data-copy-link class="mt-3 w-full bg-highlighter text-ink font-bold py-3 rounded-xl">Copy link</button>
-          </div>
+          <button type="button" data-copy-link class="mobile-only mt-8 w-full bg-highlighter text-ink font-bold py-3.5 rounded-xl">Copy the link to install on your laptop</button>
         </div>
       </div>
     </section>
@@ -249,9 +247,9 @@
         <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05] max-w-2xl">Built for the week before the exam.</h2>
         <p class="mt-4 text-lg text-graphite max-w-prose">Speed gets you through the lectures. These Pro tools help you come back to what matters.</p>
 
-        <div class="mt-12 grid lg:grid-cols-3 gap-5">
+        <div class="mt-12 grid lg:grid-cols-3 lg:gap-5">
           <!-- Large: checkpoints, with a mock-up of the real popup list -->
-          <article class="lg:col-span-2 lg:row-span-2 rounded-2xl bg-paper p-6 sm:p-8 flex flex-col">
+          <article class="lg:col-span-2 lg:row-span-2 rounded-2xl bg-paper p-6 sm:p-8 flex flex-col mb-4 lg:mb-0">
             <h3 class="text-2xl sm:text-3xl font-bold">Checkpoints with notes</h3>
             <p class="mt-2 text-graphite max-w-prose">Bookmark the moment the professor says "this will be on the exam". Jump back in one click.</p>
             <div class="mt-6 rounded-xl bg-white border border-ink/10 p-4 sm:p-5 max-w-lg w-full" aria-hidden="true">
@@ -264,31 +262,31 @@
             </div>
           </article>
 
-          <article class="rounded-2xl border border-ink/10 p-6">
+          <article class="py-6 border-b border-ink/10 last:border-b-0 lg:border lg:rounded-2xl lg:p-6 lg:last:border-b">
             <div class="flex gap-1.5" aria-hidden="true"><span class="w-8 h-6 rounded bg-ink/10"></span><span class="w-8 h-6 rounded bg-ink ring-2 ring-highlighter"></span><span class="w-8 h-6 rounded bg-ink/10"></span></div>
             <h3 class="mt-4 text-xl font-bold">Frame-by-frame</h3>
             <p class="mt-1.5 text-graphite">Freeze on the exact slide, formula or whiteboard sketch.</p>
           </article>
 
-          <article class="rounded-2xl border border-ink/10 p-6">
+          <article class="py-6 border-b border-ink/10 last:border-b-0 lg:border lg:rounded-2xl lg:p-6 lg:last:border-b">
             <div class="relative h-6" aria-hidden="true"><div class="absolute inset-x-0 top-2.5 h-1 rounded bg-ink/10"></div><div class="absolute top-2.5 h-1 left-[30%] right-[35%] bg-timeline rounded"></div><span class="absolute left-[30%] -translate-x-1/2 top-0 text-[11px] font-bold">A</span><span class="absolute right-[35%] translate-x-1/2 top-0 text-[11px] font-bold">B</span></div>
             <h3 class="mt-4 text-xl font-bold">A-B loop</h3>
             <p class="mt-1.5 text-graphite">Replay the explanation that didn't click, until it does.</p>
           </article>
 
-          <article class="rounded-2xl border border-ink/10 p-6">
+          <article class="py-6 border-b border-ink/10 last:border-b-0 lg:border lg:rounded-2xl lg:p-6 lg:last:border-b">
             <span class="speed-pill" aria-hidden="true">2.5x</span>
             <h3 class="mt-4 text-xl font-bold">Remembers your speed</h3>
             <p class="mt-1.5 text-graphite">Set 2.5x once. Every lecture on that site starts there.</p>
           </article>
 
-          <article class="rounded-2xl border border-ink/10 p-6">
+          <article class="py-6 border-b border-ink/10 last:border-b-0 lg:border lg:rounded-2xl lg:p-6 lg:last:border-b">
             <div class="flex items-end gap-1.5 h-6" aria-hidden="true"><span class="w-3 h-2 rounded-sm bg-saved/40"></span><span class="w-3 h-4 rounded-sm bg-saved/60"></span><span class="w-3 h-3 rounded-sm bg-saved/50"></span><span class="w-3 h-6 rounded-sm bg-saved"></span></div>
             <h3 class="mt-4 text-xl font-bold">Your study stats</h3>
             <p class="mt-1.5 text-graphite">See the hours you saved today, this week and in total.</p>
           </article>
 
-          <article class="rounded-2xl border border-ink/10 p-6">
+          <article class="py-6 border-b border-ink/10 last:border-b-0 lg:border lg:rounded-2xl lg:p-6 lg:last:border-b">
             <div class="flex gap-1.5" aria-hidden="true"><kbd class="font-bold text-sm bg-paper border border-ink/20 border-b-[3px] rounded px-2">J</kbd><kbd class="font-bold text-sm bg-paper border border-ink/20 border-b-[3px] rounded px-2">K</kbd><kbd class="font-bold text-sm bg-paper border border-ink/20 border-b-[3px] rounded px-2">L</kbd></div>
             <h3 class="mt-4 text-xl font-bold">Custom shortcuts</h3>
             <p class="mt-1.5 text-graphite">Your keys, your way.</p>
@@ -345,10 +343,7 @@
             <li>Time-saved counter</li>
           </ul>
           <a href="https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only mt-8 text-center border-2 border-ink hover:bg-ink hover:text-paper font-bold py-3.5 rounded-xl">Add to Chrome, it's free</a>
-          <div class="mobile-only mt-8 rounded-xl border border-ink/15 bg-white p-4 text-center">
-            <p class="text-[15px]">💻 Chrome extensions install on desktop. Open this page on your computer.</p>
-            <button type="button" data-copy-link class="mt-3 w-full bg-highlighter text-ink font-bold py-3 rounded-xl">Copy link</button>
-          </div>
+          <button type="button" data-copy-link class="mobile-only mt-8 w-full bg-highlighter text-ink font-bold py-3.5 rounded-xl">Copy the link to install on your laptop</button>
         </div>
         <div class="rounded-2xl border-2 border-timeline bg-white p-7 flex flex-col">
           <h3 class="text-2xl font-bold">Pro</h3>
@@ -443,9 +438,9 @@
         <p class="mt-2 max-w-md">This extension is an independent project and is not affiliated with any lecture or video platform.</p>
       </div>
       <div class="flex gap-6">
-        <a href="privacy.html" class="hover:text-ink">Privacy</a>
-        <a href="terms.html" class="hover:text-ink">Terms</a>
-        <a href="mailto:speedupvideopro.help@gmail.com" class="hover:text-ink">Contact</a>
+        <a href="privacy.html" class="hover:text-ink py-2">Privacy</a>
+        <a href="terms.html" class="hover:text-ink py-2">Terms</a>
+        <a href="mailto:speedupvideopro.help@gmail.com" class="hover:text-ink py-2">Contact</a>
       </div>
     </div>
   </footer>
