@@ -1,5 +1,7 @@
 # Store listing — SpeedUp Video Pro (v1.9.0)
 
+> **Status: v1.9.0 is published on the Chrome Web Store (approved 2026-11-16)**, after a first rejection for excessive keywords in the description (platform list + 6-brand disclaimer), fixed by rewriting it in prose.
+
 > Source: Alex's draft (`chrome-store-listing.md`, 2026-11-15), corrected against the 1.9.0 code.
 > - Platforms: only the ones tested by hand on 1.9.0 (Panopto Viewer and Embed, Echo360; YouTube). Canvas and Moodle only as *hosts* of embedded Panopto/Echo360 lectures, not their own players.
 > - Pro features: only what exists in `src/config/plans.ts`. **Skip silence** exists (Pro) but is **not advertised** until Web Audio is verified on Panopto/Echo360 media (CORS). Stats are today / week / total / per page, **not per course**.
@@ -181,14 +183,14 @@ Use a lecture you own or one with an open license (e.g. MIT OpenCourseWare, CC).
 
 **Data usage disclosure:** The extension does not collect or transmit user data. The license key the user enters is sent to Lemon Squeezy for verification. Nothing is sold or shared; no analytics.
 
-**Privacy policy URL:** https://x2-speedup.vercel.app/privacy.html — updated for 1.9.0: separates the extension (zero tracking, only license verification with Lemon Squeezy) from the website (Google Analytics 4 + Microsoft Clarity).
+**Privacy policy URL:** https://x2-speedup.vercel.app/privacy.html — updated for 1.9.0: separates the extension (zero tracking, only license verification with Lemon Squeezy) from the website (cookie-free Vercel Web Analytics since 2026-11-15; GA4 and Clarity removed).
 
 ## Publishing checklist
 
 - [x] Tested by hand on Panopto (Viewer, Embed) and Echo360 — Alex, 2026-11-15
 - [x] `name` and `description` updated (`src/_locales/*.json`, manifest uses `__MSG_…__`)
 - [x] `version` 1.9.0 in manifest
-- [ ] Upload `release/SpeedUp_Video_Pro_v1.9.0.zip`
+- [x] Upload `release/SpeedUp_Video_Pro_v1.9.0.zip` — approved and live 2026-11-16
 - [ ] Description, screenshots and category (Education) updated in the dashboard
-- [ ] Privacy policy URL working (after the landing deploy)
+- [x] Privacy policy URL working (200, checked 2026-11-16)
 - [ ] "Privacy practices" tab: host permission now only api.lemonsqueezy.com

@@ -26,11 +26,11 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 - **FAQ:** "Funziona sulla piattaforma della mia università?", "Raccogliete dati?", "Come attivo il Pro?", "Posso disdire?"
 
 ## Checkout Pro: interruttore
-Dal 2026-11-15 l'acquisto è **spento** finché la 1.9.0 non è approvata sullo Store (lo Store distribuisce ancora la 1.5.1.8).
+Stato: **acceso** dal 2026-11-16 (1.9.0 approvata e pubblicata sullo Store). Era spento dal 2026-11-15 mentre lo Store distribuiva ancora la 1.5.1.8.
 - Interruttore unico: `PRO_CHECKOUT_ENABLED` in cima a `site.js`.
-- `false` (oggi): i bottoni Pro (`data-pro-cta`) mostrano "Pro launching soon" e portano alla sezione `#pricing`; `lemon.js` non viene caricato.
-- `true`: i bottoni prendono il testo di `data-pro-label` ("Try Pro free for 7 days") e aprono il checkout in overlay; dopo `Checkout.Success` redirect a `/thanks.html`.
-- **Per riattivarlo:** in `site.js` metti `const PRO_CHECKOUT_ENABLED = true;`, riscrivi la FAQ "How do I activate Pro?" in `index.html` (oggi dice "Pro is launching in the next few days…"; prima diceva: trial → chiave a schermo e via email → incollala nel popup), anteprima locale (clic sul bottone Pro → si apre l'overlay Lemon Squeezy), commit, push su `main`.
+- `true` (oggi): i bottoni Pro (`data-pro-cta`) prendono il testo di `data-pro-label` ("Try Pro free for 7 days") e aprono il checkout in overlay; dopo `Checkout.Success` redirect a `/thanks.html`. Su Lemon Squeezy il redirect dopo il pagamento punta a `/thanks.html`.
+- `false`: i bottoni mostrano "Pro launching soon" e portano alla sezione `#pricing`; `lemon.js` non viene caricato. Se lo rispegni, riscrivi anche la FAQ "How do I activate Pro?" in `index.html` (oggi: "Pro starts with a 7-day free trial, then $4.99/year. Cancel anytime.").
+- Dopo ogni modifica: anteprima locale (clic sul bottone Pro → si apre l'overlay Lemon Squeezy), commit, push su `main`.
 - Nuovi bottoni Pro: `<a href="#pricing" data-pro-cta data-pro-label="Testo quando è attivo">Pro launching soon</a>`. Mai mettere il link di checkout direttamente nell'HTML.
 
 ## Mobile: niente "Add to Chrome"
