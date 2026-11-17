@@ -54,6 +54,7 @@ La landing con il nome LectureSpeed è online dal 2026-11-16, **prima** della 1.
 - Indirizzo: canonical, `og:url`, `og:image`, `twitter:image` e dati strutturati usano `https://lecturespeed.vercel.app`. Se arriva un dominio proprio, sostituirli tutti (index, privacy, terms) e aggiornare `src/shared/links.ts` nell'estensione.
 
 ## SEO: sitemap e robots
+- Guide per intento di ricerca: `panopto-faster-than-2x.html`, generata da `docs/landing-assets/guides/panopto-faster-than-2x.py` (modifica lo script, poi `python3 …py` e `npm run landing:css`): FAQ visibili e JSON-LD `FAQPage` vengono dallo stesso elenco. Linkata dal footer della home ("Guides") e in `sitemap.xml`. La nota di rinomina usa lo stesso flag `RENAME_NOTICE`.
 - `sitemap.xml`: home, privacy e terms (non thanks). Aggiornare `lastmod` quando una pagina cambia nei contenuti, e aggiungere le pagine nuove (es. guide per intento di ricerca).
 - `robots.txt`: tutto consentito, `/thanks.html` escluso, indica la sitemap. `thanks.html` ha anche `noindex`.
 
