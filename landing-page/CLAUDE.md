@@ -53,6 +53,10 @@ La landing con il nome LectureSpeed è online dal 2026-11-16, **prima** della 1.
 - **Quando la 1.9.1 è approvata sullo Store:** `const RENAME_NOTICE = false;`, rigenera gli screenshot dell'estensione (`npm run build && node docs/landing-assets/make-ext-shots.mjs`), anteprima, commit, push su `main`.
 - Indirizzo: canonical, `og:url`, `og:image`, `twitter:image` e dati strutturati usano `https://lecturespeed.vercel.app`. Se arriva un dominio proprio, sostituirli tutti (index, privacy, terms) e aggiornare `src/shared/links.ts` nell'estensione.
 
+## SEO: sitemap e robots
+- `sitemap.xml`: home, privacy e terms (non thanks). Aggiornare `lastmod` quando una pagina cambia nei contenuti, e aggiungere le pagine nuove (es. guide per intento di ricerca).
+- `robots.txt`: tutto consentito, `/thanks.html` escluso, indica la sitemap. `thanks.html` ha anche `noindex`.
+
 ## Regole
 - Lingua del sito: inglese. Codice e commenti: inglese.
 - Mobile first: molti studenti arrivano da Reddit su telefono.
