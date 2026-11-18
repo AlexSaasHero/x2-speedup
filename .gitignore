@@ -14,3 +14,6 @@ dist-firefox/
 # Riordino 2026-11-13: cartelle locali, non vanno su git
 _to_delete/
 _archive/
+
+# Intermediate captures of docs/store-assets/source/make-shots.mjs (regenerated on every run)
+docs/store-assets/source/.raw/
