@@ -41,7 +41,7 @@ test('popup renders free tier from plans config with no errors and no network', 
 
   await setPro(sw);
   await page.reload();
-  await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active ✨');
+  await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active');
 
   expect(errors).toEqual([]);
   expect(requests.filter((u) => !u.startsWith('chrome-extension://'))).toEqual([]);

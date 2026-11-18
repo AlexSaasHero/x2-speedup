@@ -42,7 +42,7 @@ test.describe('license', () => {
     await expect(page.locator('#statusMsg')).toHaveText('Invalid license key.');
     await page.fill('#input-license-key', 'GOOD-KEY');
     await page.click('#activateBtn');
-    await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active ✨');
+    await expect(page.locator('#tierBadgeText')).toHaveText('Pro Active');
     const license = await sw.evaluate(() => chrome.storage.local.get('license').then((r) => r.license));
     expect(license).toMatchObject({ key: 'GOOD-KEY', status: 'active' });
   });
@@ -83,7 +83,7 @@ test('onboarding page: localized, shortcut demo reacts to the user keys, no erro
   const page = await context.newPage();
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`chrome-extension://${extensionId}/onboarding/onboarding.html`);
-  await expect(page.locator('h1')).toHaveText('Welcome to SpeedUp Video Pro');
+  await expect(page.locator('h1')).toHaveText('Welcome to LectureSpeed');
   await expect(page.locator('#demoKeys li')).toHaveCount(6);
   await page.click('#demoPlay');
   await page.keyboard.press('d');

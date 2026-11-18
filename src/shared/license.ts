@@ -36,7 +36,7 @@ export const LS_VALIDATE_URL = 'https://api.lemonsqueezy.com/v1/licenses/validat
 
 /** Our Lemon Squeezy store (public ID, not a secret). */
 export const LS_STORE_ID = 455524;
-/** Live product: SpeedUp Video Pro – Annual ($4.99/year, 7-day trial). Keys expire with the subscription. */
+/** Live product: LectureSpeed Pro – Annual, formerly "SpeedUp Video Pro – Annual" ($4.99/year, 7-day trial). Matched by ID, not by name. Keys expire with the subscription. */
 export const LS_PRODUCT_ANNUAL = 1526762;
 /** Old product: Lifetime License ($1.99), no longer sold. Its keys never expire and stay Pro forever. */
 export const LS_PRODUCT_LIFETIME = 1414439;

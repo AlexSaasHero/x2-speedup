@@ -104,7 +104,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         ]
       });
       // No real network in tests: block the remote welcome page / license endpoints.
-      await context.route(/x2-speedup\.vercel\.app|lemonsqueezy\.com/, (route) => route.abort());
+      await context.route(/x2-speedup\.vercel\.app|lecturespeed\.vercel\.app|lemonsqueezy\.com/, (route) => route.abort());
       await use(context);
       await context.close();
     },

@@ -44,6 +44,11 @@ export interface SiteQuirks {
    * verified yet (CORS), and a failed hookup can mute the lecture. Hidden in the popup too.
    */
   noSkipSilence: boolean;
+  /**
+   * Default corner of the speed badge. Lecture players put their logo and title in the top-left of the
+   * video (Panopto's logo, QA 2026-11-16; Echo360's title): the badge goes top-right on both.
+   */
+  overlayCorner: 'top-left' | 'top-right';
 }
 
 export function lecturePlatform(host: string): LecturePlatform | null {
@@ -62,6 +67,7 @@ export function quirksFor(host: string): SiteQuirks {
     allStreams: platform !== null,
     extensionOwnsRate: platform !== null,
     quietOverlay: platform !== null,
-    noSkipSilence: platform !== null
+    noSkipSilence: platform !== null,
+    overlayCorner: platform !== null ? 'top-right' : 'top-left'
   };
 }

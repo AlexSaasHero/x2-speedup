@@ -1,8 +1,8 @@
-// Build script for SpeedUp Video Pro (Manifest V3).
+// Build script for LectureSpeed (formerly SpeedUp Video Pro), Manifest V3.
 //   node scripts/build.mjs                    Chrome/Edge production build -> dist/
 //   node scripts/build.mjs --dev              dev build (__DEV__ = true, dev master key, sourcemaps)
 //   node scripts/build.mjs --watch            rebuild on change
-//   node scripts/build.mjs --zip              production build + release/SpeedUp_Video_Pro_v<version>.zip
+//   node scripts/build.mjs --zip              production build + release/LectureSpeed_v<version>.zip
 //   node scripts/build.mjs --target=firefox   Firefox build -> dist-firefox/ (see docs/FIREFOX.md)
 import * as esbuild from 'esbuild';
 import { cp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -57,7 +57,8 @@ const options = {
 /** @type {esbuild.BuildOptions} */
 const contentOptions = {
   ...options,
-  entryPoints: { 'content/content': 'src/content/index.ts' },
+  // content/main-world: page-world rate guard, lecture-platform domains only (src/shared/rate-guard.ts).
+  entryPoints: { 'content/content': 'src/content/index.ts', 'content/main-world': 'src/content/main-world.ts' },
   minify: !isDev
 };
 
@@ -88,7 +89,7 @@ async function zipRelease() {
   const releaseDir = path.join(root, 'release');
   await mkdir(releaseDir, { recursive: true });
   const suffix = target === 'firefox' ? '_firefox' : '';
-  const zipPath = path.join(releaseDir, `SpeedUp_Video_Pro_v${manifest.version}${suffix}.zip`);
+  const zipPath = path.join(releaseDir, `LectureSpeed_v${manifest.version}${suffix}.zip`);
   await rm(zipPath, { force: true });
   execFileSync('zip', ['-qr', '-X', zipPath, '.', '-x', '.DS_Store', '*/.DS_Store'], { cwd: outdir });
   const { size } = await stat(zipPath);

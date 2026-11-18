@@ -1,4 +1,4 @@
-// SpeedUp Video Pro — content script entry (runs at document_start in every frame).
+// LectureSpeed — content script entry (runs at document_start in every frame).
 //
 // Cost model: this script is injected into every frame of every page (ad iframes included), so
 // it stays dormant until a <video>/<audio> actually appears: before that it only keeps a
@@ -26,6 +26,8 @@ const host = location.hostname;
 const quirks = quirksFor(host);
 /** Overlay auto-hide on lecture platforms (and the default elsewhere). */
 const QUIET_OVERLAY_MS = 2000;
+/** How often a booted frame checks that the extension still exists (orphaned script after disable/update). */
+const ORPHAN_CHECK_MS = 2000;
 let settings: ContentSettings | null = null;
 const getSettings = (): ContentSettings => {
   if (!settings) throw new Error('settings not loaded');
@@ -51,7 +53,8 @@ const overlay = new Overlay({
     if (!settings) return;
     chrome.storage.local.set({ overlayPositions: { ...settings.overlayPositions, [host]: p } }).catch(() => {});
   },
-  step: (dir) => controller.step(dir)
+  step: (dir) => controller.step(dir),
+  corner: () => quirks.overlayCorner
 });
 
 const mediaListeners = new Set<(m: Media) => void>();
@@ -186,6 +189,15 @@ function boot(): Promise<void> {
 
       installShortcuts({ settings: getSettings, host, hasMedia: () => registry.count() > 0, run: runShortcut, hold: holdToSpeed });
       installMessageHandler({ registry, controller, overlay, settings: getSettings, host, rules: () => rules, ab, stats });
+
+      // Disabled, updated or removed while this page stays open: Chrome leaves this script running
+      // ("orphaned") but without chrome.runtime. Then stop enforcing and release the media, so the
+      // page-world rate guard on lecture platforms lets the player set its speed again.
+      const alive = window.setInterval(() => {
+        if (chrome.runtime?.id) return;
+        clearInterval(alive);
+        controller.shutdown();
+      }, ORPHAN_CHECK_MS);
 
       // Show the overlay while the pointer is over a video (auto-hides after the configured delay).
       // Not on lecture platforms: there it only appears when the speed changes.

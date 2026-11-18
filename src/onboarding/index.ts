@@ -122,10 +122,10 @@ function mountDemo(state: StoredState) {
   const draw = () => {
     const w = canvas.width;
     const h = canvas.height;
-    ctx.fillStyle = '#020617';
+    ctx.fillStyle = '#14162E'; // ink, a shade darker than the page
     ctx.fillRect(0, 0, w, h);
     const now = audio.currentTime;
-    ctx.fillStyle = '#7c3aed';
+    ctx.fillStyle = '#8C9EFF'; // timeline-light
     for (let x = 0; x < w; x += 6) {
       const tt = now + (x - w / 2) / 120;
       const on = ((tt % 2.5) + 2.5) % 2.5 < 1.6;
@@ -134,7 +134,7 @@ function mountDemo(state: StoredState) {
       ctx.fillRect(x, h / 2 - amp, 4, amp * 2);
     }
     ctx.globalAlpha = 1;
-    ctx.fillStyle = '#67e8f9';
+    ctx.fillStyle = '#FFE14D'; // highlighter playhead
     ctx.fillRect(w / 2 - 1, 8, 2, h - 16);
     const s = Math.floor(now);
     timeEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;

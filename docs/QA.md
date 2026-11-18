@@ -72,6 +72,38 @@ Note:
 - **Ancora aperto:** su Panopto Embed (16x, riproduzione lunga) ed Echo360 (apertura lezione, seek, clic sul video, lezione successiva) il player rimette 1x in momenti diversi dal Play e la velocità **resta** a 1x. Da indagare prima della 1.9.0.
 - Riga 3: con gli stream accelerati Panopto sposta in avanti lo stream grande. Va guardato a occhio (slide e voce restano allineate?) prima di decidere se è un problema.
 
+### 0c. Echo360 e Panopto — prova della 1.9.1 (BUGS #24, #27, #28)
+
+Su `dist/` aggiornata (`npm run build`, poi "Aggiorna" in `chrome://extensions`), alla velocità 2.6x:
+
+1. Apri la lezione, imposta 2.6x (D o popup), premi Play del player.
+2. Apri la console (F12). Se il video sta in un iframe, scegli il frame del player nel menu "top" della console.
+3. Incolla lo snippet qui sotto: misura per 10 s di riproduzione la velocità reale (secondi di video ÷ secondi reali, i salti esclusi).
+4. Durante i 10 s: 2 cicli Pausa/Play coi pulsanti del player e un salto sulla barra.
+
+```js
+(() => {
+  const all = (root) => [...root.querySelectorAll('*')].flatMap((e) => (e.shadowRoot ? [e, ...all(e.shadowRoot)] : [e]));
+  const v = all(document).filter((e) => e instanceof HTMLMediaElement).sort((a, b) => (b.duration || 0) - (a.duration || 0))[0];
+  if (!v) return console.warn('nessun video in questo frame');
+  let video = 0, real = 0, last = null, dips = 0;
+  const id = setInterval(() => {
+    const now = { t: performance.now(), c: v.currentTime, r: v.playbackRate, playing: !v.paused && !v.seeking };
+    if (now.playing && Math.abs(now.r - 2.6) > 0.01) dips++;
+    if (last && last.playing && now.playing) {
+      const dt = (now.t - last.t) / 1000, dv = now.c - last.c;
+      if (dv >= 0 && dv < 1.5) { video += dv; real += dt; }
+    }
+    last = now;
+    if (real >= 10) { clearInterval(id); console.log(`velocità reale ${(video / real).toFixed(2)}x su ${real.toFixed(1)} s · campioni non a 2.6x: ${dips}`); }
+  }, 50);
+})();
+```
+
+**Rilascio (BUGS #31):** imposta 1x dall'estensione (R o popup): il menu velocità del player deve tornare a funzionare. Disattiva l'estensione in `chrome://extensions` con la lezione aperta: entro 2 s il player deve poter cambiare velocità di nuovo.
+
+**Criterio:** velocità reale ≥ 2.45x e 0 campioni non a 2.6x; il badge compare in alto a destra (Panopto ed Echo360), mai sopra logo o titolo; il pulsante "1x" del player Echo360 può restare a 1x (BUGS #30). Primo Play dopo un reload: annotare se non parte (BUGS #29).
+
 ## 1. Checklist per sito (manuale)
 
 | Scenario | YouTube | Netflix | Prime Video | Udemy | Coursera | Twitch | Vimeo | Spotify web |
