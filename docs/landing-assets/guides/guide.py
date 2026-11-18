@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 SITE = 'https://lecturespeed.vercel.app'
-STORE = 'https://chromewebstore.google.com/detail/speedup-video-pro/bhbogbkkghkempphmaffejebjiimbimh'
+STORE = 'https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh'
 ROOT = Path(__file__).resolve().parents[3]
 e = html.escape
 
@@ -28,7 +28,6 @@ def install(dark=False, center=False):
             <a href="{STORE}" class="inline-block shrink-0" aria-label="Available in the Chrome Web Store"><img src="/img/cws-badge-border.png" width="132" height="40" alt="Available in the Chrome Web Store"></a>
           </div>
           <p class="mt-3 text-sm {note}">Works in Chrome and Edge. No account needed.</p>
-          <p class="rename-notice mt-1 text-xs {note}">On the Chrome Web Store it's still listed as SpeedUp Video Pro while we update the name.</p>
         </div>
         <div class="mobile-only mt-6 rounded-xl border {box} p-4 text-center">
           <p class="text-[15px]{' text-mist' if dark else ''}">💻 Open this page on your computer to install.</p>

@@ -48,13 +48,13 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 - Comandi: nessuna build su Vercel; in locale solo `npm run landing:css` per il CSS. Anteprima locale: `python3 -m http.server 8000 --directory landing-page`, poi apri `http://localhost:8000`.
 
 ## Nota di rinomina (flag)
-La landing con il nome LectureSpeed è online dal 2026-11-16, **prima** della 1.9.1: lo Store mostra ancora "SpeedUp Video Pro".
-- Interruttore: `RENAME_NOTICE` in cima a `site.js`. `true` (oggi) → sotto i CTA "Add to Chrome" (hero e finale, desktop) compare "On the Chrome Web Store it's still listed as SpeedUp Video Pro while we update the name." (elementi `.rename-notice`, regola in `site.css`).
-- **Quando la 1.9.1 è approvata sullo Store:** `const RENAME_NOTICE = false;`, rigenera gli screenshot dell'estensione (`npm run build && node docs/landing-assets/make-ext-shots.mjs`), anteprima, commit, push su `main`.
+La 1.9.1 è pubblica sullo Store come LectureSpeed dal 2026-11-18. Link Store (nuovo slug): `https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh` (anche in `guide.py`, `thanks.html`, `src/shared/links.ts`). Il vecchio nome resta solo in: `alternateName` del JSON-LD della home, email di supporto, sottodominio del checkout Lemon Squeezy, una riga nei termini.
+- Interruttore `RENAME_NOTICE` in `site.js`: `false` dal 2026-11-18; le note "still listed as SpeedUp Video Pro" sono state rimosse dalle pagine e dal generatore.
+- Da fare: rigenerare gli screenshot dell'estensione (`npm run build && node docs/landing-assets/make-ext-shots.mjs`).
 - Indirizzo: canonical, `og:url`, `og:image`, `twitter:image` e dati strutturati usano `https://lecturespeed.vercel.app`. Se arriva un dominio proprio, sostituirli tutti (index, privacy, terms) e aggiornare `src/shared/links.ts` nell'estensione.
 
 ## SEO: sitemap e robots
-- Guide per intento di ricerca: `panopto-faster-than-2x.html` e `echo360-playback-speed.html`, generate da `docs/landing-assets/guides/<slug>.py` sopra il modello comune `guide.py` (modifica lo script, poi `python3 …py` e `npm run landing:css`): FAQ visibili e JSON-LD `FAQPage` vengono dallo stesso elenco. Linkate dal footer della home ("Guides"), tra loro e in `sitemap.xml`. La nota di rinomina usa lo stesso flag `RENAME_NOTICE`. Echo360 dentro Canvas/Moodle non è testato: non scriverlo.
+- Guide per intento di ricerca: `panopto-faster-than-2x.html` e `echo360-playback-speed.html`, generate da `docs/landing-assets/guides/<slug>.py` sopra il modello comune `guide.py` (modifica lo script, poi `python3 …py` e `npm run landing:css`): FAQ visibili e JSON-LD `FAQPage` vengono dallo stesso elenco. Linkate dal footer della home ("Guides"), tra loro e in `sitemap.xml`. Echo360 dentro Canvas/Moodle non è testato: non scriverlo.
 - `sitemap.xml`: home, privacy e terms (non thanks). Aggiornare `lastmod` quando una pagina cambia nei contenuti, e aggiungere le pagine nuove (es. guide per intento di ricerca).
 - `robots.txt`: tutto consentito, `/thanks.html` escluso, indica la sitemap. `thanks.html` ha anche `noindex`.
 

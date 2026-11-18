@@ -7,10 +7,10 @@ const PRO_CHECKOUT_ENABLED = true;
 const PRO_CHECKOUT_URL = 'https://speedup-videopro.lemonsqueezy.com/checkout/buy/69ea0406-3835-48e7-b03c-301a23d775cf?embed=1';
 
 // ═══ RENAME NOTICE ══════════════════════════════════════════════════════════════════════
-// true  → under the "Add to Chrome" buttons: "On the Chrome Web Store it's still listed as
-//         SpeedUp Video Pro while we update the name." (elements with class .rename-notice)
-// false → hidden. Set to false when v1.9.1 (LectureSpeed) is live on the Store.
-const RENAME_NOTICE = true;
+// true  → shows the elements with class .rename-notice (rule in site.css).
+// false → hidden. Off since 2026-11-18: v1.9.1 is live on the Store as LectureSpeed and the
+//         "still listed as SpeedUp Video Pro" notes were removed from the pages.
+const RENAME_NOTICE = false;
 if (RENAME_NOTICE) document.documentElement.classList.add('show-rename-notice');
 // ════════════════════════════════════════════════════════════════════════════════════════
 
