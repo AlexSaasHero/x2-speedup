@@ -19,7 +19,7 @@ describe('review prompt', () => {
     expect(shouldAskForReview(completeReview(), 99999, Date.now())).toBe(false);
   });
   it('review URL per store', () => {
-    expect(reviewUrl('abc', 'chrome', 'Chrome/130')).toBe('https://chromewebstore.google.com/detail/abc/reviews');
+    expect(reviewUrl('abc', 'chrome', 'Chrome/130')).toBe('https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/abc/reviews');
     expect(reviewUrl('abc', 'chrome', 'Chrome/130 Edg/130')).toContain('microsoftedge.microsoft.com');
     expect(reviewUrl('abc', 'firefox', 'Firefox/130')).toContain('addons.mozilla.org');
   });

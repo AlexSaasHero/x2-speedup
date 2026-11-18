@@ -5,5 +5,5 @@ export const LANDING_PAGE_URL = 'https://lecturespeed.vercel.app/';
 export function reviewUrl(extensionId: string, target: 'chrome' | 'firefox', userAgent: string): string | null {
   if (target === 'firefox') return 'https://addons.mozilla.org/firefox/addon/speedup-video-pro/reviews/';
   if (/\bEdg\//.test(userAgent)) return `https://microsoftedge.microsoft.com/addons/detail/${extensionId}`;
-  return `https://chromewebstore.google.com/detail/${extensionId}/reviews`;
+  return `https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/${extensionId}/reviews`;
 }
