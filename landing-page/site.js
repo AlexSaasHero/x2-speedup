@@ -6,12 +6,6 @@
 const PRO_CHECKOUT_ENABLED = true;
 const PRO_CHECKOUT_URL = 'https://speedup-videopro.lemonsqueezy.com/checkout/buy/69ea0406-3835-48e7-b03c-301a23d775cf?embed=1';
 
-// ═══ RENAME NOTICE ══════════════════════════════════════════════════════════════════════
-// true  → shows the elements with class .rename-notice (rule in site.css).
-// false → hidden. Off since 2026-11-18: v1.9.1 is live on the Store as LectureSpeed and the
-//         "still listed as SpeedUp Video Pro" notes were removed from the pages.
-const RENAME_NOTICE = false;
-if (RENAME_NOTICE) document.documentElement.classList.add('show-rename-notice');
 // ════════════════════════════════════════════════════════════════════════════════════════
 
 // Shared script for the landing pages. Loaded in <head> WITHOUT defer, so the mobile class

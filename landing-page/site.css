@@ -11,6 +11,3 @@
 html.mobile-ua .desktop-only { display: none !important; }
 html.mobile-ua .mobile-only { display: block; }
 
-/* Transition note while the Store still shows the old name: switch RENAME_NOTICE in site.js. */
-.rename-notice { display: none; }
-html.show-rename-notice .rename-notice { display: block; }

@@ -49,8 +49,6 @@ Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mo
 
 ## Nota di rinomina (flag)
 La 1.9.1 è pubblica sullo Store come LectureSpeed dal 2026-11-18. Link Store (nuovo slug): `https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh` (anche in `guide.py`, `thanks.html`, `src/shared/links.ts`). Il vecchio nome resta solo in: `alternateName` del JSON-LD della home, email di supporto, sottodominio del checkout Lemon Squeezy, una riga nei termini.
-- Interruttore `RENAME_NOTICE` in `site.js`: `false` dal 2026-11-18; le note "still listed as SpeedUp Video Pro" sono state rimosse dalle pagine e dal generatore.
-- Da fare: rigenerare gli screenshot dell'estensione (`npm run build && node docs/landing-assets/make-ext-shots.mjs`).
 - Indirizzo: canonical, `og:url`, `og:image`, `twitter:image` e dati strutturati usano `https://lecturespeed.vercel.app`. Se arriva un dominio proprio, sostituirli tutti (index, privacy, terms) e aggiornare `src/shared/links.ts` nell'estensione.
 
 ## SEO: sitemap e robots
