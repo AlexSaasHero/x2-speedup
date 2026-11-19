@@ -4,6 +4,7 @@ import { normalizeHostPattern } from './hosts';
 import { noLicense, validateLicense } from './license';
 import { newRuleId, validateRule, type Rule } from './rules';
 import { addDefaultsForNewActions, migrateLegacyHotkeys, validateShortcut, type Shortcut } from './shortcuts';
+import { REVIEW_MAX_DISMISSALS } from './review';
 import { normalizeMediaUrl } from './url';
 import { SCHEMA_VERSION, SETTING_BOUNDS, defaultState, type OverlayPosition, type StoredState } from './storage';
 
@@ -168,10 +169,16 @@ export function migrate(raw: Raw, now: number = Date.now()): MigrationResult {
   set.syncEnabled = typeof raw.syncEnabled === 'boolean' ? raw.syncEnabled : defaults.syncEnabled;
   set.deviceId = typeof raw.deviceId === 'string' && raw.deviceId ? raw.deviceId : randomId();
   const rp = isObject(raw.reviewPrompt) ? raw.reviewPrompt : {};
-  set.reviewPrompt = {
-    state: rp.state === 'done' ? 'done' : 'waiting',
-    snoozedUntil: typeof rp.snoozedUntil === 'number' && Number.isFinite(rp.snoozedUntil) ? rp.snoozedUntil : 0
-  };
+  const state = rp.state === 'done' ? 'done' : 'waiting';
+  const snoozedUntil = typeof rp.snoozedUntil === 'number' && Number.isFinite(rp.snoozedUntil) ? rp.snoozedUntil : 0;
+  // v5 → v6: review prompt shown at most twice. A pre-v6 snooze means one "Not now" already.
+  const dismissals =
+    typeof rp.dismissals === 'number' && Number.isFinite(rp.dismissals)
+      ? Math.min(REVIEW_MAX_DISMISSALS, Math.max(0, Math.floor(rp.dismissals)))
+      : state === 'waiting' && snoozedUntil > 0
+        ? 1
+        : 0;
+  set.reviewPrompt = { state, snoozedUntil, dismissals };
 
   set.schemaVersion = SCHEMA_VERSION;
 

@@ -122,7 +122,7 @@ describe('migrate', () => {
     const { set, remove } = migrate({ schemaVersion: 4, youtubeAds: true });
     expect(remove).toContain('youtubeAds');
     expect(set).not.toHaveProperty('youtubeAds');
-    expect(set.schemaVersion).toBe(5);
+    expect(set.schemaVersion).toBe(SCHEMA_VERSION);
   });
 
   it('is idempotent', () => {
@@ -131,12 +131,33 @@ describe('migrate', () => {
     expect(second.set).toEqual(first);
     expect(second.remove).toEqual([]);
     expect(first.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(5);
+    expect(SCHEMA_VERSION).toBe(6);
   });
 
   it('only lists legacy keys that are present', () => {
     expect(LEGACY_KEYS).toContain('telemetry_client_id');
     expect(migrate({ preservePitch: true }).remove).toEqual(['preservePitch']);
+  });
+});
+
+describe('v5 → v6: review prompt dismissals', () => {
+  const from = (reviewPrompt: unknown) => migrate({ schemaVersion: 5, reviewPrompt }).set.reviewPrompt;
+  it('never snoozed → 0 dismissals', () => {
+    expect(from({ state: 'waiting', snoozedUntil: 0 })).toEqual({ state: 'waiting', snoozedUntil: 0, dismissals: 0 });
+  });
+  it('already snoozed once ("Not now" in ≤ v5) → 1 dismissal, snooze kept', () => {
+    expect(from({ state: 'waiting', snoozedUntil: 1234 })).toEqual({ state: 'waiting', snoozedUntil: 1234, dismissals: 1 });
+  });
+  it('done stays done', () => {
+    expect(from({ state: 'done', snoozedUntil: 0 })).toEqual({ state: 'done', snoozedUntil: 0, dismissals: 0 });
+  });
+  it('invalid values are normalised', () => {
+    expect(from('nope')).toEqual({ state: 'waiting', snoozedUntil: 0, dismissals: 0 });
+    expect(from({ state: 'x', snoozedUntil: NaN, dismissals: 99 })).toEqual({ state: 'waiting', snoozedUntil: 0, dismissals: 2 });
+    expect(from({ state: 'waiting', snoozedUntil: 5, dismissals: -3 })).toEqual({ state: 'waiting', snoozedUntil: 5, dismissals: 0 });
+  });
+  it('bumps the schema version', () => {
+    expect(migrate({ schemaVersion: 5 }).set.schemaVersion).toBe(6);
   });
 });
 
@@ -146,7 +167,7 @@ describe('v3 → v4', () => {
     const { set } = migrate({ schemaVersion: 4, license, deviceId: 'dev-1', reviewPrompt: { state: 'done', snoozedUntil: 3 } });
     expect(set.license).toEqual(license);
     expect(set.deviceId).toBe('dev-1');
-    expect(set.reviewPrompt).toEqual({ state: 'done', snoozedUntil: 3 });
+    expect(set.reviewPrompt).toEqual({ state: 'done', snoozedUntil: 3, dismissals: 0 });
     expect(set.syncEnabled).toBe(true);
   });
 });

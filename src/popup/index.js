@@ -10,10 +10,10 @@ import {
 import { isPro } from '../shared/entitlement';
 import { isInGrace, validateLicense } from '../shared/license';
 import { applyI18n, t } from '../shared/i18n';
-import { REVIEW_THRESHOLD_SECONDS, completeReview, shouldAskForReview, snoozeReview } from '../shared/review';
+import { completeReview, initialReviewPrompt, savedHours, shouldAskForReview, snoozeReview } from '../shared/review';
 import { reviewUrl } from '../shared/links';
 import { hasSiteAccess, requestSiteAccess } from '../shared/site-access';
-import { STATS_BUFFER_KEY, STATS_KEY, applyBuffer, formatDuration, validateStats } from '../shared/stats';
+import { STATS_BUFFER_KEY, STATS_KEY, applyBuffer, validateStats } from '../shared/stats';
 import { isHostListed, normalizeHostPattern } from '../shared/hosts';
 import { roundSpeed } from '../shared/media-math';
 import { defaultShortcuts } from '../shared/shortcuts';
@@ -738,27 +738,31 @@ function initPopup() {
   }
   document.getElementById('openOptionsBtn2')?.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
-  // Review request (once, after 30 min saved in total; "Not now" = ask again in 14 days)
+  // Store review request (rules in src/shared/review.ts: 3 h saved, installed 5+ days,
+  // "Not now" = again in 14 days, at most twice; "Leave a review" = never again).
   const reviewBanner = document.getElementById('reviewBanner');
+  const storeReviewUrl = reviewUrl(__TARGET__);
+  let reviewPrompt = initialReviewPrompt();
   async function maybeAskForReview() {
-    if (!reviewBanner) return;
-    const local = await chrome.storage.local.get(['reviewPrompt', STATS_KEY]);
+    if (!reviewBanner || !storeReviewUrl) return;
+    const local = await chrome.storage.local.get(['reviewPrompt', 'installDate', STATS_KEY]);
     const buffer = (await chrome.storage.session.get(STATS_BUFFER_KEY).catch(() => ({})))[STATS_BUFFER_KEY];
     const total = applyBuffer(validateStats(local[STATS_KEY]), buffer).total.saved;
-    const prompt = local.reviewPrompt ?? { state: 'waiting', snoozedUntil: 0 };
-    if (!shouldAskForReview(prompt, total)) return;
+    reviewPrompt = { ...initialReviewPrompt(), ...(local.reviewPrompt ?? {}) };
+    const installDate = typeof local.installDate === 'number' ? local.installDate : Date.now();
+    if (!shouldAskForReview(reviewPrompt, total, installDate)) return;
     const text = document.getElementById('reviewText');
-    if (text) text.textContent = t('review_text', [formatDuration(Math.max(total, REVIEW_THRESHOLD_SECONDS))]);
+    if (text) text.textContent = t('review_text', [String(savedHours(total))]);
     reviewBanner.hidden = false;
   }
   document.getElementById('reviewRate')?.addEventListener('click', () => {
-    chrome.storage.local.set({ reviewPrompt: completeReview() });
-    const url = reviewUrl(chrome.runtime.id, __TARGET__, navigator.userAgent);
-    if (url) chrome.tabs.create({ url });
+    chrome.storage.local.set({ reviewPrompt: completeReview(reviewPrompt) });
+    if (storeReviewUrl) chrome.tabs.create({ url: storeReviewUrl });
     if (reviewBanner) reviewBanner.hidden = true;
   });
   document.getElementById('reviewLater')?.addEventListener('click', () => {
-    chrome.storage.local.set({ reviewPrompt: snoozeReview() });
+    reviewPrompt = snoozeReview(reviewPrompt);
+    chrome.storage.local.set({ reviewPrompt });
     if (reviewBanner) reviewBanner.hidden = true;
   });
   void maybeAskForReview();

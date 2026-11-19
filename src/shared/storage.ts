@@ -5,7 +5,7 @@ import { noLicense, type LicenseState } from './license';
 import type { Rule } from './rules';
 import { defaultShortcuts, type Shortcut } from './shortcuts';
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 /** Overlay top-left corner as a fraction (0–1) of the video's width/height. */
 export interface OverlayPosition {
@@ -77,9 +77,12 @@ export interface StoredState {
 }
 
 export interface ReviewPromptState {
-  /** waiting → (30 min saved) shown → done; "Not now" keeps it waiting until snoozedUntil. */
+  /** waiting → shown (rules in src/shared/review.ts) → done after "Leave a review". */
   state: 'waiting' | 'done';
+  /** "Not now" keeps it hidden until this time. */
   snoozedUntil: number;
+  /** v6: number of "Not now" clicks; at 2 the prompt never comes back. */
+  dismissals: number;
 }
 
 export const SETTING_BOUNDS = {
@@ -124,7 +127,7 @@ export function defaultState(): Omit<StoredState, 'installDate'> {
     holdSpeed: SETTING_BOUNDS.holdSpeed.fallback,
     syncEnabled: true,
     deviceId: '',
-    reviewPrompt: { state: 'waiting', snoozedUntil: 0 }
+    reviewPrompt: { state: 'waiting', snoozedUntil: 0, dismissals: 0 }
   };
 }
 

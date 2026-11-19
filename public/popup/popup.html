@@ -152,15 +152,6 @@
             </div>
           </section>
 
-          <!-- One-time review request (after 30 min saved) -->
-          <section class="review-banner" id="reviewBanner" hidden>
-            <span id="reviewText"></span>
-            <div class="review-actions">
-              <button type="button" id="reviewRate" class="review-rate" data-i18n="review_rate"></button>
-              <button type="button" id="reviewLater" class="review-later" data-i18n="review_later"></button>
-            </div>
-          </section>
-
           <!-- Time saved (headline for everyone, breakdown with Pro) -->
           <section class="stats-strip" id="statsStrip">
             <div class="stats-headline">⏱ <span data-i18n="stats_week"></span> <strong id="statsWeek">0s</strong></div>
@@ -182,6 +173,14 @@
               <button class="preset-btn" data-speed="2.0">2.0x</button>
               <button class="preset-btn" data-speed="3.0">3.0x</button>
               <button class="preset-btn" data-speed="4.0">4.0x</button>
+            </div>
+          </section>
+          <!-- Store review request, bottom of the Speed tab (rules in src/shared/review.ts) -->
+          <section class="review-banner" id="reviewBanner" hidden>
+            <span id="reviewText"></span>
+            <div class="review-actions">
+              <button type="button" id="reviewRate" class="review-rate" data-i18n="review_rate"></button>
+              <button type="button" id="reviewLater" class="review-later" data-i18n="review_later"></button>
             </div>
           </section>
         </main>
