@@ -64,12 +64,16 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Which lecture players does it work on?", "acceptedAnswer": { "@type": "Answer", "text": "It's tested on Panopto (including lectures embedded in Canvas or Moodle) and Echo360. It also works on YouTube and most other HTML5 videos." } },
-      { "@type": "Question", "name": "Why does the player still say 1x?", "acceptedAnswer": { "@type": "Answer", "text": "That's normal. LectureSpeed sets the video's speed directly; the popup and the badge show the real speed." } },
-      { "@type": "Question", "name": "Is it allowed?", "acceptedAnswer": { "@type": "Answer", "text": "It only changes how fast the video plays in your browser. Your course's rules about recordings still apply." } },
-      { "@type": "Question", "name": "Does it collect my data?", "acceptedAnswer": { "@type": "Answer", "text": "No. The only network request is the Pro license check. This website uses cookie-free analytics." } },
-      { "@type": "Question", "name": "How do I cancel Pro?", "acceptedAnswer": { "@type": "Answer", "text": "From the link in your receipt email. You keep Pro until the end of the period you paid for." } },
-      { "@type": "Question", "name": "I bought the lifetime license. Do I keep it?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your key keeps working, nothing to do." } }
+      { "@type": "Question", "name": "Does it work at my university?", "acceptedAnswer": { "@type": "Answer", "text": "If your lectures are on Panopto or Echo360, it should. Every university has its own address for them, like yourschool.hosted.panopto.com, and LectureSpeed knows all of Panopto's and Echo360's cloud addresses. If it doesn't work on yours, email me the link and I'll fix it." } },
+      { "@type": "Question", "name": "The player still says 1x. Is it working?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Panopto's and Echo360's speed button only shows what you picked in their own menu. LectureSpeed changes the speed of the video itself: check the popup, or the badge that appears on the video when you change speed." } },
+      { "@type": "Question", "name": "My speed keeps jumping back to 1x.", "acceptedAnswer": { "@type": "Answer", "text": "Some players, Echo360 especially, reset the speed when you pause or skip. LectureSpeed puts yours back straight away. If it still happens, check you don't have another speed extension turned on: two of them will fight over the video." } },
+      { "@type": "Question", "name": "Why does it need access to all websites?", "acceptedAnswer": { "@type": "Answer", "text": "Lectures live on hundreds of university addresses, and Chrome calls access to all of them “Read and change all your data on all websites”. In practice LectureSpeed only looks for video players and listens for its own shortcut keys. What you watch never leaves your browser: the only thing it sends is the Pro license check." } },
+      { "@type": "Question", "name": "Can I change how much D and S change the speed?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each press is 0.1x by default. You can set any step from 0.01x to 1x in the settings, on the free plan too." } },
+      { "@type": "Question", "name": "Does it work on my phone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "No. Chrome on phones and iPads doesn't run extensions. Use it on a laptop or desktop with Chrome or Edge." } },
+      { "@type": "Question", "name": "Can it download lectures?", "acceptedAnswer": { "@type": "Answer", "text": "No, and it won't. It only changes how fast they play." } },
+      { "@type": "Question", "name": "What's free and what's Pro?", "acceptedAnswer": { "@type": "Answer", "text": "Going past 2x, the shortcuts and the time-saved counter are free, for good. Pro is $4.99 a year and adds bookmarks with notes, the A-B loop, frame-by-frame, speed saved per site and study stats." } },
+      { "@type": "Question", "name": "How do I cancel Pro?", "acceptedAnswer": { "@type": "Answer", "text": "Use the link in your receipt email. Pro stays on until the end of the year you paid for, and you can get a refund within 14 days." } },
+      { "@type": "Question", "name": "I bought the old lifetime license. Do I keep it?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your key keeps working. Nothing to do." } }
     ]
   }
   </script>
@@ -312,28 +316,44 @@
       <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Questions</h2>
       <div class="mt-6 sm:mt-10 divide-y divide-ink/10 border-y border-ink/10">
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Which lecture players does it work on?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">It's tested on Panopto (including lectures embedded in Canvas or Moodle) and Echo360. It also works on YouTube and most other HTML5 videos.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Does it work at my university?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">If your lectures are on Panopto or Echo360, it should. Every university has its own address for them, like yourschool.hosted.panopto.com, and LectureSpeed knows all of Panopto's and Echo360's cloud addresses. If it doesn't work on yours, <a href="mailto:speedupvideopro.help@gmail.com" class="text-timeline underline underline-offset-2">email me</a> the link and I'll fix it.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Why does the player still say 1x?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">That's normal. LectureSpeed sets the video's speed directly; the popup and the badge show the real speed.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>The player still says 1x. Is it working?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Yes. Panopto's and Echo360's speed button only shows what you picked in their own menu. LectureSpeed changes the speed of the video itself: check the popup, or the badge that appears on the video when you change speed.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Is it allowed?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">It only changes how fast the video plays in your browser. Your course's rules about recordings still apply.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>My speed keeps jumping back to 1x.</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Some players, Echo360 especially, reset the speed when you pause or skip. LectureSpeed puts yours back straight away. If it still happens, check you don't have another speed extension turned on: two of them will fight over the video.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Does it collect my data?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">No. The only network request is the Pro license check. This website uses <a href="privacy.html" class="text-timeline underline underline-offset-2">cookie-free analytics</a>.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Why does it need access to all websites?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Lectures live on hundreds of university addresses, and Chrome calls access to all of them “Read and change all your data on all websites”. In practice LectureSpeed only looks for video players and listens for its own shortcut keys. What you watch never leaves your browser: the only thing it sends is the Pro license check.</div>
+        </details>
+        <details class="group">
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Can I change how much D and S change the speed?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Yes. Each press is 0.1x by default. You can set any step from 0.01x to 1x in the settings, on the free plan too.</div>
+        </details>
+        <details class="group">
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Does it work on my phone or iPad?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">No. Chrome on phones and iPads doesn't run extensions. Use it on a laptop or desktop with Chrome or Edge.</div>
+        </details>
+        <details class="group">
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Can it download lectures?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">No, and it won't. It only changes how fast they play.</div>
+        </details>
+        <details class="group">
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>What's free and what's Pro?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Going past 2x, the shortcuts and the time-saved counter are free, for good. Pro is $4.99 a year and adds bookmarks with notes, the A-B loop, frame-by-frame, speed saved per site and study stats.</div>
         </details>
         <details class="group">
           <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>How do I cancel Pro?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">From the link in your receipt email. You keep Pro until the end of the period you paid for.</div>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Use the link in your receipt email. Pro stays on until the end of the year you paid for, and you can get a refund within 14 days.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>I bought the lifetime license. Do I keep it?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Yes. Your key keeps working, nothing to do.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>I bought the old lifetime license. Do I keep it?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Yes. Your key keeps working. Nothing to do.</div>
         </details>
       </div>
     </section>
