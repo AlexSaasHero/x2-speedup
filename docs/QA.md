@@ -164,7 +164,7 @@ Specifici YouTube:
 | Export → Import dello stesso file | | | |
 | Import da Video Speed Controller (incolla il JSON delle sue impostazioni) | | | |
 | Lingua del browser it/es/de/fr/pt-BR/ja: popup, opzioni, onboarding, overlay tradotti; nessun testo tagliato | | | |
-| Recensione: dopo 30 min risparmiati compare il banner; "Not now" lo nasconde per 14 giorni; "Rate it" apre lo store giusto | | | |
+| Recensione (1.9.2): il banner compare in fondo alla scheda Speed solo con ≥ 3 h risparmiate **e** installazione da ≥ 5 giorni; "Not now" lo nasconde per 14 giorni, al secondo "Not now" non torna più; "Leave a review" apre la scheda recensioni del Chrome Web Store (anche su Edge) e non torna più. Per simulare, dalla console del service worker: `chrome.storage.local.set({installDate: Date.now() - 6*864e5, timeSaved: {version: 1, days: {}, total: {saved: 4*3600, watched: 4*3600}}, reviewPrompt: {state: 'waiting', snoozedUntil: 0, dismissals: 0}})`. E2E: `tests/e2e/review.spec.ts` | | | — (nessun invito finché non è su AMO) |
 | Firefox: concedere l'accesso ai siti da about:addons, poi scorciatoie e overlay funzionano | — | — | |
 | Firefox: skip silence (vedi docs/FIREFOX.md) | — | — | |
 

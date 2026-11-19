@@ -28,10 +28,10 @@ La conversione del manifest è in `scripts/firefox.mjs`, coperta da unit test.
 ## Da sapere prima di pubblicare su AMO
 
 1. **Accesso ai siti (fatto in v1.8.2)**: in Firefox MV3 l'accesso ai siti è concesso dall'utente. Il manifest Firefox dichiara `optional_host_permissions: ['<all_urls>']`; l'onboarding mostra "Consenti su tutti i siti" e il popup un banner finché l'accesso non è concesso (`src/shared/site-access.ts`). Su Chrome/Edge queste parti sono disattivate. ⚠️ Da verificare su Firefox reale.
-2. **Link recensione**: punta a `addons.mozilla.org/firefox/addon/speedup-video-pro/` (slug ipotizzato, da allineare).
+2. **Invito a recensire (1.9.2)**: spento su Firefox finché l'estensione non è su AMO (`AMO_LISTED = false` in `src/shared/links.ts`; API AMO 404 al 2026-11-19). Dopo la pubblicazione: `AMO_LISTED = true`. Il link usa l'ID Gecko (`addons.mozilla.org/firefox/addon/speedup-video-pro@x2-speedup/reviews/`), valido qualunque sia lo slug: verificarlo appena la scheda esiste.
 3. **Codice sorgente per la review AMO**: il build è leggibile (non minificato), ma AMO può chiedere i sorgenti + istruzioni (`npm ci && npm run build -- --target=firefox`).
 4. ⚠️ **Non testato** su Firefox reale: Playwright non carica estensioni in Firefox. Checklist manuale in `docs/QA.md`.
 
 ## Edge
 
-Stesso pacchetto della build Chrome (`dist/`). Il link "Valuta" usa Edge Add-ons quando lo user agent è Edge. ⚠️ Non testato su Edge reale.
+Stesso pacchetto della build Chrome (`dist/`), installato dal Chrome Web Store: anche l'invito a recensire porta alla scheda del Chrome Web Store (dalla 1.9.2; prima puntava a Edge Add-ons, BUGS #32). ⚠️ Non testato su Edge reale.
