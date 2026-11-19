@@ -79,7 +79,8 @@ PRO_BOX = '''      <aside class="mt-14 rounded-2xl border-2 border-timeline bg-w
       </aside>'''
 
 
-def render(*, slug, title, description, h1, og_title, image_alt, date, lead, sections, faq, final_cta, disclaimer):
+def render(*, slug, title, description, h1, og_title, image_alt, date, lead, sections, faq, final_cta, disclaimer, after_pro=''):
+    # after_pro: optional sections placed between the Pro box and the FAQ.
     url = f'{SITE}/{slug}.html'
     assert len(title) < 60 and len(description) < 155, (len(title), len(description))
     article_ld = {
@@ -169,7 +170,7 @@ def render(*, slug, title, description, h1, og_title, image_alt, date, lead, sec
 {sections}
 
 {PRO_BOX}
-
+{(chr(10) + after_pro + chr(10)) if after_pro else ''}
       <section id="faq" class="mt-14" aria-labelledby="faq-title">
         <h2 id="faq-title" class="text-3xl sm:text-4xl font-extrabold leading-[1.08]">Questions</h2>
         <div class="mt-6 divide-y divide-ink/10 border-y border-ink/10">

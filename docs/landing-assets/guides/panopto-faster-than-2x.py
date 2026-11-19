@@ -29,6 +29,7 @@ sections = '\n\n'.join([
         <li>Press D to add 0.1x at a time, as long as you can still follow.</li>
         <li>When the lecture gets hard (a proof, a new concept, a worked example), press S to slow down, or R to go back to 1x.</li>
       </ul>''',
+    para('More detail, with the study\'s numbers: ' + link('best-speed-to-watch-lectures.html', "what's the best speed to watch recorded lectures") + '.'),
 ]) + '\n\n' + '\n'.join([
     h2('Works inside Canvas and Moodle'),
     para('Many courses embed Panopto recordings directly in a Canvas or Moodle page instead of linking to the Panopto site. LectureSpeed works there too: it runs inside the embedded player, so D, S and the popup work the same way. Panopto can show two streams at once, the speaker and the screen; LectureSpeed speeds up both, so they stay in sync.'),

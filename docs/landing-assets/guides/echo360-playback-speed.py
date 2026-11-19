@@ -38,7 +38,7 @@ sections = '\n\n'.join([
     ]),
     '\n'.join([
         h2('What speed should you use?'),
-        para(f"In a <a href=\"{STUDY}\" class=\"text-timeline underline underline-offset-2\" rel=\"noopener\">UCLA study</a> (Murphy et al., <em>Applied Cognitive Psychology</em>, 2022), comprehension dropped only slightly at 1.5x and 2x, and more at 2.5x. Start at 2x, add 0.1x with D while you can still follow, and slow down with S on the hard parts. There's more on this in our guide on " + link('panopto-faster-than-2x.html', 'how to watch Panopto faster than 2x') + '.'),
+        para(f"In a <a href=\"{STUDY}\" class=\"text-timeline underline underline-offset-2\" rel=\"noopener\">UCLA study</a> (Murphy et al., <em>Applied Cognitive Psychology</em>, 2022), comprehension dropped only slightly at 1.5x and 2x, and more at 2.5x. Start at 2x, add 0.1x with D while you can still follow, and slow down with S on the hard parts. There's more in our guide on " + link('best-speed-to-watch-lectures.html', 'the best speed to watch recorded lectures') + '.'),
     ]),
 ])
 
