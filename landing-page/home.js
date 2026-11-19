@@ -146,10 +146,13 @@
       const s = Number((speedRadios.find((r) => r.checked) || { value: 2 }).value);
       out.textContent = `${h} h`;
       hours.style.setProperty('--fill', `${((h - 1) / 19) * 100}%`);
-      result.textContent = String(Math.round(h * (1 - 1 / s) * WEEKS));
+      const total = Math.round(h * (1 - 1 / s) * WEEKS);
+      result.textContent = String(total);
       if (s > 2) {
-        const past = Math.round(h * (1 / 2 - 1 / s) * WEEKS);
-        beyondEl.textContent = `${past} of those hours are past your player's 2x limit.`;
+        // Split the shown total so the two parts always add up to it.
+        const at2x = Math.round(h * (1 / 2) * WEEKS);
+        const more = total - at2x;
+        beyondEl.textContent = `At 2x you'd save ${at2x} ${at2x === 1 ? 'hour' : 'hours'}. Going past 2x gives you ${more} more.`;
         beyondEl.hidden = false;
       } else {
         beyondEl.hidden = true;

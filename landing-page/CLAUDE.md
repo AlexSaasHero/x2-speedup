@@ -16,8 +16,8 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 4. Ospitare le pagine obbligatorie: Privacy Policy e Terms. La Privacy Policy è richiesta dal Chrome Web Store.
 
 ## Messaggio e contenuti
-- **Hero:** titolo orientato al risultato ("Finish your lecture recordings in half the time"), sottotitolo con le piattaforme supportate, CTA "Add to Chrome, it's free".
-- **Piattaforme supportate:** solo quelle testate a mano: Panopto ed Echo360, "including lectures embedded in Canvas or Moodle" (test di Alex, 1.9.0). Sulle lezioni non promettere il 16x: "no more 2x cap". Disclaimer generico, senza marchi: "This extension is an independent project and is not affiliated with any lecture or video platform." (footer di tutte le pagine).
+- **Home (copy riscritto il 2026-11-19):** semplice, chiaro in 3 secondi, frasi sotto le 25 parole, niente testi duplicati tra sezioni. Ordine: hero ("Watch your lectures faster than 2x.") → tempo risparmiato + calcolatore (parte da 3 h a 2.5x = 27 h) → 3 passi → "Will you still understand it?" (studio UCLA) → Pro → prezzi + riga privacy → FAQ (6, max 2 frasi; il JSON-LD `FAQPage` ha gli stessi testi) → CTA finale → footer con "Made by an independent developer".
+- **Piattaforme supportate:** solo quelle testate a mano: Panopto ed Echo360. Canvas/Moodle solo nella FAQ della home e solo riferiti a Panopto ("including lectures embedded in Canvas or Moodle", test di Alex, 1.9.0): è l'unico incorporamento testato. Sulle lezioni non promettere il 16x: "no more 2x cap". Disclaimer generico, senza marchi: "This extension is an independent project and is not affiliated with any lecture or video platform." (footer di tutte le pagine).
 - **Free vs Pro:**
   - Free: velocità fino a 16x ovunque, scorciatoie, contatore del tempo risparmiato
   - Pro: memoria per piattaforma, salto dei silenzi, statistiche, checkpoint con note, frame per frame, loop A-B
@@ -28,10 +28,11 @@ Vale insieme al `CLAUDE.md` nella root del repo (regole generali, git, estension
 ## Checkout Pro: interruttore
 Stato: **acceso** dal 2026-11-16 (1.9.0 approvata e pubblicata sullo Store). Era spento dal 2026-11-15 mentre lo Store distribuiva ancora la 1.5.1.8.
 - Interruttore unico: `PRO_CHECKOUT_ENABLED` in cima a `site.js`.
-- `true` (oggi): i bottoni Pro (`data-pro-cta`) prendono il testo di `data-pro-label` ("Try Pro free for 7 days") e aprono il checkout in overlay; dopo `Checkout.Success` redirect a `/thanks.html`. Su Lemon Squeezy il redirect dopo il pagamento punta a `/thanks.html`.
-- `false`: i bottoni mostrano "Pro launching soon" e portano alla sezione `#pricing`; `lemon.js` non viene caricato. Se lo rispegni, riscrivi anche la FAQ "How do I activate Pro?" in `index.html` (oggi: "Pro starts with a 7-day free trial, then $4.99/year. Cancel anytime.").
+- L'HTML contiene già il testo vero dei bottoni Pro (es. "Try Pro free for 7 days") con `href="#pricing"`: senza JS, per i crawler e nelle anteprime dei link non compare mai "launching soon".
+- `true` (oggi): i bottoni Pro (`data-pro-cta`) aprono il checkout in overlay (un `data-pro-label` facoltativo, usato dalle guide, sostituisce il testo); dopo `Checkout.Success` redirect a `/thanks.html`. Su Lemon Squeezy il redirect dopo il pagamento punta a `/thanks.html`.
+- `false`: `site.js` scrive "Pro launching soon" (`PRO_SOON_LABEL`) nei bottoni, che restano link a `#pricing`; `lemon.js` non viene caricato. Se lo rispegni, rivedi anche la card Pro e la FAQ "How do I cancel Pro?" in `index.html`.
 - Dopo ogni modifica: anteprima locale (clic sul bottone Pro → si apre l'overlay Lemon Squeezy), commit, push su `main`.
-- Nuovi bottoni Pro: `<a href="#pricing" data-pro-cta data-pro-label="Testo quando è attivo">Pro launching soon</a>`. Mai mettere il link di checkout direttamente nell'HTML.
+- Nuovi bottoni Pro: `<a href="#pricing" data-pro-cta>Try Pro free for 7 days</a>` (testo vero nell'HTML). Mai mettere il link di checkout direttamente nell'HTML.
 
 ## Mobile: niente "Add to Chrome"
 Le estensioni non si installano da telefono. Sotto i 768 px, o con user agent mobile (classe `html.mobile-ua` messa da `site.js`), gli elementi `.desktop-only` (i CTA verso lo Store) spariscono e compaiono i `.mobile-only` ("Open this page on your computer" + bottone `data-copy-link`). Regole in `site.css`. Ogni nuovo CTA verso lo Store va affiancato dal blocco mobile.
@@ -52,7 +53,7 @@ La 1.9.1 è pubblica sullo Store come LectureSpeed dal 2026-11-18. Link Store (n
 - Indirizzo: canonical, `og:url`, `og:image`, `twitter:image` e dati strutturati usano `https://lecturespeed.vercel.app`. Se arriva un dominio proprio, sostituirli tutti (index, privacy, terms) e aggiornare `src/shared/links.ts` nell'estensione.
 
 ## SEO: sitemap e robots
-- Guide per intento di ricerca: `panopto-faster-than-2x.html` e `echo360-playback-speed.html`, generate da `docs/landing-assets/guides/<slug>.py` sopra il modello comune `guide.py` (modifica lo script, poi `python3 …py` e `npm run landing:css`): FAQ visibili e JSON-LD `FAQPage` vengono dallo stesso elenco. Linkate dal footer della home ("Guides"), tra loro e in `sitemap.xml`. Echo360 dentro Canvas/Moodle non è testato: non scriverlo.
+- Guide per intento di ricerca: `panopto-faster-than-2x.html`, `echo360-playback-speed.html` e `best-speed-to-watch-lectures.html` (numeri dello studio UCLA verificati sul testo completo: fonti in testa allo script), generate da `docs/landing-assets/guides/<slug>.py` sopra il modello comune `guide.py` (modifica lo script, poi `python3 …py` e `npm run landing:css`): FAQ visibili e JSON-LD `FAQPage` vengono dallo stesso elenco. Linkate dal footer della home ("Guides"), tra loro e in `sitemap.xml`. Echo360 dentro Canvas/Moodle non è testato: non scriverlo.
 - `sitemap.xml`: home, privacy e terms (non thanks). Aggiornare `lastmod` quando una pagina cambia nei contenuti, e aggiungere le pagine nuove (es. guide per intento di ricerca).
 - `robots.txt`: tutto consentito, `/thanks.html` escluso, indica la sitemap. `thanks.html` ha anche `noindex`.
 

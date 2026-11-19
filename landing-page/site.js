@@ -1,9 +1,13 @@
 // ═══ PRO CHECKOUT SWITCH ═══════════════════════════════════════════════════════════════
-// false → every Pro button ([data-pro-cta]) says "Pro launching soon" and links to the Pro
-//         features; lemon.js is not even loaded, so nothing can be bought.
-// true  → the buttons become the Lemon Squeezy checkout (overlay) with their data-pro-label.
+// The HTML ships every Pro button ([data-pro-cta]) with its real label and href="#pricing",
+// so crawlers, link previews and no-JS visitors never see a stale "launching soon".
+// false → the buttons say PRO_SOON_LABEL and keep linking to #pricing; lemon.js is not
+//         even loaded, so nothing can be bought.
+// true  → the buttons become the Lemon Squeezy checkout (overlay). An optional
+//         data-pro-label replaces their text (the guides use it: "See Pro" → trial label).
 // On since 2026-11-16 (v1.9.0 live on the Chrome Web Store). See landing-page/CLAUDE.md.
 const PRO_CHECKOUT_ENABLED = true;
+const PRO_SOON_LABEL = 'Pro launching soon';
 const PRO_CHECKOUT_URL = 'https://speedup-videopro.lemonsqueezy.com/checkout/buy/69ea0406-3835-48e7-b03c-301a23d775cf?embed=1';
 
 // ════════════════════════════════════════════════════════════════════════════════════════
@@ -47,13 +51,17 @@ document.addEventListener('click', async (event) => {
   setTimeout(() => { button.textContent = original; }, 2500);
 });
 
-// Pro checkout: off by default in the HTML ("Pro launching soon"), enabled here by the switch.
+// Pro checkout: the HTML has the real labels; the switch decides what the buttons do.
 document.addEventListener('DOMContentLoaded', () => {
-  if (!PRO_CHECKOUT_ENABLED) return;
-  for (const el of document.querySelectorAll('[data-pro-cta]')) {
+  const buttons = document.querySelectorAll('[data-pro-cta]');
+  if (!PRO_CHECKOUT_ENABLED) {
+    for (const el of buttons) el.textContent = PRO_SOON_LABEL;
+    return;
+  }
+  for (const el of buttons) {
     el.href = PRO_CHECKOUT_URL;
     el.classList.add('lemonsqueezy-button');
-    el.textContent = el.dataset.proLabel;
+    if (el.dataset.proLabel) el.textContent = el.dataset.proLabel;
   }
   const lemon = document.createElement('script');
   lemon.src = 'https://assets.lemonsqueezy.com/lemon.js';

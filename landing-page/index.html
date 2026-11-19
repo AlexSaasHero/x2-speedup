@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="google-site-verification" content="P9cSwHXsrPVqMd9tJCrsYEuNMm_o1mGewlqn6vLZ6Hc">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panopto &amp; Echo360 lectures faster than 2x · LectureSpeed</title>
-  <meta name="description" content="Free Chrome extension: watch Panopto and Echo360 lectures faster than 2x, even inside Canvas or Moodle. Slow down and bookmark the parts that matter for the exam.">
+  <title>LectureSpeed: Watch Lectures Faster Than 2x</title>
+  <meta name="description" content="Panopto and Echo360 stop at 2x. LectureSpeed lets you pick any speed, and keeps it there. Free Chrome extension.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -18,15 +18,15 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="LectureSpeed">
   <meta property="og:url" content="https://lecturespeed.vercel.app/">
-  <meta property="og:title" content="Lectures at your speed. Not your player's.">
-  <meta property="og:description" content="Free Chrome extension: watch Panopto and Echo360 lectures faster than 2x, even inside Canvas or Moodle. Slow down and bookmark the parts that matter for the exam.">
+  <meta property="og:title" content="Watch your lectures faster than 2x.">
+  <meta property="og:description" content="Panopto and Echo360 stop at 2x. LectureSpeed lets you pick any speed, and keeps it there. Free Chrome extension.">
   <meta property="og:image" content="https://lecturespeed.vercel.app/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Lectures at your speed. Not your player's. A lecture player with the speed set past 2x.">
+  <meta property="og:image:alt" content="LectureSpeed: watch your lectures faster than 2x. A lecture player with the speed set past 2x.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Lectures at your speed. Not your player's.">
-  <meta name="twitter:description" content="Free Chrome extension: watch Panopto and Echo360 lectures faster than 2x, even inside Canvas or Moodle. Slow down and bookmark the parts that matter for the exam.">
+  <meta name="twitter:title" content="Watch your lectures faster than 2x.">
+  <meta name="twitter:description" content="Panopto and Echo360 stop at 2x. LectureSpeed lets you pick any speed, and keeps it there. Free Chrome extension.">
   <meta name="twitter:image" content="https://lecturespeed.vercel.app/og-image.png">
   <!-- Fonts are self-hosted (no requests to Google). Preload the two used above the fold. -->
   <link rel="preload" href="/fonts/bricolage-grotesque-700-800-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -51,7 +51,7 @@
     "alternateName": "SpeedUp Video Pro",
     "applicationCategory": "BrowserApplication",
     "operatingSystem": "Chrome, Edge",
-    "description": "A Chrome extension to watch Panopto and Echo360 lectures faster than 2x, bookmark moments with notes and review them before the exam.",
+    "description": "A free Chrome extension to watch Panopto and Echo360 lectures faster than 2x, at any speed you pick.",
     "url": "https://lecturespeed.vercel.app/",
     "offers": [
       { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
@@ -64,13 +64,12 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Does it work on my university's platform?", "acceptedAnswer": { "@type": "Answer", "text": "It's tested on Panopto (including lectures embedded in Canvas or Moodle) and Echo360. It also works on YouTube and most other HTML5 video players. If it doesn't work on your platform, email us." } },
-      { "@type": "Question", "name": "Why does the player still show 1x?", "acceptedAnswer": { "@type": "Answer", "text": "That's normal: the extension controls the speed, not the player's own menu. On Panopto and Echo360 the player's menu may keep showing 1x while the lecture plays at your speed." } },
-      { "@type": "Question", "name": "Is it allowed to speed up lectures?", "acceptedAnswer": { "@type": "Answer", "text": "The extension only changes the playback speed in your own browser, like the speed setting on YouTube. It doesn't download, record or change anything on the platform. Any rules your course has about recordings still apply." } },
-      { "@type": "Question", "name": "Can I understand anything at 3x?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the lecture. In a UCLA study (Murphy et al., Applied Cognitive Psychology, 2022), comprehension dropped only slightly at 1.5x and 2x and more at 2.5x. Go fast on the parts you already know and slow down for the hard ones: that's what bookmarks and the A-B loop are for." } },
-      { "@type": "Question", "name": "Do you collect my data?", "acceptedAnswer": { "@type": "Answer", "text": "No. The extension has no analytics and doesn't send what you watch anywhere. Its only network request is the check of a Pro license key. This website counts visits with Vercel Web Analytics, without cookies." } },
-      { "@type": "Question", "name": "How do I activate Pro?", "acceptedAnswer": { "@type": "Answer", "text": "Start the 7-day free trial. Your license key arrives by email: open the extension's popup, paste the key and click Activate." } },
-      { "@type": "Question", "name": "Can I cancel?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, anytime, from the link in your Lemon Squeezy receipt email. Cancel during the 7-day trial and you pay nothing. After a payment you have 14 days to ask for a refund: just email us." } }
+      { "@type": "Question", "name": "Which lecture players does it work on?", "acceptedAnswer": { "@type": "Answer", "text": "It's tested on Panopto (including lectures embedded in Canvas or Moodle) and Echo360. It also works on YouTube and most other HTML5 videos." } },
+      { "@type": "Question", "name": "Why does the player still say 1x?", "acceptedAnswer": { "@type": "Answer", "text": "That's normal. LectureSpeed sets the video's speed directly; the popup and the badge show the real speed." } },
+      { "@type": "Question", "name": "Is it allowed?", "acceptedAnswer": { "@type": "Answer", "text": "It only changes how fast the video plays in your browser. Your course's rules about recordings still apply." } },
+      { "@type": "Question", "name": "Does it collect my data?", "acceptedAnswer": { "@type": "Answer", "text": "No. The only network request is the Pro license check. This website uses cookie-free analytics." } },
+      { "@type": "Question", "name": "How do I cancel Pro?", "acceptedAnswer": { "@type": "Answer", "text": "From the link in your receipt email. You keep Pro until the end of the period you paid for." } },
+      { "@type": "Question", "name": "I bought the lifetime license. Do I keep it?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your key keeps working, nothing to do." } }
     ]
   }
   </script>
@@ -97,14 +96,13 @@
     <!-- 1. Hero + interactive demo -->
     <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-7 sm:pt-16 pb-12 sm:pb-20 grid lg:grid-cols-[1fr_1.05fr] gap-6 lg:gap-14 items-center">
       <div>
-        <h1 class="text-[40px] sm:text-6xl lg:text-[68px] font-extrabold leading-[1.02]">Lectures at your speed. Not your player's.</h1>
-        <p class="mt-4 sm:mt-5 text-lg sm:text-xl text-graphite max-w-prose">Watch Panopto and Echo360 lectures faster than 2x. Slow down and bookmark the parts that matter for the exam.</p>
-        <p class="mobile-only mt-3 font-display font-bold text-lg">Free Chrome extension for your laptop.</p>
+        <h1 class="text-[40px] sm:text-6xl lg:text-[68px] font-extrabold leading-[1.02]">Watch your lectures faster than 2x.</h1>
+        <p class="mt-4 sm:mt-5 text-lg sm:text-xl text-graphite max-w-prose">Panopto and Echo360 stop at 2x. LectureSpeed lets you pick any speed, and keeps it there. Free Chrome extension.</p>
         <div class="desktop-only mt-8">
           <!-- Primary: install (filled). Secondary: Pro trial (outline, same height). -->
           <div class="flex flex-wrap items-center gap-3">
             <a href="https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-6 py-4 rounded-xl shadow-[0_2px_0_#1B1E3C]">Add to Chrome, it's free</a>
-            <a href="#pricing" data-pro-cta data-pro-label="Try Pro free for 7 days" class="inline-block text-center border-2 border-ink text-ink font-bold text-lg px-6 py-[14px] rounded-xl hover:bg-ink hover:text-paper">Pro launching soon</a>
+            <a href="#pricing" data-pro-cta class="inline-block text-center border-2 border-ink text-ink font-bold text-lg px-6 py-[14px] rounded-xl hover:bg-ink hover:text-paper">Try Pro free for 7 days</a>
           </div>
           <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             <a href="https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block shrink-0" aria-label="Available in the Chrome Web Store"><img src="/img/cws-badge-border.png" width="132" height="40" alt="Available in the Chrome Web Store"></a>
@@ -157,7 +155,7 @@
       </section>
 
       <div class="lg:col-start-2 -mt-3 lg:-mt-8 text-center space-y-1.5">
-        <p class="font-display font-bold text-[15px]"><span class="text-saved-ink" aria-hidden="true">✓</span> Tested on Panopto and Echo360, also inside Canvas or Moodle.</p>
+        <p class="font-display font-bold text-[15px]"><span class="text-saved-ink" aria-hidden="true">✓</span> Tested on Panopto and Echo360.</p>
         <p class="desktop-only text-sm text-graphite">Try it: press <kbd class="font-bold bg-white border border-ink/20 rounded px-1.5">D</kbd> to go faster, <kbd class="font-bold bg-white border border-ink/20 rounded px-1.5">S</kbd> to slow down, like in the extension.</p>
       </div>
 
@@ -167,63 +165,37 @@
           <button type="button" data-copy-link class="mt-3 w-full bg-highlighter text-ink font-bold py-3 rounded-xl">Copy link for your laptop</button>
         </div>
         <!-- The Pro trial works from a phone: the key arrives by email. -->
-        <a href="#pricing" data-pro-cta data-pro-label="Try Pro free for 7 days" class="mt-3 block w-full text-center border-2 border-ink text-ink font-bold py-[10px] rounded-xl">Pro launching soon</a>
+        <a href="#pricing" data-pro-cta class="mt-3 block w-full text-center border-2 border-ink text-ink font-bold py-[10px] rounded-xl">Try Pro free for 7 days</a>
       </div>
     </section>
 
-    <!-- 2. The 2x wall -->
-    <section class="on-ink bg-ink text-paper">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 grid lg:grid-cols-[1.2fr_1fr] gap-6 lg:gap-12 items-center">
-        <div>
-          <h2 class="text-3xl sm:text-4xl font-extrabold leading-[1.05]">Your lecture player stops at 2x. Your exam doesn't wait.</h2>
-          <p class="mt-4 text-lg text-mist max-w-prose">Five courses, three hours of recordings a week, exams in a month. And the speed menu ends at 2x, even for the parts you already know.</p>
-        </div>
-        <div aria-hidden="true">
-          <div class="flex items-stretch">
-            <div class="flex-1 rounded-xl border border-paper/15 bg-paper/5 p-4">
-              <p class="text-sm text-mist">Your lecture player</p>
-              <div class="mt-3 flex flex-wrap gap-1.5 num text-[15px]">
-                <span class="px-2.5 py-1 rounded-full bg-paper/10 text-mist">1x</span>
-                <span class="px-2.5 py-1 rounded-full bg-paper/10 text-mist">1.5x</span>
-                <span class="px-2.5 py-1 rounded-full bg-paper/25 font-bold">2x</span>
-              </div>
-            </div>
-            <div class="mx-3 sm:mx-4 border-l-[3px] border-dashed border-highlighter"></div>
-            <div class="flex-1 py-4">
-              <p class="text-sm font-bold text-highlighter">LectureSpeed</p>
-              <div class="mt-3 flex flex-wrap gap-1.5"><span class="speed-pill">2.5x</span><span class="speed-pill">3x</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. Calculator -->
+    <!-- 2. Time saved: claim + calculator -->
     <section id="calculator" class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-24">
-      <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05] max-w-2xl">How much time would you get back?</h2>
+      <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05] max-w-2xl">Get hours back every week.</h2>
+      <p class="mt-4 text-lg text-graphite max-w-prose">Three hours of lectures a week at 2.5x takes 1 hour 12 minutes. That's 1 hour 48 minutes back, every week.</p>
       <div class="mt-8 sm:mt-10 grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
         <div id="calc" class="space-y-6 sm:space-y-8">
           <div>
             <div class="flex items-baseline justify-between gap-4">
-              <label for="calc-hours" class="font-display font-bold text-lg">Hours of recorded lectures per week</label>
-              <output id="calc-hours-out" for="calc-hours" class="shrink-0 font-display font-extrabold text-2xl num">6 h</output>
+              <label for="calc-hours" class="font-display font-bold text-lg">How many hours of lectures do you watch a week?</label>
+              <output id="calc-hours-out" for="calc-hours" class="shrink-0 font-display font-extrabold text-2xl num">3 h</output>
             </div>
-            <input id="calc-hours" class="range mt-3" type="range" min="1" max="20" step="1" value="6">
+            <input id="calc-hours" class="range mt-3" type="range" min="1" max="20" step="1" value="3">
             <div class="flex justify-between text-sm text-graphite num"><span>1 h</span><span>20 h</span></div>
           </div>
           <fieldset>
             <legend class="font-display font-bold text-lg">Your speed</legend>
             <div class="seg mt-3">
               <label><input type="radio" name="calc-speed" value="1.5"><span>1.5x</span></label>
-              <label><input type="radio" name="calc-speed" value="2" checked><span>2x</span></label>
-              <label><input type="radio" name="calc-speed" value="2.5"><span>2.5x</span></label>
+              <label><input type="radio" name="calc-speed" value="2"><span>2x</span></label>
+              <label><input type="radio" name="calc-speed" value="2.5" checked><span>2.5x</span></label>
               <label><input type="radio" name="calc-speed" value="3"><span>3x</span></label>
             </div>
           </fieldset>
         </div>
         <div class="lg:border-l-2 lg:border-timeline/15 lg:pl-16">
-          <p class="text-xl" aria-live="polite" id="calc-result-text">You'd get back about <span class="font-display font-extrabold text-6xl sm:text-7xl text-saved-ink num block my-1 sm:my-2"><span class="hl"><span id="calc-result">45</span> hours</span></span> this semester.</p>
-          <p id="calc-beyond" class="mt-3 font-display font-bold text-xl" hidden></p>
+          <p class="text-xl" aria-live="polite" id="calc-result-text">You save <span class="font-display font-extrabold text-6xl sm:text-7xl text-saved-ink num block my-1 sm:my-2"><span class="hl"><span id="calc-result">27</span> hours</span></span> this semester.</p>
+          <p id="calc-beyond" class="mt-3 font-display font-bold text-xl">At 2x you'd save 23 hours. Going past 2x gives you 4 more.</p>
           <p class="mt-4 text-sm text-graphite">Compared with 1x, over a 15-week semester.</p>
           <a href="https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only mt-8 inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl shadow-[0_2px_0_#1B1E3C]">Add to Chrome, it's free</a>
           <button type="button" data-copy-link class="mobile-only mt-8 w-full bg-highlighter text-ink font-bold py-3.5 rounded-xl">Copy link for your laptop</button>
@@ -233,30 +205,28 @@
 
     <div class="timeline-rule" aria-hidden="true"></div>
 
-    <!-- 4. How it works: a real sequence, so numbered -->
+    <!-- 3. How it works: a real sequence, so numbered -->
     <section id="how" class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-24 grid lg:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12 items-center">
       <div>
-        <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Three steps, then just press D.</h2>
+        <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Three steps. One minute.</h2>
         <ol class="mt-8 sm:mt-10 space-y-6 sm:space-y-8 border-l-[3px] border-timeline/20 pl-6">
           <li class="relative">
             <span class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-timeline ring-4 ring-paper" aria-hidden="true"></span>
             <p class="text-sm font-display font-bold text-timeline">Step 1</p>
-            <h3 class="mt-1 text-2xl font-bold">Add it to Chrome.</h3>
-            <p class="mt-1.5 text-graphite">One click, no account.</p>
+            <h3 class="mt-1 text-2xl font-bold">Add LectureSpeed to Chrome.</h3>
           </li>
           <li class="relative">
             <span class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-timeline ring-4 ring-paper" aria-hidden="true"></span>
             <p class="text-sm font-display font-bold text-timeline">Step 2</p>
-            <h3 class="mt-1 text-2xl font-bold">Open any lecture recording.</h3>
-            <p class="mt-1.5 text-graphite">On Panopto or Echo360, also when it's embedded in your Canvas or Moodle course.</p>
+            <h3 class="mt-1 text-2xl font-bold">Open a lecture on Panopto or Echo360.</h3>
           </li>
           <li class="relative">
             <span class="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-highlighter ring-4 ring-paper" aria-hidden="true"></span>
             <p class="text-sm font-display font-bold text-timeline">Step 3</p>
-            <h3 class="mt-1 text-2xl font-bold">Press D to go faster, S to slow down.</h3>
-            <p class="mt-1.5 text-graphite">R resets to 1x. Your speed stays through pause, seek and the next lecture.</p>
+            <h3 class="mt-1 text-2xl font-bold">Press D to go faster, S to slow down, R to reset.</h3>
           </li>
         </ol>
+        <p class="mt-6 sm:mt-8 text-lg text-graphite max-w-prose">Your speed stays set after pause, seeking and the next lecture.</p>
       </div>
       <figure class="mx-auto w-full max-w-[220px] sm:max-w-[320px]">
         <img src="/img/popup-free.webp" width="350" height="489" loading="lazy" decoding="async" class="w-full h-auto rounded-2xl shadow-[0_24px_48px_-24px_rgba(27,30,60,0.5)]" alt="The extension's popup on a lecture: speed set to 2.5x, with the time saved this week.">
@@ -264,18 +234,24 @@
       </figure>
     </section>
 
+    <!-- 4. Will you still understand it? -->
+    <section class="max-w-3xl mx-auto px-4 sm:px-6 pb-10 sm:pb-24">
+      <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Will you still understand it?</h2>
+      <p class="mt-4 text-lg text-graphite max-w-prose">In a <a href="https://doi.org/10.1002/acp.3899" class="text-timeline underline underline-offset-2" rel="noopener">UCLA study</a>, students who watched lectures at 1.5x and 2x scored only slightly lower than at normal speed. At 2.5x, scores dropped more. Start at 2x, go up while you can follow, slow down on the hard parts.</p>
+    </section>
+
     <!-- 5. Pro features: one large, the rest asymmetric -->
     <section class="bg-white border-y border-ink/10">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-24">
-        <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05] max-w-2xl">Built for the week before the exam.</h2>
-        <p class="mt-4 text-lg text-graphite max-w-prose">Pro helps you come back to what matters.</p>
+        <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05] max-w-2xl">Faster is free. Remembering is Pro.</h2>
+        <p class="mt-4 text-lg text-graphite max-w-prose">Pro turns a fast lecture into exam notes.</p>
 
         <div class="mt-6 sm:mt-12 grid lg:grid-cols-[1.55fr_1fr] gap-8 lg:gap-12 items-start">
           <!-- Large: bookmarks, with the real Precision tab -->
           <article class="rounded-2xl bg-paper p-6 sm:p-8 grid sm:grid-cols-[1fr_220px] gap-6 sm:gap-8 items-center">
             <div>
               <h3 class="text-2xl sm:text-[28px] font-bold leading-tight">Bookmarks with notes</h3>
-              <p class="mt-2 text-graphite max-w-prose">Bookmark the moment the professor says "this will be on the exam". Jump back in one click.</p>
+              <p class="mt-2 text-graphite max-w-prose">Mark "this will be on the exam" and jump back in one click.</p>
             </div>
             <figure class="mx-auto w-full max-w-[200px] sm:max-w-[220px]">
               <img src="/img/popup-checkpoints.webp" width="350" height="542" loading="lazy" decoding="async" class="w-full h-auto rounded-xl shadow-[0_20px_40px_-20px_rgba(27,30,60,0.55)]" alt="The extension's Precision tab: frame-by-frame buttons, A-B repeat and three saved bookmarks at 12:04, 31:47 and 48:10.">
@@ -284,13 +260,13 @@
           </article>
 
           <!-- The other Pro tools: a compact list -->
-          <ul class="divide-y divide-ink/10 border-y border-ink/10">
-            <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Frame-by-frame.</h3> Freeze on the exact slide, formula or whiteboard sketch.</li>
-            <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">A-B loop.</h3> Replay the explanation that didn't click, until it does.</li>
-            <li class="py-3 sm:py-4 text-graphite"><img src="/img/badge-on-video.webp" width="99" height="32" loading="lazy" decoding="async" class="float-right ml-3 -mt-0.5" alt="The extension's real speed badge, set to 2.5x."><h3 class="inline font-display text-lg font-bold text-ink">Remembers your speed.</h3> Set 2.5x once. Every lecture on that site starts there.</li>
-            <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Your study stats.</h3> The hours you saved today, this week, in total and per page.</li>
-            <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Custom shortcuts.</h3> Your keys, your way.</li>
-          </ul>
+          <div>
+            <ul class="divide-y divide-ink/10 border-y border-ink/10">
+              <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">A-B loop.</h3> Replay the hard part until it clicks.</li>
+              <li class="py-3 sm:py-4 text-graphite"><h3 class="inline font-display text-lg font-bold text-ink">Frame by frame.</h3> Stop exactly on the slide or formula.</li>
+            </ul>
+            <p class="mt-4 text-sm text-graphite"><img src="/img/badge-on-video.webp" width="99" height="32" loading="lazy" decoding="async" class="float-right ml-3 -mt-1" alt="The extension's real speed badge, set to 2.5x.">Also: your speed saved per site, study stats, custom shortcuts.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -299,52 +275,36 @@
 
     <!-- Pricing -->
     <section id="pricing" class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-24">
-      <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Speed is free. Review tools are Pro.</h2>
+      <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Pricing</h2>
       <div class="mt-6 sm:mt-12 grid md:grid-cols-[0.85fr_1.15fr] gap-5 items-start">
         <div class="rounded-2xl border border-ink/15 p-6 sm:p-7 flex flex-col">
           <h3 class="text-2xl font-bold">Free</h3>
           <p class="mt-2"><span class="font-display font-extrabold text-4xl">$0</span> <span class="text-graphite">forever</span></p>
           <ul class="mt-5 sm:mt-6 space-y-2 sm:space-y-3">
-            <li>No 2x cap on lecture players</li>
-            <li>Any speed from 0.1x to 16x on other sites</li>
-            <li>Shortcuts: D faster, S slower, R reset</li>
+            <li>No 2x limit</li>
+            <li>Any speed from 0.1x to 16x</li>
+            <li>Shortcuts: D, S, R</li>
             <li>Time-saved counter</li>
           </ul>
-          <a href="https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only mt-8 text-center border-2 border-ink hover:bg-ink hover:text-paper font-bold py-3.5 rounded-xl">Add to Chrome, it's free</a>
+          <a href="https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh" class="desktop-only mt-8 text-center border-2 border-ink hover:bg-ink hover:text-paper font-bold py-3.5 rounded-xl">Add to Chrome</a>
           <button type="button" data-copy-link class="mobile-only mt-8 w-full bg-highlighter text-ink font-bold py-3.5 rounded-xl">Copy link for your laptop</button>
         </div>
         <div class="rounded-2xl border-2 border-timeline bg-white p-6 sm:p-7 flex flex-col">
           <div class="flex items-center justify-between gap-3"><h3 class="text-2xl font-bold">Pro</h3><span class="font-display font-bold text-sm bg-highlighter px-2.5 py-1 rounded-md">7 days free</span></div>
           <p class="mt-2"><span class="font-display font-extrabold text-4xl"><span class="hl">$4.99</span></span> <span class="text-graphite ml-1.5">a year</span></p>
-          <p class="mt-1 text-graphite">That's about 42 cents a month.</p>
+          <p class="mt-1 text-graphite">About 42 cents a month.</p>
           <ul class="mt-5 sm:mt-6 space-y-2 sm:space-y-3 flex-1">
             <li>Everything in Free</li>
             <li>Bookmarks with notes</li>
-            <li>Frame-by-frame and A-B loop</li>
-            <li>Remembers your speed on each site</li>
-            <li>Study stats and custom shortcuts</li>
+            <li>A-B loop and frame by frame</li>
+            <li>Speed saved per site, study stats, custom shortcuts</li>
           </ul>
-          <a href="#pricing" data-pro-cta data-pro-label="Try Pro free for 7 days" class="mt-8 block text-center bg-ink hover:bg-ink/90 text-paper font-bold py-3.5 rounded-xl">Pro launching soon</a>
-          <p class="mt-3 text-center text-sm text-graphite">7 days free, then $4.99/year. Cancel anytime.</p>
+          <a href="#pricing" data-pro-cta class="mt-8 block text-center bg-ink hover:bg-ink/90 text-paper font-bold py-3.5 rounded-xl">Start your 7-day free trial</a>
+          <p class="mt-3 text-center text-sm text-graphite">Cancel anytime. 14-day refund.</p>
           <p class="mobile-only mt-2 text-center text-sm text-graphite">On your phone? Start the trial now, your key arrives by email.</p>
         </div>
       </div>
-    </section>
-
-    <!-- Trust -->
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-10 sm:pb-24 grid md:grid-cols-3 gap-7 md:gap-12">
-      <div class="border-t-4 border-ink pt-4 sm:pt-6">
-        <h3 class="text-2xl sm:text-3xl font-extrabold">No account. No tracking.</h3>
-        <p class="mt-3 text-lg">The extension doesn't send what you watch anywhere. Its only network request is the check of a Pro license key. <a href="privacy.html" class="text-timeline underline underline-offset-2">Privacy policy</a></p>
-      </div>
-      <div class="border-t-4 border-ink pt-4 sm:pt-6">
-        <h3 class="text-2xl sm:text-3xl font-extrabold">Made by an independent developer.</h3>
-        <p class="mt-3 text-lg">You can <a href="mailto:speedupvideopro.help@gmail.com" class="text-timeline underline underline-offset-2">email me directly</a>.</p>
-      </div>
-      <div class="border-t-4 border-ink pt-4 sm:pt-6">
-        <h3 class="text-2xl sm:text-3xl font-extrabold">14-day refunds.</h3>
-        <p class="mt-3 text-lg">Just email us. <a href="terms.html" class="text-timeline underline underline-offset-2">Terms</a></p>
-      </div>
+      <p class="mt-6 sm:mt-8 text-center text-graphite">No account. No tracking. Your settings stay in Chrome. <a href="privacy.html" class="text-timeline underline underline-offset-2">Privacy policy</a></p>
     </section>
 
     <!-- FAQ -->
@@ -352,36 +312,28 @@
       <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Questions</h2>
       <div class="mt-6 sm:mt-10 divide-y divide-ink/10 border-y border-ink/10">
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Does it work on my university's platform?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">It's tested on Panopto (including lectures embedded in Canvas or Moodle) and Echo360. It also works on YouTube and most other HTML5 video players. If it doesn't work on your platform, <a href="mailto:speedupvideopro.help@gmail.com" class="text-timeline underline underline-offset-2">email us</a>.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Which lecture players does it work on?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">It's tested on Panopto (including lectures embedded in Canvas or Moodle) and Echo360. It also works on YouTube and most other HTML5 videos.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Why does the player still show 1x?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">That's normal: the extension controls the speed, not the player's own menu. On Panopto and Echo360 the player's menu may keep showing 1x while the lecture plays at your speed.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Why does the player still say 1x?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">That's normal. LectureSpeed sets the video's speed directly; the popup and the badge show the real speed.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Is it allowed to speed up lectures?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">The extension only changes the playback speed in your own browser, like the speed setting on YouTube. It doesn't download, record or change anything on the platform. Any rules your course has about recordings still apply.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Is it allowed?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">It only changes how fast the video plays in your browser. Your course's rules about recordings still apply.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Can I understand anything at 3x?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">It depends on the lecture. In a <a href="https://doi.org/10.1002/acp.3899" class="text-timeline underline underline-offset-2" rel="noopener">UCLA study</a> (Murphy et al., <em>Applied Cognitive Psychology</em>, 2022), comprehension dropped only slightly at 1.5x and 2x, and more at 2.5x. Go fast on the parts you already know and slow down for the hard ones: that's what bookmarks and the A-B loop are for.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Does it collect my data?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">No. The only network request is the Pro license check. This website uses <a href="privacy.html" class="text-timeline underline underline-offset-2">cookie-free analytics</a>.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Do you collect my data?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">No. The extension has no analytics and doesn't send what you watch anywhere. Its only network request is the check of a Pro license key. This website counts visits with Vercel Web Analytics, without cookies. See the <a href="privacy.html" class="text-timeline underline underline-offset-2">Privacy Policy</a>.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>How do I cancel Pro?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">From the link in your receipt email. You keep Pro until the end of the period you paid for.</div>
         </details>
         <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>How do I activate Pro?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Start the 7-day free trial. Your license key arrives by email: open the extension's popup, paste the key and click Activate.</div>
-        </details>
-        <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Can I cancel?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Yes, anytime, from the link in your Lemon Squeezy receipt email. Cancel during the 7-day trial and you pay nothing. After a payment you have 14 days to ask for a refund: just email us.</div>
-        </details>
-        <details class="group">
-          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>Already have a lifetime license?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
-          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">You don't pay again: lifetime licenses bought before the yearly plan stay Pro forever.</div>
+          <summary class="flex justify-between items-start gap-4 cursor-pointer py-4 sm:py-5 text-lg font-display font-bold"><span>I bought the lifetime license. Do I keep it?</span><span class="chev text-timeline text-2xl leading-none transition-transform" aria-hidden="true">+</span></summary>
+          <div class="pb-5 sm:pb-6 text-graphite max-w-prose">Yes. Your key keeps working, nothing to do.</div>
         </details>
       </div>
     </section>
@@ -390,7 +342,7 @@
     <section class="on-ink bg-ink text-paper">
       <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-24 text-center">
         <img src="/img/logo-mark-dark.svg" width="44" height="44" loading="lazy" alt="" class="mx-auto mb-5">
-        <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Your next lecture is already waiting.</h2>
+        <h2 class="text-3xl sm:text-5xl font-extrabold leading-[1.05]">Your next lecture, in half the time.</h2>
         <div class="desktop-only mt-10">
           <a href="https://chromewebstore.google.com/detail/lecturespeed-%E2%80%93-watch-reco/bhbogbkkghkempphmaffejebjiimbimh" class="inline-block bg-highlighter hover:brightness-95 text-ink font-bold text-lg px-7 py-4 rounded-xl">Add to Chrome, it's free</a>
           <p class="mt-3 text-sm text-mist">Works in Chrome and Edge. No account needed.</p>
@@ -407,12 +359,14 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between gap-4 sm:gap-6">
       <div>
         <p class="flex items-center gap-2 font-display font-extrabold text-ink text-lg"><img src="/img/logo-mark.svg" width="26" height="26" alt="">LectureSpeed</p>
+        <p class="mt-2 max-w-md">Made by an independent developer. Questions? <a href="mailto:speedupvideopro.help@gmail.com" class="underline underline-offset-2 hover:text-ink">speedupvideopro.help@gmail.com</a></p>
         <p class="mt-2 max-w-md">LectureSpeed is an independent project and is not affiliated with any lecture or video platform.</p>
       </div>
       <nav aria-label="Guides">
         <p class="font-display font-bold text-ink">Guides</p>
         <a href="panopto-faster-than-2x.html" class="block hover:text-ink py-2">How to watch Panopto faster than 2x</a>
         <a href="echo360-playback-speed.html" class="block hover:text-ink py-2">How to change Echo360 playback speed</a>
+        <a href="best-speed-to-watch-lectures.html" class="block hover:text-ink py-2">The best speed to watch recorded lectures</a>
       </nav>
       <div class="flex gap-6">
         <a href="privacy.html" class="hover:text-ink py-2">Privacy</a>
